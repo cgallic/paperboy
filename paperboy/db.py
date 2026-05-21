@@ -1,8 +1,14 @@
 """Schema + path resolution for paperboy's SQLite event log.
 
+The schema below mirrors cgallic/open-brane — paperboy is a consumer of
+that event-log architecture, not the schema owner. We ship this so the
+digest works standalone; if you've installed open-brane separately and
+want one shared events.db across all your tools, set
+PAPERBOY_DB=/path/to/open-brane/events.db.
+
 The whole system writes append-only events to one table. Scanners write
-prompt events; ingesters write paper events; scorers write paper-score events.
-The digest readers join across them.
+pattern-scan events; ingesters write paper events; scorers write
+paper-score events. The digest readers join across them.
 
 Two env vars control where the DB lives:
     PAPERBOY_ROOT   default: ~/.paperboy

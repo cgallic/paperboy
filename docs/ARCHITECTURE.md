@@ -3,6 +3,15 @@
 The whole system fits in one diagram and one table. If you understand
 **events.db**, you understand paperboy.
 
+> The events.db schema is defined and owned by
+> [**cgallic/open-brane**](https://github.com/cgallic/open-brane). paperboy
+> ships a compatible schema in `paperboy/db.py` so the digest works
+> standalone, but the canonical source of truth for the event-log
+> architecture lives in that repo. If you install open-brane and point
+> `PAPERBOY_DB` at its events.db, paperboy reads/writes against the same
+> store that open-brane's adapters (gdrive, Claude sessions, git, etc.)
+> populate.
+
 ## Data flow
 
 ```

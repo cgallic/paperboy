@@ -4,6 +4,35 @@ This walks through a clean install on a Linux host with systemd. If you've
 read the README quickstart and want more detail (or you hit a snag), this is
 the page.
 
+## paperboy alone, or paperboy + open-brane?
+
+paperboy ships a compatible events.db schema in its own `db.py`, so the
+bootstrap script below works standalone — you'll get the news + papers
+Discord digest with no other dependencies.
+
+But the events.db schema actually belongs to
+[**cgallic/open-brane**](https://github.com/cgallic/open-brane), and most
+people running the full stack will want both. If you install open-brane
+*first*, you get the canonical `record_event.py` writer, an MCP server,
+ingest adapters for gdrive / Claude sessions / git, plus
+`embed_events.py` + `semantic_search.py` for vector queries. Then point
+`PAPERBOY_DB` at open-brane's events.db and paperboy joins the party.
+
+Order doesn't matter — but if you want both, this is the cleanest path:
+
+```bash
+# 1. Install open-brane first (events.db foundation)
+git clone https://github.com/cgallic/open-brane /var/lib/open-brane
+# follow open-brane's quickstart…
+
+# 2. Install paperboy with PAPERBOY_DB pointed at open-brane's events.db
+git clone https://github.com/cgallic/paperboy
+cd paperboy
+sudo PAPERBOY_DB=/var/lib/open-brane/events.db ./scripts/bootstrap.sh
+```
+
+The rest of this doc assumes the standalone-paperboy path.
+
 ## Prereqs
 
 ### 1. A Linux box with systemd

@@ -119,23 +119,39 @@ Most of the value comes from tuning the config files, not the code. See
 - Building your own topical map
 - Optional: enabling LLM reframing of prompts into audience-targeted hooks
 
+## Relationship to open-brane
+
+paperboy is a **consumer** of an event-log architecture defined by
+[**cgallic/open-brane**](https://github.com/cgallic/open-brane) —
+"an event-log brain for people who keep losing context." open-brane owns
+the events.db schema, the canonical write path (`record_event.py`), an MCP
+server, and adapters for gdrive / Claude sessions / git history. It also
+ships `embed_events.py` + `semantic_search.py` for vector queries.
+
+paperboy adds the **news + research-paper domain** on top: RSS scanners,
+arXiv + HF + Semantic Scholar ingest, local-LLM scoring against your
+stack, and the morning Discord digest.
+
+paperboy can run standalone — it ships a compatible schema in its own
+`db.py` so you don't *need* open-brane to get the digest working. But if
+you install open-brane alongside (or first), every other ingester
+populates the same store and paperboy's digest gets richer for free.
+
 ## Roadmap
 
-`paperboy` is the foundation. Five sibling repos are coming that build on the
-same events.db schema:
+See [docs/ROADMAP.md](docs/ROADMAP.md). The full planned stack:
 
-- **paperboy-ingesters** — connectors for your gmail, chatgpt history, audible,
-  linkedin, etc. — all dumping to the same events table.
-- **paperboy-wiki** — turn your events into a markdown knowledge graph with
-  semantic search.
-- **pendant-android** — a custom Android app for the Omi-style audio pendant
-  that streams raw BLE to your agent box.
-- **pendant-pipeline** — agent-side audio pipeline (decoder → STT → diarizer →
-  wake-word → realtime directive) writing to paperboy's event store.
-- **casa-a2a** — JSON-RPC 2.0 broker + skill-sidecar pattern for cross-host
-  agent coordination.
-
-See [docs/ROADMAP.md](docs/ROADMAP.md) for what's coming and timing.
+1. [**open-brane**](https://github.com/cgallic/open-brane) — events.db
+   foundation + MCP + canonical adapters (already shipped)
+2. **paperboy** (this repo) — news + papers + Discord digest
+3. **More open-brane adapters** — gmail, chatgpt, audible, linkedin, etc.
+   (PRs to open-brane or sibling repos)
+4. **Markdown KG / wiki compiler** — typed wiki pages + NL query CLI
+   (planned, name TBD)
+5. **cgallic/pendant-android** + **cgallic/pendant-pipeline** — custom
+   Omi-pendant app + agent-side audio pipeline (planned)
+6. **cgallic/casa-a2a** — JSON-RPC 2.0 broker + skill-sidecar pattern for
+   cross-host agent coordination (planned)
 
 ## License
 
