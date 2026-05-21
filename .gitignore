@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+
+# Database + state
+*.db
+*.db-shm
+*.db-wal
+logs/
+state/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+
+# Personal-data carve-out (these only ever exist locally)
+config/news_sources.yaml
+config/topical-map.md
+config/research-interests.md
+config/research-sources.json
+config/models.env
+
+# Local source snapshot from extraction (not part of the public repo)
+_source-snapshot/

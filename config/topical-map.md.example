@@ -1,0 +1,51 @@
+# Topical Map
+
+A bulleted list of questions you'd want to answer publicly, grouped by topic
+pillar. The `topical_questions` scanner picks a few per day and surfaces them
+in your morning Discord digest as `❓ answer` items — content prompts you can
+turn into blog posts, LinkedIn articles, or videos.
+
+The format is parsed by regex. Stick to it:
+
+    ## Pillar — <pillar name>
+    - <question 1>
+    - <question 2>
+
+Headings that don't match `## Pillar — ...` are ignored. Bullets under those
+headings are ignored. So you can keep notes anywhere else in the file.
+
+The same question won't re-surface within `TOPICAL_RECENT_DAYS` (default 21).
+To force a re-emit, edit the question text — that changes its dedup slug.
+
+---
+
+## Pillar — Local LLMs
+
+- How do you choose between Q3_K_M and Q4_K_M quantization for a 24GB GPU?
+- When does a 7B local model beat a frontier API for your use case?
+- What's the smallest model that can reliably produce strict JSON?
+- How do you measure "good enough" for a local model replacing GPT-4o?
+
+## Pillar — Personal AI infrastructure
+
+- What does a "personal RAG" actually look like in practice?
+- How do you ingest 10 years of personal email into a queryable index?
+- What's the right database for an append-only log of agent activity?
+- How do you keep an LLM from forgetting context across days?
+
+## Pillar — Self-improving agents
+
+- How does an agent edit its own prompts without going off the rails?
+- What's the simplest feedback loop that actually improves agent performance?
+- When does "self-refine" beat "more compute"?
+
+## Pillar — Discord-as-UI
+
+- Why is Discord a better agent UI than a custom web dashboard?
+- What does the smallest useful Discord bot look like?
+- How do you avoid notification fatigue from an always-on AI?
+
+---
+
+(Replace these pillars with YOUR own. The more specific the questions, the
+better the content prompts.)

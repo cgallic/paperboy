@@ -1,0 +1,10 @@
+[Unit]
+Description=Run papers-to-prompts before the morning digest
+
+[Timer]
+OnCalendar=*-*-* 11:05:00 UTC
+Persistent=true
+RandomizedDelaySec=60
+
+[Install]
+WantedBy=timers.target

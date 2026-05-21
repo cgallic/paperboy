@@ -1,0 +1,10 @@
+[Unit]
+Description=Run today-briefing scanner before the morning digest
+
+[Timer]
+OnCalendar=*-*-* 11:10:00 UTC
+Persistent=true
+RandomizedDelaySec=30
+
+[Install]
+WantedBy=timers.target

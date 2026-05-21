@@ -1,0 +1,36 @@
+# news_sources.yaml — vertical-keyed RSS/Atom feeds for the news_opinion scanner.
+#
+# Each key is a "vertical" — a topic bucket. For every vertical, openbrain
+# fetches each feed, picks up to NEWS_MAX_PER_VERTICAL items per run (default 2),
+# asks your local Ollama to draft a hot-take prompt, and writes a question
+# event. Dedupe is automatic across runs.
+#
+# Use 3-5 well-chosen feeds per vertical. Generic firehoses (Google News, HN
+# RSS) overwhelm the deduper and burn LLM tokens on noise. Pick feeds where
+# every post would plausibly trigger a hot take from YOU.
+#
+# Add a new vertical by adding a new top-level key + list of URLs.
+
+ai:
+  - https://openai.com/blog/rss.xml
+  - https://www.anthropic.com/news/rss.xml
+  - https://blog.google/technology/ai/rss/
+  - https://huggingface.co/blog/feed.xml
+  - https://simonwillison.net/atom/everything/
+
+ml-research:
+  - https://arxiv.org/rss/cs.LG
+  - https://arxiv.org/rss/cs.AI
+  - https://arxiv.org/rss/cs.CL
+
+# Add your own verticals — examples to customize:
+#
+# devtools:
+#   - https://github.blog/feed/
+#   - https://stackoverflow.blog/feed/
+#
+# startups:
+#   - https://news.ycombinator.com/rss
+#
+# your-niche:
+#   - https://example.com/feed.xml

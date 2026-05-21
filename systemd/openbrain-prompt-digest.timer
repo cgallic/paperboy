@@ -1,0 +1,10 @@
+[Unit]
+Description=Morning prompt digest at 11:15 UTC (07:15 EDT)
+
+[Timer]
+OnCalendar=*-*-* 11:15:00 UTC
+Persistent=true
+RandomizedDelaySec=60
+
+[Install]
+WantedBy=timers.target

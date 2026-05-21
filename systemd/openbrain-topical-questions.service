@@ -1,0 +1,12 @@
+[Unit]
+Description=openbrain: pick AEO-shaped questions from your topical map
+After=network.target
+Documentation=https://github.com/cgallic/openbrain
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/openbrain/openbrain.env
+ExecStart=/usr/bin/env python3 -m openbrain.scanners.topical_questions
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=60

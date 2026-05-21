@@ -1,0 +1,64 @@
+# Research Interests — Scorer Grounding
+
+This file is injected verbatim into the system prompt that scores each ingested
+paper. Edit it whenever YOUR stack changes shape. The scorer reads it on every
+run.
+
+The scorer asks: "could this technique upgrade one of the user's existing
+systems?" — and uses the system slugs you define here in its `applies_to` field.
+
+---
+
+## My systems (slugs the scorer uses in `applies_to`)
+
+Edit this list to match what you actually run. Each slug should be a short
+identifier (snake-case is conventional). Add a one-line description so the
+scorer can reason about applicability.
+
+- **`my-rag`** — semantic search pipeline over my notes. Currently uses
+  nomic-embed-text + Qdrant. ~50k chunks, source-filtered queries.
+- **`my-agent`** — orchestrator + worker LLM pattern. Claude Sonnet for planning,
+  qwen2.5:7b for sub-tasks. Tool calls via function calling.
+- **`my-data-pipeline`** — nightly ETL that pulls from N APIs, normalizes,
+  stores in SQLite, embeds into Qdrant.
+
+(Replace these with YOUR actual systems. The more concrete you are, the better
+the scorer ranks papers.)
+
+## Active themes (weight scoring up if the paper advances any of these)
+
+Edit this list to match what you actively care about:
+
+- **Self-improving agents** — agents that update their own prompts/skills/tools
+  based on feedback.
+- **In-context learning + memory** — long-context retrieval, episodic memory.
+- **Retrieval-augmented generation** — better retrievers, query rewriting,
+  hybrid sparse+dense, embedding choice.
+- **Multi-agent coordination** — A2A protocols, role specialization, debate.
+- **Tool use** — function calling, MCP-server patterns, error recovery.
+- **Schema-constrained generation** — JSON-mode reliability, grammar-constrained
+  decoding.
+- **Local-LLM optimization** — quantization, KV-cache, speculative decoding,
+  LoRA swapping.
+
+## Tech stack (concrete, not aspirational)
+
+- **Models**: list what you actually run locally (e.g. qwen2.5:7b, llama3.2:3b,
+  nomic-embed-text)
+- **Frontier APIs**: which paid APIs you use, if any
+- **Infra**: Ollama at 127.0.0.1:11434, Qdrant for vectors, etc.
+
+## What to score LOW (despite high citations)
+
+- Pure theoretical results with no implementation guidance.
+- Hardware-specific work (training from scratch at >100B scale).
+- Vision-only / robotics work that doesn't transfer to your stack.
+- Survey papers without new techniques.
+
+## What to score HIGH
+
+- Drop-in techniques with released code.
+- Improvements specifically targeting one of your system slugs above.
+- Anything that lets a smaller local model approximate a frontier one.
+- New schema-constrained generation tricks.
+- Self-improving agent loops with concrete eval results.

@@ -1,0 +1,49 @@
+# Daily Brief — YYYY-MM-DD
+
+A markdown file you (or another script) write at the start of each day.
+The `today_briefing` scanner parses two sections and turns them into
+`🎯 today` items in your morning Discord digest.
+
+Drop one of these into `$DAILY_BRIEFS_DIR/<YYYY-MM-DD>.md` (default:
+`~/.openbrain/daily-briefs/`) before the digest runs at 11:15 UTC.
+
+Both sections are optional. Missing sections are skipped silently.
+
+---
+
+## Today's corpse
+
+A repo or project that hasn't shipped in a long time. The scanner extracts
+the first **bold** identifier + the "dead N days" phrase and emits one
+carry-over prompt:
+
+> Revive or kill: <repo> (dead Nd) — pick one before EOD.
+
+Example formats the scanner understands:
+
+  **`my-cool-project`** — dead **42 days** since last commit.
+
+  **`weekend-experiment/`** — dead **17 days**. Either land a commit, echo
+  to killed.md, or rot another 30 days.
+
+(Only the first match per file is used.)
+
+## Yesterday you said out loud
+
+A bulleted list of things you committed to (or said you'd do). The scanner
+takes up to 3 bullets, emits one carry-over prompt per bullet:
+
+> Carry-over: <commitment> — did it happen?
+
+Example:
+
+  - Email Sarah about the proposal by EOD
+  - Cut the v2 release branch
+  - Decide on the auth migration approach
+
+If nothing's there, write `_Nothing._` and the scanner skips this section.
+
+---
+
+That's it. You can keep arbitrary notes anywhere else in the file —
+the scanner only cares about these two section headings.

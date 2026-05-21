@@ -1,0 +1,38 @@
+{
+  "_comment": "Multi-source paper feeds for openbrain.ingest.research_papers. Edit max_per_run to throttle.",
+  "_howto": "Disable a feed with \"enabled\": false. arXiv categories follow https://arxiv.org/category_taxonomy (cs.AI, cs.CL, cs.LG, cs.MA, cs.IR are the most relevant for LLM/agent work). Semantic Scholar topic_queries get sent one at a time; keep each query short.",
+  "user_agent": "openbrain/0.1 (https://github.com/cgallic/openbrain; your-email@example.com)",
+  "fetch_timeout_sec": 30,
+  "inter_request_sleep_sec": 1.5,
+  "feeds": {
+    "arxiv": {
+      "enabled": true,
+      "categories": ["cs.AI", "cs.CL", "cs.LG", "cs.MA", "cs.IR"],
+      "max_per_run": 200,
+      "api_url": "https://export.arxiv.org/api/query"
+    },
+    "hf_papers": {
+      "enabled": true,
+      "max_per_run": 50,
+      "api_url": "https://huggingface.co/api/daily_papers"
+    },
+    "semantic_scholar": {
+      "enabled": true,
+      "topic_queries": [
+        "large language model agents",
+        "self-improving language models",
+        "in-context learning memory",
+        "retrieval augmented generation",
+        "multi-agent coordination LLM",
+        "tool use language model",
+        "agent benchmark evaluation",
+        "local LLM inference optimization",
+        "schema-constrained generation"
+      ],
+      "max_per_query": 20,
+      "max_per_run": 120,
+      "api_url": "https://api.semanticscholar.org/graph/v1/paper/search/bulk",
+      "fields": "title,abstract,authors,year,publicationDate,externalIds,openAccessPdf,url,venue,citationCount"
+    }
+  }
+}
