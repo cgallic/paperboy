@@ -18,7 +18,7 @@ import re
 from datetime import datetime, timedelta, timezone
 from typing import Iterable
 
-from openbrain.db import connect
+from paperboy.db import connect
 
 
 def _now_iso() -> str:

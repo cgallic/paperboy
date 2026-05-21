@@ -1,7 +1,7 @@
 # Architecture
 
 The whole system fits in one diagram and one table. If you understand
-**events.db**, you understand openbrain.
+**events.db**, you understand paperboy.
 
 ## Data flow
 
@@ -51,7 +51,7 @@ CREATE TABLE events (
     type            TEXT    NOT NULL,  -- fine-grained:  paper | paper-score | question | ...
     actor           TEXT,               -- idempotency key (sha1 slug, arxiv id, etc.)
     payload_json    TEXT    NOT NULL,  -- structured content
-    attachment_uri  TEXT,               -- optional blob pointer (unused by openbrain core)
+    attachment_uri  TEXT,               -- optional blob pointer (unused by paperboy core)
     ingested_at     TEXT    NOT NULL   -- when the row was written
 );
 ```
@@ -70,7 +70,7 @@ and the row is skipped.
 | `research-papers` | `paper` | `arxiv:2402.12345` (canonical id) | `title, authors, abstract, url, source_feeds[]` |
 | `research-papers` | `paper-score` | same canonical id | `relevance, applies_to[], improvement_idea, novelty, should_prototype, why` |
 | `pattern-scan` | `question` | `<stream>:<sha1_12>` | `text, why, evidence[], stream` |
-| `pattern-scan` | `feedback` | (rating event — not written by openbrain core, room for future thumbs-up/down loop) | `target_actor, rating` |
+| `pattern-scan` | `feedback` | (rating event — not written by paperboy core, room for future thumbs-up/down loop) | `target_actor, rating` |
 | `pattern-scan` | `answer` | (when YOU answer a prompt — also future) | `target_actor, answer_text` |
 
 The `pattern-scan/question` rows have an actor like `news:abc123def456` or
@@ -144,7 +144,7 @@ a sweat.
 - **No web UI.** Discord is the UI. Hot take: it's a better UI.
 - **No vector search.** The morning digest is small enough that scoring +
   weighting is all you need. (Vector search shows up in the planned
-  `openbrain-wiki` repo.)
+  `paperboy-wiki` repo.)
 - **No auth.** Local-only. If you expose this to the internet, that's on you.
 - **No tests.** This is the v0.1 cut from a personal codebase. Tests come
   with v0.2.

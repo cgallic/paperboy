@@ -1,0 +1,12 @@
+[Unit]
+Description=paperboy: daily morning Discord digest (news + papers + topical)
+After=network.target paperboy-papers-to-prompts.service paperboy-news-opinion.service paperboy-topical-questions.service paperboy-today-briefing.service
+Documentation=https://github.com/cgallic/paperboy
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/paperboy/paperboy.env
+ExecStart=/usr/bin/env python3 -m paperboy.digest.prompt_digest
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=180

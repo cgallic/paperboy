@@ -1,0 +1,12 @@
+[Unit]
+Description=paperboy: score ingested papers against research-interests.md
+After=network.target ollama.service paperboy-research-ingest.service
+Documentation=https://github.com/cgallic/paperboy
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/paperboy/paperboy.env
+ExecStart=/usr/bin/env python3 -m paperboy.score.research_papers --verbose
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=7200

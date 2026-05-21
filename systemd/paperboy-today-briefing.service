@@ -1,0 +1,12 @@
+[Unit]
+Description=paperboy: parse today's daily-brief markdown for carry-overs
+After=network.target
+Documentation=https://github.com/cgallic/paperboy
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/paperboy/paperboy.env
+ExecStart=/usr/bin/env python3 -m paperboy.scanners.today_briefing
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=120

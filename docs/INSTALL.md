@@ -1,4 +1,4 @@
-# Installing openbrain
+# Installing paperboy
 
 This walks through a clean install on a Linux host with systemd. If you've
 read the README quickstart and want more detail (or you hit a snag), this is
@@ -58,27 +58,27 @@ In your Discord server, go to:
 
 > Server Settings → Integrations → Webhooks → New Webhook
 
-Copy the URL. You'll paste it into `/etc/openbrain/openbrain.env` in a moment.
+Copy the URL. You'll paste it into `/etc/paperboy/paperboy.env` in a moment.
 
 Alternative: a bot token. If you want richer formatting (no "via webhook"
 label, no rate limit on long messages), create a Discord bot at
 https://discord.com/developers/applications, grab its token, and the channel
 ID where you want posts. Set `DISCORD_BOT_TOKEN` + `DISCORD_CHANNEL_ID` and
-openbrain will use the bot path automatically.
+paperboy will use the bot path automatically.
 
 ## Install
 
 ```bash
-git clone https://github.com/cgallic/openbrain.git
-cd openbrain
+git clone https://github.com/cgallic/paperboy.git
+cd paperboy
 sudo ./scripts/bootstrap.sh
 ```
 
 The bootstrap script:
 
-1. Creates a venv at `/opt/openbrain/.venv` and pip-installs openbrain into it.
-2. Copies example configs into `/etc/openbrain/`.
-3. Initializes the SQLite database at `/var/lib/openbrain/events.db`.
+1. Creates a venv at `/opt/paperboy/.venv` and pip-installs paperboy into it.
+2. Copies example configs into `/etc/paperboy/`.
+3. Initializes the SQLite database at `/var/lib/paperboy/events.db`.
 4. Installs all 8 systemd units to `/etc/systemd/system/`.
 5. Enables all 7 timers.
 
@@ -86,12 +86,12 @@ It's idempotent — safe to re-run if you change something.
 
 ## Configure
 
-### `/etc/openbrain/openbrain.env`
+### `/etc/paperboy/paperboy.env`
 
 The only REQUIRED change is setting your Discord webhook:
 
 ```bash
-sudo nano /etc/openbrain/openbrain.env
+sudo nano /etc/paperboy/paperboy.env
 ```
 
 Set:
@@ -103,7 +103,7 @@ DISCORD_WEBHOOK=https://discord.com/api/webhooks/...
 Everything else has sensible defaults. See `config/env.example` in the repo
 for all knobs.
 
-### `/etc/openbrain/research-interests.md`
+### `/etc/paperboy/research-interests.md`
 
 This is **the most important file**. The paper scorer reads it on every run
 and uses it to decide which papers are relevant to YOU.
@@ -114,7 +114,7 @@ content, you'll get genuine signal — papers that actually apply to YOUR stack.
 Edit it:
 
 ```bash
-sudo nano /etc/openbrain/research-interests.md
+sudo nano /etc/paperboy/research-interests.md
 ```
 
 Replace the placeholder slugs with YOUR actual systems. Be concrete:
@@ -127,7 +127,7 @@ Replace the placeholder slugs with YOUR actual systems. Be concrete:
 The scorer uses these slugs verbatim in its `applies_to` output. Anything
 under "Active themes" and "Tech stack" feeds into the LLM's reasoning.
 
-### `/etc/openbrain/news_sources.yaml`
+### `/etc/paperboy/news_sources.yaml`
 
 Add the RSS feeds you actually care about. The default has AI/ML feeds; swap
 or augment with your verticals.
@@ -135,7 +135,7 @@ or augment with your verticals.
 Rule of thumb: 3-5 high-signal feeds per vertical. Generic firehoses (HN RSS,
 Google News) drown the deduper in noise.
 
-### `/etc/openbrain/topical-map.md` (optional)
+### `/etc/paperboy/topical-map.md` (optional)
 
 Your "questions I want to answer publicly" list, grouped by content pillar.
 The `topical_questions` scanner rotates 2/day into your morning digest.
@@ -143,13 +143,13 @@ The `topical_questions` scanner rotates 2/day into your morning digest.
 If you don't write content, you can disable this:
 
 ```bash
-sudo systemctl disable --now openbrain-topical-questions.timer
+sudo systemctl disable --now paperboy-topical-questions.timer
 ```
 
 ### Daily briefs (optional)
 
 If you want the `🎯 today` section to surface things, drop a markdown file
-at `~/.openbrain/daily-briefs/<YYYY-MM-DD>.md` each morning. See
+at `~/.paperboy/daily-briefs/<YYYY-MM-DD>.md` each morning. See
 `config/daily-brief.md.example` for the format.
 
 Most users skip this. The other six scanners work fine without it.
@@ -159,14 +159,14 @@ Most users skip this. The other six scanners work fine without it.
 Check the timers are enabled:
 
 ```bash
-systemctl list-timers | grep openbrain
+systemctl list-timers | grep paperboy
 ```
 
 You should see 7 timers ticking. Run the news scanner once manually:
 
 ```bash
-sudo systemctl start openbrain-news-opinion.service
-sudo journalctl -u openbrain-news-opinion.service -n 20
+sudo systemctl start paperboy-news-opinion.service
+sudo journalctl -u paperboy-news-opinion.service -n 20
 ```
 
 If you see `news_opinion: N prompts emitted`, you're good. Check Discord
@@ -175,14 +175,14 @@ tomorrow morning at 11:15 UTC.
 To trigger the morning digest right now (e.g. to test):
 
 ```bash
-sudo systemctl start openbrain-prompt-digest.service
+sudo systemctl start paperboy-prompt-digest.service
 ```
 
 ## Troubleshooting
 
 ### "No DISCORD_WEBHOOK configured"
 
-Check `/etc/openbrain/openbrain.env` actually has the variable set without
+Check `/etc/paperboy/paperboy.env` actually has the variable set without
 quotes:
 
 ```bash
@@ -212,7 +212,7 @@ If it's on a different host, set `OLLAMA_URL=http://...` in your env file.
 That's expected on CPU. The scorer hits a 240-second timeout per paper by
 default. Either:
 
-- Use a smaller scoring model: `OPENBRAIN_RESEARCH_MODEL=llama3.2:3b`
+- Use a smaller scoring model: `PAPERBOY_RESEARCH_MODEL=llama3.2:3b`
 - Run it on a machine with a GPU
 - Set `PAPERS_LOOKBACK_HOURS=12` to score fewer papers per night
 
@@ -226,21 +226,21 @@ might log warnings.
 ## Updating
 
 ```bash
-cd /path/to/openbrain
+cd /path/to/paperboy
 git pull
-sudo /opt/openbrain/.venv/bin/pip install --upgrade -e .
+sudo /opt/paperboy/.venv/bin/pip install --upgrade -e .
 ```
 
-Your `/etc/openbrain/*` configs are untouched.
+Your `/etc/paperboy/*` configs are untouched.
 
 ## Uninstalling
 
 ```bash
 for t in news-opinion research-ingest research-score papers-to-prompts \
          topical-questions today-briefing prompt-digest research-digest; do
-    sudo systemctl disable --now "openbrain-${t}.timer"
-    sudo rm /etc/systemd/system/openbrain-${t}.{service,timer}
+    sudo systemctl disable --now "paperboy-${t}.timer"
+    sudo rm /etc/systemd/system/paperboy-${t}.{service,timer}
 done
 sudo systemctl daemon-reload
-sudo rm -rf /opt/openbrain /etc/openbrain /var/lib/openbrain
+sudo rm -rf /opt/paperboy /etc/paperboy /var/lib/paperboy
 ```

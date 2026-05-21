@@ -1,7 +1,7 @@
 {
-  "_comment": "Multi-source paper feeds for openbrain.ingest.research_papers. Edit max_per_run to throttle.",
+  "_comment": "Multi-source paper feeds for paperboy.ingest.research_papers. Edit max_per_run to throttle.",
   "_howto": "Disable a feed with \"enabled\": false. arXiv categories follow https://arxiv.org/category_taxonomy (cs.AI, cs.CL, cs.LG, cs.MA, cs.IR are the most relevant for LLM/agent work). Semantic Scholar topic_queries get sent one at a time; keep each query short.",
-  "user_agent": "openbrain/0.1 (https://github.com/cgallic/openbrain; your-email@example.com)",
+  "user_agent": "paperboy/0.1 (https://github.com/cgallic/paperboy; your-email@example.com)",
   "fetch_timeout_sec": 30,
   "inter_request_sleep_sec": 1.5,
   "feeds": {

@@ -26,8 +26,8 @@ import os
 import sys
 from datetime import datetime, timedelta, timezone
 
-from openbrain.db import connect
-from openbrain.discord_post import deliver
+from paperboy.db import connect
+from paperboy.discord_post import deliver
 import urllib.request
 
 
@@ -36,7 +36,7 @@ LOOKBACK_HOURS = int(os.environ.get("PROMPT_DIGEST_LOOKBACK_HOURS", "48"))
 REFRAME = os.environ.get("PROMPT_DIGEST_REFRAME", "0") == "1"
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434").rstrip("/")
 REFRAME_MODEL = os.environ.get("PROMPT_DIGEST_MODEL", "llama3.2:3b")
-DASHBOARD_URL = os.environ.get("OPENBRAIN_DASHBOARD_URL", "")
+DASHBOARD_URL = os.environ.get("PAPERBOY_DASHBOARD_URL", "")
 
 WEIGHTS = {"today": 1.5, "papers": 1.3, "news": 1.2, "answer": 1.1,
            "pendant": 0.4, "cal": 1.0, "proj": 1.0, "research": 0.9}
@@ -180,7 +180,7 @@ def _format(candidates: list[dict]) -> str:
 def main() -> int:
     candidates = _load_candidates()
     msg = _format(candidates)
-    ok, channel = deliver(msg, username="openbrain-prompts")
+    ok, channel = deliver(msg, username="paperboy-prompts")
     print(f"prompt_digest: delivered={ok} channel={channel} prompts={len(candidates)}")
     return 0 if ok else 1
 

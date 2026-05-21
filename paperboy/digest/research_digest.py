@@ -13,8 +13,8 @@ import sys
 import time
 from datetime import datetime, timedelta, timezone
 
-from openbrain.db import connect
-from openbrain.discord_post import deliver
+from paperboy.db import connect
+from paperboy.discord_post import deliver
 
 DISCORD_LIMIT = 1900
 
@@ -123,7 +123,7 @@ def main():
     stats = {"candidates": len(rows), "papers": len(picks),
              "messages_attempted": 0, "messages_posted": 0, "messages_failed": 0}
     for i, msg in enumerate(messages):
-        ok, channel = deliver(msg, username="openbrain-research", dry_run=args.dry_run)
+        ok, channel = deliver(msg, username="paperboy-research", dry_run=args.dry_run)
         stats["messages_attempted"] += 1
         if ok:
             stats["messages_posted"] += 1

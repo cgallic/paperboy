@@ -1,7 +1,10 @@
-# openbrain
+# paperboy
+
+> Old paperboys delivered one newspaper to one house. This one reads ten
+> thousand things and delivers the twelve that matter to you.
 
 A daily Discord digest of news + research papers, scored by your local LLM
-against your own interests.
+against your own interests. No cloud, no SaaS, no account.
 
 Drop your favorite RSS feeds in `news_sources.yaml`. Describe your stack in
 `research-interests.md`. Wake up to a Discord post like this:
@@ -63,25 +66,25 @@ That's it. No Postgres, no Redis, no Docker, no cloud accounts.
 ## Install
 
 ```bash
-git clone https://github.com/cgallic/openbrain.git
-cd openbrain
+git clone https://github.com/cgallic/paperboy.git
+cd paperboy
 sudo ./scripts/bootstrap.sh
 ```
 
 Then:
 
-1. Edit `/etc/openbrain/openbrain.env` — set `DISCORD_WEBHOOK`.
-2. Edit `/etc/openbrain/news_sources.yaml` — your RSS feeds, by topic.
-3. Edit `/etc/openbrain/research-interests.md` — describe YOUR systems.
+1. Edit `/etc/paperboy/paperboy.env` — set `DISCORD_WEBHOOK`.
+2. Edit `/etc/paperboy/news_sources.yaml` — your RSS feeds, by topic.
+3. Edit `/etc/paperboy/research-interests.md` — describe YOUR systems.
    This is the most important file — without it, the scorer can't tell what
    matters to you.
-4. (Optional) Edit `/etc/openbrain/topical-map.md` — your content pillars.
+4. (Optional) Edit `/etc/paperboy/topical-map.md` — your content pillars.
 
 Test:
 
 ```bash
-sudo systemctl start openbrain-news-opinion.service
-journalctl -u openbrain-news-opinion.service -n 50
+sudo systemctl start paperboy-news-opinion.service
+journalctl -u paperboy-news-opinion.service -n 50
 ```
 
 See [docs/INSTALL.md](docs/INSTALL.md) for the full walkthrough.
@@ -118,17 +121,17 @@ Most of the value comes from tuning the config files, not the code. See
 
 ## Roadmap
 
-`openbrain` is the foundation. Five sibling repos are coming that build on the
+`paperboy` is the foundation. Five sibling repos are coming that build on the
 same events.db schema:
 
-- **openbrain-ingesters** — connectors for your gmail, chatgpt history, audible,
+- **paperboy-ingesters** — connectors for your gmail, chatgpt history, audible,
   linkedin, etc. — all dumping to the same events table.
-- **openbrain-wiki** — turn your events into a markdown knowledge graph with
+- **paperboy-wiki** — turn your events into a markdown knowledge graph with
   semantic search.
 - **pendant-android** — a custom Android app for the Omi-style audio pendant
   that streams raw BLE to your agent box.
 - **pendant-pipeline** — agent-side audio pipeline (decoder → STT → diarizer →
-  wake-word → realtime directive) writing to openbrain's event store.
+  wake-word → realtime directive) writing to paperboy's event store.
 - **casa-a2a** — JSON-RPC 2.0 broker + skill-sidecar pattern for cross-host
   agent coordination.
 

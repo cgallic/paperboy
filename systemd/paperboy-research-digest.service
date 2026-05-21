@@ -1,0 +1,12 @@
+[Unit]
+Description=paperboy: post top-3 newly-scored papers to Discord
+After=network.target paperboy-research-score.service
+Documentation=https://github.com/cgallic/paperboy
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/paperboy/paperboy.env
+ExecStart=/usr/bin/env python3 -m paperboy.digest.research_digest --top 3 --min-relevance 7 --verbose
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=600

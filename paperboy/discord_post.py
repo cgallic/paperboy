@@ -19,12 +19,12 @@ import sys
 import urllib.error
 import urllib.request
 
-UA = "openbrain/0.1 (+https://github.com/cgallic/openbrain)"
+UA = "paperboy/0.1 (+https://github.com/cgallic/paperboy)"
 DISCORD_API = "https://discord.com/api/v10"
 DISCORD_MAX_LEN = 1900  # leave headroom under the 2000 hard limit
 
 
-def post(content: str, *, username: str = "openbrain", dry_run: bool = False) -> bool:
+def post(content: str, *, username: str = "paperboy", dry_run: bool = False) -> bool:
     """Post a message via webhook. Returns True on 2xx."""
     webhook = os.environ.get("DISCORD_WEBHOOK") or os.environ.get("DISCORD_WEBHOOK_URL")
     if not webhook:
@@ -90,7 +90,7 @@ def post_via_bot(content: str, *, channel_id: str | None = None,
         return False, f"err_{type(e).__name__}"
 
 
-def deliver(content: str, *, username: str = "openbrain", dry_run: bool = False) -> tuple[bool, str]:
+def deliver(content: str, *, username: str = "paperboy", dry_run: bool = False) -> tuple[bool, str]:
     """Try bot API first; fall back to webhook. Returns (ok, channel_used)."""
     ok, reason = post_via_bot(content, dry_run=dry_run)
     if ok:
@@ -103,7 +103,7 @@ def deliver(content: str, *, username: str = "openbrain", dry_run: bool = False)
 
 
 if __name__ == "__main__":
-    msg = sys.stdin.read() if not sys.stdin.isatty() else "test ping from openbrain"
+    msg = sys.stdin.read() if not sys.stdin.isatty() else "test ping from paperboy"
     ok, channel = deliver(msg, dry_run="--dry-run" in sys.argv)
     print(f"delivered={ok} channel={channel}")
     sys.exit(0 if ok else 1)

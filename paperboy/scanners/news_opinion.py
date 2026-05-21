@@ -16,27 +16,27 @@ import urllib.request
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from openbrain.stream_common import (
+from paperboy.stream_common import (
     write_prompt_event, recent_actors_by_stream, slug_for_stream
 )
 
 MAX_PER_VERTICAL = int(os.environ.get("NEWS_MAX_PER_VERTICAL", "2"))
 FETCH_TIMEOUT = int(os.environ.get("NEWS_FETCH_TIMEOUT", "12"))
-USER_AGENT = "openbrain/0.1 (+https://github.com/cgallic/openbrain)"
+USER_AGENT = "paperboy/0.1 (+https://github.com/cgallic/paperboy)"
 
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434").rstrip("/")
-MODEL = os.environ.get("NEWS_MODEL", os.environ.get("OPENBRAIN_FAST_MODEL", "llama3.2:3b"))
+MODEL = os.environ.get("NEWS_MODEL", os.environ.get("PAPERBOY_FAST_MODEL", "llama3.2:3b"))
 
 
 def _sources_path() -> Path:
     p = os.environ.get("NEWS_SOURCES")
     if p:
         return Path(p)
-    # Try (in order): cwd/config, package-local config, ~/.openbrain/config
+    # Try (in order): cwd/config, package-local config, ~/.paperboy/config
     candidates = [
         Path.cwd() / "config" / "news_sources.yaml",
         Path(__file__).resolve().parent.parent.parent / "config" / "news_sources.yaml",
-        Path.home() / ".openbrain" / "config" / "news_sources.yaml",
+        Path.home() / ".paperboy" / "config" / "news_sources.yaml",
     ]
     for c in candidates:
         if c.is_file():

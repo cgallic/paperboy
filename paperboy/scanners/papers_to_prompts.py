@@ -18,8 +18,8 @@ import os
 import sys
 from datetime import datetime, timedelta, timezone
 
-from openbrain.db import connect
-from openbrain.stream_common import write_prompt_event
+from paperboy.db import connect
+from paperboy.stream_common import write_prompt_event
 
 MIN_RELEVANCE = int(os.environ.get("PAPERS_MIN_RELEVANCE", "7"))
 MAX_PER_RUN = int(os.environ.get("PAPERS_MAX_PER_RUN", "5"))

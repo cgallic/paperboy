@@ -1,5 +1,5 @@
 [Unit]
-Description=Run openbrain news-opinion scanner twice daily
+Description=Run paperboy news-opinion scanner twice daily
 
 [Timer]
 OnCalendar=*-*-* 11:00:00 UTC

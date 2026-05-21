@@ -1,0 +1,12 @@
+[Unit]
+Description=paperboy: pick AEO-shaped questions from your topical map
+After=network.target
+Documentation=https://github.com/cgallic/paperboy
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/paperboy/paperboy.env
+ExecStart=/usr/bin/env python3 -m paperboy.scanners.topical_questions
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=60

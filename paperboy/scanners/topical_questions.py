@@ -24,8 +24,8 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from openbrain.db import connect
-from openbrain.stream_common import write_prompt_event
+from paperboy.db import connect
+from paperboy.stream_common import write_prompt_event
 
 
 def _map_path() -> Path:
@@ -35,7 +35,7 @@ def _map_path() -> Path:
     for c in [
         Path.cwd() / "config" / "topical-map.md",
         Path(__file__).resolve().parent.parent.parent / "config" / "topical-map.md",
-        Path.home() / ".openbrain" / "config" / "topical-map.md",
+        Path.home() / ".paperboy" / "config" / "topical-map.md",
     ]:
         if c.is_file():
             return c

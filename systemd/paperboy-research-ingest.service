@@ -1,0 +1,12 @@
+[Unit]
+Description=paperboy: ingest arXiv + HF Daily + Semantic Scholar papers
+After=network.target
+Documentation=https://github.com/cgallic/paperboy
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/paperboy/paperboy.env
+ExecStart=/usr/bin/env python3 -m paperboy.ingest.research_papers --source all --verbose
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=900

@@ -5,7 +5,7 @@ The `today_briefing` scanner parses two sections and turns them into
 `🎯 today` items in your morning Discord digest.
 
 Drop one of these into `$DAILY_BRIEFS_DIR/<YYYY-MM-DD>.md` (default:
-`~/.openbrain/daily-briefs/`) before the digest runs at 11:15 UTC.
+`~/.paperboy/daily-briefs/`) before the digest runs at 11:15 UTC.
 
 Both sections are optional. Missing sections are skipped silently.
 

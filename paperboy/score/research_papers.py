@@ -30,13 +30,13 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
-from openbrain.db import connect
-from openbrain.stream_common import write_event
+from paperboy.db import connect
+from paperboy.stream_common import write_event
 
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
-MODEL = os.environ.get("OPENBRAIN_RESEARCH_MODEL",
+MODEL = os.environ.get("PAPERBOY_RESEARCH_MODEL",
                        os.environ.get("BRAIN_RESEARCH_MODEL", "qwen2.5:7b"))
-TIMEOUT = int(os.environ.get("OPENBRAIN_SCORE_TIMEOUT", "240"))
+TIMEOUT = int(os.environ.get("PAPERBOY_SCORE_TIMEOUT", "240"))
 
 VALID_NOVELTY = {"low", "medium", "high"}
 
@@ -48,7 +48,7 @@ def _interests_path() -> Path:
     for c in [
         Path.cwd() / "config" / "research-interests.md",
         Path(__file__).resolve().parent.parent.parent / "config" / "research-interests.md",
-        Path.home() / ".openbrain" / "config" / "research-interests.md",
+        Path.home() / ".paperboy" / "config" / "research-interests.md",
     ]:
         if c.is_file():
             return c

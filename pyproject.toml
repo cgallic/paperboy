@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "openbrain"
+name = "paperboy"
 version = "0.1.0"
 description = "Daily Discord digest of news + research papers, scored by your local LLM against your own interests."
 readme = "README.md"
@@ -26,20 +26,20 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/cgallic/openbrain"
-Repository = "https://github.com/cgallic/openbrain"
-Issues = "https://github.com/cgallic/openbrain/issues"
+Homepage = "https://github.com/cgallic/paperboy"
+Repository = "https://github.com/cgallic/paperboy"
+Issues = "https://github.com/cgallic/paperboy/issues"
 
 [project.scripts]
-openbrain-init-db = "openbrain.db:init_schema"
-openbrain-news = "openbrain.scanners.news_opinion:main"
-openbrain-papers-to-prompts = "openbrain.scanners.papers_to_prompts:main"
-openbrain-topical-questions = "openbrain.scanners.topical_questions:main"
-openbrain-today-briefing = "openbrain.scanners.today_briefing:main"
-openbrain-ingest-papers = "openbrain.ingest.research_papers:main"
-openbrain-score-papers = "openbrain.score.research_papers:main"
-openbrain-prompt-digest = "openbrain.digest.prompt_digest:main"
-openbrain-research-digest = "openbrain.digest.research_digest:main"
+paperboy-init-db = "paperboy.db:init_schema"
+paperboy-news = "paperboy.scanners.news_opinion:main"
+paperboy-papers-to-prompts = "paperboy.scanners.papers_to_prompts:main"
+paperboy-topical-questions = "paperboy.scanners.topical_questions:main"
+paperboy-today-briefing = "paperboy.scanners.today_briefing:main"
+paperboy-ingest-papers = "paperboy.ingest.research_papers:main"
+paperboy-score-papers = "paperboy.score.research_papers:main"
+paperboy-prompt-digest = "paperboy.digest.prompt_digest:main"
+paperboy-research-digest = "paperboy.digest.research_digest:main"
 
 [tool.setuptools.packages.find]
-include = ["openbrain*"]
+include = ["paperboy*"]

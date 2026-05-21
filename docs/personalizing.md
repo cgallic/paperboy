@@ -1,4 +1,4 @@
-# Personalizing openbrain
+# Personalizing paperboy
 
 The code does the same thing for everyone. The signal-to-noise ratio comes
 from your configs. Spend an hour here and the morning digest stops being
@@ -62,9 +62,9 @@ sound like something you'd actually do? If not, edit `research-interests.md`
 to be more specific about what you would do, and re-run with `--retry-scored`:
 
 ```bash
-sudo systemctl start openbrain-research-score.service
+sudo systemctl start paperboy-research-score.service
 # or, to re-score everything from scratch:
-sudo -u openbrain /opt/openbrain/.venv/bin/python -m openbrain.score.research_papers --retry-scored
+sudo -u paperboy /opt/paperboy/.venv/bin/python -m paperboy.score.research_papers --retry-scored
 ```
 
 ## Tuning `news_sources.yaml`
@@ -81,11 +81,11 @@ Three rules:
 Good feeds have signal density. If every post would plausibly trigger a take
 from you, keep it. If 9/10 posts make you think "meh," cut it.
 
-Test: edit the file, then run `openbrain-news` once manually and watch what
+Test: edit the file, then run `paperboy-news` once manually and watch what
 prompts come out:
 
 ```bash
-sudo -u openbrain /opt/openbrain/.venv/bin/python -m openbrain.scanners.news_opinion --dry-run
+sudo -u paperboy /opt/paperboy/.venv/bin/python -m paperboy.scanners.news_opinion --dry-run
 ```
 
 ## Tuning `topical-map.md` (optional)
@@ -122,7 +122,7 @@ changes its dedup slug.
 
 Most users skip this. If you do want it:
 
-Write a markdown file at `~/.openbrain/daily-briefs/<YYYY-MM-DD>.md` each
+Write a markdown file at `~/.paperboy/daily-briefs/<YYYY-MM-DD>.md` each
 morning. Two sections matter (see `config/daily-brief.md.example`):
 
 - `## Today's corpse` — one repo/project that's gone stale
@@ -142,7 +142,7 @@ PROMPT_DIGEST_REFRAME=1
 PROMPT_DIGEST_MODEL=llama3.2:3b
 ```
 
-in `/etc/openbrain/openbrain.env`. Adds ~5 seconds to the digest run per news
+in `/etc/paperboy/paperboy.env`. Adds ~5 seconds to the digest run per news
 item. Quality varies by model — qwen2.5:7b gives better hooks than 3B models,
 at the cost of more time.
 
@@ -150,7 +150,7 @@ at the cost of more time.
 
 The digest assigns each prompt a `stream_weight × freshness` score. Defaults
 favor `today` and `papers`. If you want to change that, edit
-`openbrain/digest/prompt_digest.py:WEIGHTS` directly — there's no env var for
+`paperboy/digest/prompt_digest.py:WEIGHTS` directly — there's no env var for
 this because re-weighting is the kind of change you do once and forget.
 
 | Default | Stream | Effect of lowering |
@@ -172,7 +172,7 @@ OnCalendar=*-*-* 11:15:00 UTC    # ← change this
 ```
 
 Then `sudo systemctl daemon-reload && sudo systemctl restart
-openbrain-*.timer`.
+paperboy-*.timer`.
 
 Keep the staggering — each scanner needs the previous one to have finished
 before it runs.

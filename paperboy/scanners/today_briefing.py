@@ -1,6 +1,6 @@
 """today_briefing.py — emit today's actionable prompts from a daily-brief file.
 
-Reads $DAILY_BRIEFS_DIR/<YYYY-MM-DD>.md (default ~/.openbrain/daily-briefs/)
+Reads $DAILY_BRIEFS_DIR/<YYYY-MM-DD>.md (default ~/.paperboy/daily-briefs/)
 and turns its concrete sections into pattern-scan/question events with
 stream='today'. These lead the morning digest as "what to actually do today."
 
@@ -25,7 +25,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from openbrain.stream_common import write_prompt_event
+from paperboy.stream_common import write_prompt_event
 
 MAX_PER_RUN = int(os.environ.get("TODAY_MAX_PER_RUN", "6"))
 
@@ -34,7 +34,7 @@ def _briefs_dir() -> Path:
     p = os.environ.get("DAILY_BRIEFS_DIR")
     if p:
         return Path(p)
-    return Path.home() / ".openbrain" / "daily-briefs"
+    return Path.home() / ".paperboy" / "daily-briefs"
 
 
 def _today_iso() -> str:

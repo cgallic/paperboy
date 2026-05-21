@@ -1,6 +1,6 @@
 # news_sources.yaml — vertical-keyed RSS/Atom feeds for the news_opinion scanner.
 #
-# Each key is a "vertical" — a topic bucket. For every vertical, openbrain
+# Each key is a "vertical" — a topic bucket. For every vertical, paperboy
 # fetches each feed, picks up to NEWS_MAX_PER_VERTICAL items per run (default 2),
 # asks your local Ollama to draft a hot-take prompt, and writes a question
 # event. Dedupe is automatic across runs.

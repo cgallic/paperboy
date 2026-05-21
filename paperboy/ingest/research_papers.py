@@ -28,8 +28,8 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
 
-from openbrain.db import connect
-from openbrain.stream_common import write_event, update_payload
+from paperboy.db import connect
+from paperboy.stream_common import write_event, update_payload
 
 CONTENT_MAX_CHARS = 4000
 SUMMARY_EXCERPT_CHARS = 500
@@ -42,7 +42,7 @@ def _config_path() -> Path:
     for c in [
         Path.cwd() / "config" / "research-sources.json",
         Path(__file__).resolve().parent.parent.parent / "config" / "research-sources.json",
-        Path.home() / ".openbrain" / "config" / "research-sources.json",
+        Path.home() / ".paperboy" / "config" / "research-sources.json",
     ]:
         if c.is_file():
             return c
@@ -357,7 +357,7 @@ def main():
         print(json.dumps({"status": "error", "error": f"missing {cfg_path}"}), file=sys.stderr)
         sys.exit(1)
     cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
-    ua = cfg.get("user_agent", "openbrain/0.1")
+    ua = cfg.get("user_agent", "paperboy/0.1")
     timeout = int(cfg.get("fetch_timeout_sec", 30))
     inter_sleep = float(cfg.get("inter_request_sleep_sec", 1.5))
 

@@ -1,15 +1,15 @@
-"""Schema + path resolution for openbrain's SQLite event log.
+"""Schema + path resolution for paperboy's SQLite event log.
 
 The whole system writes append-only events to one table. Scanners write
 prompt events; ingesters write paper events; scorers write paper-score events.
 The digest readers join across them.
 
 Two env vars control where the DB lives:
-    OPENBRAIN_ROOT   default: ~/.openbrain
-    OPENBRAIN_DB     default: $OPENBRAIN_ROOT/events.db
+    PAPERBOY_ROOT   default: ~/.paperboy
+    PAPERBOY_DB     default: $PAPERBOY_ROOT/events.db
 
 For backwards compatibility with the source codebase, BRAIN_ROOT / BRAIN_DB
-are honored if OPENBRAIN_* are unset.
+are honored if PAPERBOY_* are unset.
 """
 from __future__ import annotations
 
@@ -19,14 +19,14 @@ from pathlib import Path
 
 
 def root() -> Path:
-    p = os.environ.get("OPENBRAIN_ROOT") or os.environ.get("BRAIN_ROOT")
+    p = os.environ.get("PAPERBOY_ROOT") or os.environ.get("BRAIN_ROOT")
     if p:
         return Path(p)
-    return Path.home() / ".openbrain"
+    return Path.home() / ".paperboy"
 
 
 def db_path() -> Path:
-    p = os.environ.get("OPENBRAIN_DB") or os.environ.get("BRAIN_DB")
+    p = os.environ.get("PAPERBOY_DB") or os.environ.get("BRAIN_DB")
     if p:
         return Path(p)
     return root() / "events.db"
