@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>paperboy · Agent Action Queue</title>
+<style>
+  :root {
+    --bg: #0e1116; --panel: #161b22; --border: #272e3a;
+    --fg: #e6edf3; --muted: #8b98a8; --accent: #58a6ff;
+    --green: #3fb950; --red: #f85149; --amber: #d29922;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  header {
+    padding: 28px 24px 16px; border-bottom: 1px solid var(--border);
+  }
+  header h1 { margin: 0 0 4px; font-size: 22px; }
+  header p { margin: 0; color: var(--muted); font-size: 13px; }
+  .meta { margin-top: 10px; color: var(--muted); font-size: 13px; }
+  .toolbar {
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    padding: 14px 24px; border-bottom: 1px solid var(--border);
+  }
+  .toolbar button {
+    background: var(--panel); color: var(--fg); border: 1px solid var(--border);
+    padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px;
+  }
+  .toolbar button.active { border-color: var(--accent); color: var(--accent); }
+  .grid {
+    display: grid; gap: 14px; padding: 20px 24px 60px;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  }
+  .card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 16px 12px; display: flex; flex-direction: column;
+  }
+  .card.dismissed { opacity: 0.45; }
+  .card.approved { border-color: var(--green); }
+  .card-top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+  .title { font-weight: 600; font-size: 15px; margin: 0; }
+  .score {
+    flex: 0 0 auto; font-variant-numeric: tabular-nums; font-weight: 700;
+    font-size: 13px; padding: 2px 8px; border-radius: 999px;
+    background: rgba(88,166,255,0.12); color: var(--accent); white-space: nowrap;
+  }
+  .source { margin: 8px 0 0; font-size: 12px; color: var(--muted); }
+  .source code { background: rgba(255,255,255,0.06); padding: 1px 5px; border-radius: 4px; }
+  .why { margin: 10px 0 0; font-size: 13px; color: var(--fg); }
+  .action {
+    margin: 10px 0 0; font-size: 13px; color: var(--fg);
+    background: rgba(255,255,255,0.03); border-left: 2px solid var(--accent);
+    padding: 8px 10px; border-radius: 0 6px 6px 0;
+  }
+  .action b { color: var(--accent); font-weight: 600; }
+  .actions { display: flex; gap: 8px; margin-top: 14px; }
+  .actions button {
+    flex: 1; padding: 7px 0; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; color: var(--fg); cursor: pointer; font-size: 13px;
+  }
+  .actions .approve:hover { border-color: var(--green); color: var(--green); }
+  .actions .dismiss:hover { border-color: var(--red); color: var(--red); }
+  .status-pill {
+    display: inline-block; margin-top: 10px; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.04em; color: var(--muted);
+  }
+  .empty { padding: 40px 24px; color: var(--muted); }
+  .note {
+    margin: 0 24px 0; padding: 12px 14px; border: 1px dashed var(--border);
+    border-radius: 8px; color: var(--muted); font-size: 12px; margin-bottom: 4px;
+  }
+  footer { padding: 20px 24px 40px; color: var(--muted); font-size: 12px; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>📰 → 🤖 Agent Action Queue</h1>
+  <p>The highest-signal items from today's digest, promoted to reviewable agent tasks.</p>
+  <div class="meta" id="meta">loading…</div>
+</header>
+
+<div class="toolbar">
+  <button data-filter="all" class="active">All</button>
+  <button data-filter="pending">Pending</button>
+  <button data-filter="approved">Approved</button>
+  <button data-filter="dismissed">Dismissed</button>
+</div>
+
+<p class="note">
+  Demo dashboard. <b>Approve</b> / <b>Dismiss</b> are no-op UI toggles — they update
+  this view only and send nothing. In a real deployment, an agent polls the JSONL
+  queue and acts only on items a human has marked <code>approved</code>.
+</p>
+
+<div id="grid" class="grid"></div>
+
+<footer>
+  Rendered from <code>examples/action-queue.demo.jsonl</code> · part of
+  <a href="https://github.com/cgallic/paperboy">paperboy</a> ·
+  built on the <a href="https://github.com/cgallic/open-brane">open-brane</a> events.db.
+  Sample/demo data only.
+</footer>
+
+<script>
+// Inline copy of the demo fixture so this file works opened directly via
+// file:// (no server, no fetch/CORS). Keep in sync with
+// examples/action-queue.demo.jsonl.
+const QUEUE = [
+  {"id":"act_demo0001paper01","title":"Speculative Retrieval: Cutting RAG Latency with Draft-then-Verify Lookups","source":"research-paper","score":9,"why":"Sample/demo data. Two-stage retrieval cuts tail latency without hurting recall — directly applicable to any RAG layer that's latency-bound.","suggested_action":"Open a prototype spike against the RAG layer: scope a 1-day experiment to test the paper's core idea, then report keep/kill.","status":"pending"},
+  {"id":"act_demo0002paper02","title":"Rubric-Grounded Self-Critique Beats Constitutional Prompts on Small Models","source":"research-paper","score":8,"why":"Sample/demo data. A fixed scoring rubric in the critique step outperforms freeform self-critique for 3B-7B models — cheap quality win for a local scorer.","suggested_action":"Evaluate for the scoring pipeline: swap freeform critique for a fixed rubric and A/B the score agreement on a held-out set.","status":"pending"},
+  {"id":"act_demo0003paper03","title":"Event-Log Memory: Append-Only Stores Outperform Vector DBs for Agent Recall","source":"research-paper","score":7,"why":"Sample/demo data. Append-only event logs with cheap tags beat embedding stores on precision for time-anchored agent recall — validates the events.db approach.","suggested_action":"Read in full and assess fit for the event-log brain; draft a one-paragraph take.","status":"pending"},
+  {"id":"act_demo0004news01","title":"A hypothetical small-business SaaS, PingDesk, shipped real-time call summaries. What changes for tools that lag on transcripts?","source":"digest-prompt:news","score":8.0,"why":"Sample/demo data. Competitor moved transcript turnaround from minutes to seconds; reframes the speed bar for the whole category.","suggested_action":"Draft a short take responding to: A hypothetical small-business SaaS, PingDesk, shipped real-time call summaries.","status":"pending"},
+  {"id":"act_demo0005news02","title":"Open-source local STT model hit parity with paid APIs on noisy phone audio — does the build-vs-buy math flip?","source":"digest-prompt:news","score":7.2,"why":"Sample/demo data. Quality gap that justified paid transcription APIs just narrowed; worth a reassessment post.","suggested_action":"Draft a short take responding to: Open-source local STT model hit parity with paid APIs on noisy phone audio.","status":"pending"},
+  {"id":"act_demo0006papers01","title":"Speculative Retrieval — applies to the RAG layer. Take?","source":"digest-prompt:papers","score":8.7,"why":"Sample/demo data. Promoted from the top-scored paper; content-ideation stimulus.","suggested_action":"Skim the paper and note one applicable idea: Speculative Retrieval — applies to the RAG layer. Take?","status":"pending"},
+  {"id":"act_demo0007answer01","title":"How do you decide between an append-only event log and a vector store for agent memory?","source":"digest-prompt:answer","score":6.5,"why":"Sample/demo data. From the topical map — a question the audience keeps asking.","suggested_action":"Write a crisp answer for the topical map: How do you decide between an append-only event log and a vector store for agent memory?","status":"pending"}
+];
+
+let filter = "all";
+const grid = document.getElementById("grid");
+const meta = document.getElementById("meta");
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => (
+    {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]
+  ));
+}
+
+function render() {
+  const visible = QUEUE.filter(i => filter === "all" || i.status === filter);
+  const pending = QUEUE.filter(i => i.status === "pending").length;
+  meta.textContent = `${QUEUE.length} item(s) · ${pending} pending · sample/demo data`;
+  if (!visible.length) {
+    grid.innerHTML = `<p class="empty">No ${esc(filter)} items.</p>`;
+    return;
+  }
+  grid.innerHTML = visible.map(i => `
+    <div class="card ${esc(i.status)}">
+      <div class="card-top">
+        <p class="title">${esc(i.title)}</p>
+        <span class="score">${esc(i.score)}/10</span>
+      </div>
+      <p class="source">source <code>${esc(i.source)}</code> · <code>${esc(i.id)}</code></p>
+      ${i.why ? `<p class="why">${esc(i.why)}</p>` : ""}
+      <p class="action"><b>Suggested action:</b> ${esc(i.suggested_action)}</p>
+      <div class="actions">
+        <button class="approve" data-id="${esc(i.id)}" data-to="approved">Approve</button>
+        <button class="dismiss" data-id="${esc(i.id)}" data-to="dismissed">Dismiss</button>
+      </div>
+      <span class="status-pill">status: ${esc(i.status)}</span>
+    </div>
+  `).join("");
+}
+
+grid.addEventListener("click", e => {
+  const btn = e.target.closest("button[data-id]");
+  if (!btn) return;
+  const item = QUEUE.find(i => i.id === btn.dataset.id);
+  if (!item) return;
+  // No-op UI toggle: flips the in-memory status only. Sends nothing.
+  item.status = (item.status === btn.dataset.to) ? "pending" : btn.dataset.to;
+  render();
+});
+
+document.querySelectorAll(".toolbar button").forEach(b => {
+  b.addEventListener("click", () => {
+    filter = b.dataset.filter;
+    document.querySelectorAll(".toolbar button").forEach(x => x.classList.remove("active"));
+    b.classList.add("active");
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>

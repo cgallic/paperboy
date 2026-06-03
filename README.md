@@ -33,6 +33,31 @@ it" note from your local LLM.
 
 ---
 
+## News → Agent Action Queue
+
+A file-first bridge that promotes the highest-signal digest items (papers
+scored ≥ 7 or flagged `should_prototype`, plus the top-weighted prompts) into a
+**reviewable queue of agent tasks** — each with a concrete `suggested_action`.
+
+It writes an append-only JSONL queue and a rendered Markdown view, and sends
+**nothing** (no Discord, no webhook). The queue is a human review gate: an
+agent acts only on items you've marked `approved`.
+
+```bash
+python -m paperboy.digest.action_queue          # write queue (JSONL + Markdown)
+python -m paperboy.digest.action_queue --dry-run # preview only
+```
+
+If `events.db` is empty/absent, it falls back to a bundled public fixture so it
+always produces output.
+
+- Module: [`paperboy/digest/action_queue.py`](paperboy/digest/action_queue.py)
+- Demo output: [`examples/action-queue.demo.jsonl`](examples/action-queue.demo.jsonl) · [`examples/action-queue.demo.md`](examples/action-queue.demo.md)
+- Dashboard: [`dashboard/action-queue.html`](dashboard/action-queue.html) (open directly in a browser)
+- Walkthrough: [docs/action-queue.md](docs/action-queue.md)
+
+---
+
 ## What this gives you
 
 Seven cron jobs that work together:
