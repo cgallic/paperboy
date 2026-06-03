@@ -305,10 +305,12 @@ def append_jsonl(items: list[dict], jsonl_path: Path) -> int:
     written = 0
     with jsonl_path.open("a", encoding="utf-8") as fh:
         for item in items:
-            if item.get("id") in seen:
+            iid = str(item.get("id") or "")
+            if iid and iid in seen:
                 continue
             fh.write(json.dumps(item, ensure_ascii=False) + "\n")
-            seen.add(item.get("id"))
+            if iid:
+                seen.add(iid)
             written += 1
     return written
 
