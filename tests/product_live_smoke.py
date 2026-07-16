@@ -30,22 +30,22 @@ def main() -> None:
             wait_until="networkidle",
         )
         assert response is not None and response.ok
-        assert page.title() == "paperboy — Your Daily Brief"
+        assert page.title() == "Paperboy — One Daily Brief From Your Sources"
         assert page.locator('link[rel="canonical"]').get_attribute("href") == "https://paperboy.kaibuilds.com/"
-        assert page.get_by_text("No Gmail OAuth", exact=True).is_visible()
-        assert page.get_by_role("button", name="Request a founding pilot").is_visible()
+        assert page.locator(".trust-line").get_by_text("No Gmail access", exact=True).is_visible()
+        assert page.get_by_role("button", name="Get my free sample brief").first.is_visible()
         page.screenshot(path=str(ROOT / "paperboy-live-smoke.png"), full_page=True)
 
         if args.submit_test_lead:
-            page.get_by_role("button", name="Request a founding pilot").click()
+            page.get_by_role("button", name="Get my free sample brief").first.click()
             page.get_by_label("Email address").fill("paperboy-deploy-smoke@example.invalid")
-            page.get_by_role("button", name="Request the $49 founding pilot").click()
-            page.get_by_role("heading", name="Request received.").wait_for()
+            page.locator("#pilot-submit").click()
+            page.get_by_role("heading", name="You’re on the sample list.").wait_for()
 
         mobile = browser.new_page(viewport={"width": 390, "height": 844})
         mobile.goto("https://paperboy.kaibuilds.com/", wait_until="networkidle")
         mobile.get_by_role("button", name="Toggle navigation").click()
-        assert mobile.get_by_role("button", name="Request a brief").is_visible()
+        assert mobile.get_by_role("button", name="Get my free sample", exact=True).is_visible()
         assert mobile.evaluate("document.documentElement.scrollWidth <= document.documentElement.clientWidth")
         browser.close()
 

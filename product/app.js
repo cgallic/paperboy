@@ -22,7 +22,7 @@
           id: "today-model-pricing",
           source: "Public data · fixture",
           score: 8,
-          repo: "Operator watchlist",
+          repo: "Daily watchlist",
           title: "A model price shift changes the cheapest reliable fallback",
           why: "The fixture watchlist prioritizes inference margin. The modeled price move is large enough to revisit the fallback order before the next usage review.",
           next: "Recalculate one representative workload. If the difference is immaterial, keep the current routing.",
@@ -626,7 +626,7 @@
     error.textContent = "";
     input.removeAttribute("aria-invalid");
     submit.disabled = true;
-    submit.textContent = isKaiBuildsHost() ? "Sending request…" : "Opening preview…";
+    submit.textContent = isKaiBuildsHost() ? "Requesting sample…" : "Opening preview…";
     state.email = email;
     state.delivery.email = state.email;
     saveState();
@@ -639,10 +639,10 @@
           body: JSON.stringify(Object.assign({
             slug: "paperboy",
             email: email,
-            message: "Paperboy $49/month founding-pilot request",
-            offer: "Paperboy Operator founding pilot",
-            price: "$49/month",
-            source: "paperboy_landing",
+            message: "Paperboy free personalized sample request",
+            offer: "Free personalized Paperboy sample",
+            price: "$49/month after sample",
+            source: "paperboy_sample_request",
             page: window.location.href
           }, attributionFields()))
         });
@@ -650,17 +650,17 @@
         if (!response.ok || !result || result.ok !== true) {
           throw new Error("Lead capture did not confirm persistence");
         }
-        document.getElementById("pilot-success-title").textContent = "Request received.";
-        document.getElementById("pilot-success-copy").textContent = "We’ll use your email only to follow up about the founding pilot. No account or subscription was created.";
+        document.getElementById("pilot-success-title").textContent = "You’re on the sample list.";
+        document.getElementById("pilot-success-copy").textContent = "We’ll email you to collect a few sources. No account, card, or subscription was created.";
       } catch (captureError) {
         error.textContent = "We couldn’t save that request. Please try again.";
         submit.disabled = false;
-        submit.textContent = "Request the $49 founding pilot";
+        submit.textContent = "Get my free sample brief";
         return;
       }
     } else {
       document.getElementById("pilot-success-title").textContent = "Local preview ready.";
-      document.getElementById("pilot-success-copy").textContent = "This local copy did not submit your email. Use the live KaiBuilds page to request the founding pilot.";
+      document.getElementById("pilot-success-copy").textContent = "This local copy did not submit your email. Use the live KaiBuilds page to request a free personalized sample.";
     }
 
     form.hidden = true;

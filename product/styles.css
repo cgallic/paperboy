@@ -860,12 +860,13 @@ p {
   display: grid;
   align-items: stretch;
   gap: 22px;
-  grid-template-columns: 1.15fr .85fr;
+  grid-template-columns: minmax(0, 760px);
+  justify-content: center;
 }
 
 .price-card {
   display: flex;
-  min-height: 570px;
+  min-height: 520px;
   justify-content: space-between;
   padding: 42px;
   border: 1px solid var(--rule-strong);

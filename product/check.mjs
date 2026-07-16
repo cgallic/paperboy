@@ -12,14 +12,10 @@ function requireText(source, text, label) {
 }
 
 [
-  ["Daily Intelligence Brief", "commercial product name"],
-  ["Forwarded newsletters", "forwarding source lane"],
-  ["Public news, research, and data", "public source lane"],
-  ["Selected public GitHub repos", "GitHub source lane"],
-  ["Today in 60 Seconds", "daily brief section"],
-  ["Repo Radar", "repo section"],
-  ["Research Worth Reading", "research section"],
-  ["Watchlist / Do Nothing", "watchlist section"],
+  ["Forward the newsletters you trust", "forwarding source lane"],
+  ["public GitHub repos you follow", "GitHub source lane"],
+  ["You choose what Paperboy reads", "access boundary"],
+  ["Your first personalized brief is free", "entry offer"],
   ["$</span>49", "$49 price hypothesis"],
   ["No charge can be created here", "disabled checkout boundary"]
 ].forEach(([text, label]) => requireText(html, text, label));
@@ -35,8 +31,9 @@ function requireText(source, text, label) {
 
 [
   ["https://paperboy.kaibuilds.com/", "canonical KaiBuilds URL"],
-  ["Founding pilot: $49/month", "live pilot offer"],
-  ["Request the $49 founding pilot", "pilot lead CTA"]
+  ["Stop reading 20 newsletters every morning.", "cold-traffic promise"],
+  ["Your first personalized brief is free.", "free sample offer"],
+  ["Get my free sample brief", "single lead CTA"]
 ].forEach(([text, label]) => requireText(html, text, label));
 
 [
@@ -46,6 +43,20 @@ function requireText(source, text, label) {
   ['slug: "paperboy"', "Paperboy capture slug"],
   ["attributionFields", "campaign attribution capture"]
 ].forEach(([text, label]) => requireText(js, text, label));
+
+[
+  "Know what changes your next move.",
+  "evidence-linked morning edition",
+  "revenue-bearing",
+  "One paid wedge",
+  "Paperboy Operator",
+  "Request a founding pilot"
+].forEach((text) => {
+  if (html.includes(text)) failures.push("Stale internal copy found: " + text);
+});
+
+const primaryCtaMatches = html.match(/Get my free sample brief/g) || [];
+if (primaryCtaMatches.length < 4) failures.push("Primary free-sample CTA is not repeated consistently.");
 
 const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
 const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);

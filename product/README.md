@@ -5,7 +5,7 @@ product direction. It is deployed at `https://paperboy.kaibuilds.com/`.
 
 It demonstrates:
 
-- a Daily Intelligence Brief landing and $49/month founding-pilot offer;
+- a cold-traffic Daily Brief landing with a free personalized sample;
 - explicit source selection for forwarded newsletters, public
   news/research/data, and optional read-only public GitHub repositories;
 - a live same-origin founding-pilot lead request on KaiBuilds;
@@ -48,8 +48,8 @@ git diff --check
 
 ## Golden path
 
-1. Open the landing page and select **Request a founding pilot**.
-2. Enter a valid email. On KaiBuilds, confirm the lead request succeeds.
+1. Open the landing page and select **Get my free sample brief**.
+2. Enter a valid email. On KaiBuilds, confirm the sample request succeeds.
 3. Open the fictional product tour.
 4. Keep or change the forwarding/public source lanes.
 5. Load fictional GitHub fixtures, search, and select up to five.
@@ -64,9 +64,11 @@ git diff --check
 
 - [ ] Landing is clearly a Daily Intelligence Brief, not a generic summary or
   Repo Impact-only product.
-- [ ] Pricing shows a $49/month founding pilot and states that requesting it
-  does not create a subscription or charge.
-- [ ] Self-hosted Paperboy remains visible as the free acquisition path.
+- [ ] The hero names the manual behavior to replace and explains the product
+  in one sentence.
+- [ ] Every primary CTA says **Get my free sample brief**.
+- [ ] Pricing makes the first personalized sample free and presents the
+  $49/month founding pilot only after the sample.
 - [ ] Source lanes explicitly distinguish forwarding, public catalog, and
   selected public GitHub repositories.
 - [ ] Forwarding copy states that Gmail OAuth is not used.

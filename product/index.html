@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Paperboy turns forwarded newsletters, public intelligence, and selected GitHub repos into one evidence-linked Daily Brief.">
+  <meta name="description" content="Stop reading every update yourself. Get one daily brief from the newsletters and public GitHub repos you choose.">
   <meta name="theme-color" content="#f3eee3">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://paperboy.kaibuilds.com/">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Paperboy — Your Daily Intelligence Brief">
-  <meta property="og:description" content="Know what changes your next move. Request a $49/month founding pilot.">
+  <meta property="og:title" content="Paperboy — Stop reading every update yourself">
+  <meta property="og:description" content="Get a free personalized brief from the newsletters and public GitHub repos you choose.">
   <meta property="og:url" content="https://paperboy.kaibuilds.com/">
-  <title>paperboy — Your Daily Brief</title>
+  <title>Paperboy — One Daily Brief From Your Sources</title>
   <link rel="stylesheet" href="styles.css">
   <script src="app.js" defer></script>
 </head>
@@ -20,8 +20,8 @@
 
   <div class="local-banner" role="status">
     <span class="status-dot" aria-hidden="true"></span>
-    <strong>Founding pilot open</strong>
-    <span>$49/month after your invite. The product tour is a preview; auth, scheduled delivery, and billing are not live yet.</span>
+    <strong>Free personalized sample</strong>
+    <span>See your brief before deciding whether Paperboy is worth $49/month.</span>
   </div>
 
   <header class="site-header" id="site-header">
@@ -38,9 +38,7 @@
     <nav class="site-nav" aria-label="Primary navigation">
       <a href="#how-it-works">How it works</a>
       <a href="#pricing">Pricing</a>
-      <a href="https://github.com/cgallic/paperboy" target="_blank" rel="noreferrer">GitHub <span class="sr-only">(opens in a new tab)</span></a>
-      <button class="text-button" type="button" data-route="signin">Founding pilot</button>
-      <button class="button button-small" type="button" data-start>Request a brief</button>
+      <button class="button button-small" type="button" data-start>Get my free sample</button>
     </nav>
 
     <button class="menu-button" type="button" aria-expanded="false" aria-controls="mobile-nav">
@@ -50,31 +48,29 @@
     <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation" hidden>
       <a href="#how-it-works">How it works</a>
       <a href="#pricing">Pricing</a>
-      <a href="https://github.com/cgallic/paperboy" target="_blank" rel="noreferrer">GitHub</a>
-      <button class="text-button" type="button" data-route="signin">Founding pilot</button>
-      <button class="button" type="button" data-start>Request a brief</button>
+      <button class="button" type="button" data-start>Get my free sample</button>
     </nav>
   </header>
 
   <main id="main">
     <section class="screen screen-home" data-screen="home">
       <section class="hero">
-        <div class="hero-copy reveal">
-          <p class="eyebrow"><span class="eyebrow-line"></span> Daily Intelligence Brief</p>
-          <h1>Know what changes your next move.</h1>
-          <p class="hero-lede">Paperboy turns the newsletters you forward, public news and research, tracked data, and selected GitHub repos into one evidence-linked morning edition: what changes a decision, what deserves inspection, and what can wait.</p>
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-line"></span> Your newsletters and GitHub, summarized</p>
+          <h1>Stop reading 20 newsletters every morning.</h1>
+          <p class="hero-lede">Forward the newsletters you trust, choose the public GitHub repos you follow, and get one daily brief with what changed and why it matters.</p>
           <div class="hero-actions">
-            <button class="button button-large" type="button" data-start>Request a founding pilot <span aria-hidden="true">→</span></button>
-            <a class="quiet-link" href="https://github.com/cgallic/paperboy" target="_blank" rel="noreferrer">View the open-source project <span aria-hidden="true">↗</span></a>
+            <button class="button button-large" type="button" data-start>Get my free sample brief <span aria-hidden="true">→</span></button>
+            <a class="quiet-link" href="#example">See a sample brief <span aria-hidden="true">↓</span></a>
           </div>
           <ul class="trust-line" aria-label="Product boundaries">
-            <li>No Gmail OAuth</li>
-            <li>Read-only GitHub</li>
-            <li>Decision-ready morning email</li>
+            <li>No Gmail access</li>
+            <li>No credit card</li>
+            <li>Your first sample is free</li>
           </ul>
         </div>
 
-        <div class="hero-edition reveal reveal-delay" aria-label="Example Paperboy Daily Brief">
+        <div class="hero-edition" aria-label="Example Paperboy Daily Brief">
           <div class="edition-shadow edition-shadow-one" aria-hidden="true"></div>
           <div class="edition-shadow edition-shadow-two" aria-hidden="true"></div>
           <article class="edition-paper">
@@ -90,9 +86,9 @@
             <div class="edition-divider"></div>
             <div class="edition-item">
               <div class="edition-meta"><span>Today in 60 seconds</span><span>3 items</span><code>Public signals</code></div>
-              <h3>Model releases, a pricing shift, and one API deadline</h3>
-              <p>Three evidence-linked changes, compressed into the context needed to start the day.</p>
-              <span class="inspect-link">Read the source ledger <span aria-hidden="true">→</span></span>
+              <h3>One pricing change and one API deadline worth checking</h3>
+              <p>Paperboy links each source and explains why the change belongs in your morning.</p>
+              <span class="inspect-link">Open the original sources <span aria-hidden="true">→</span></span>
             </div>
             <div class="edition-item edition-item-secondary">
               <div class="edition-meta"><span>Repo Radar</span><span>8/10</span><code>agent-router</code></div>
@@ -108,38 +104,38 @@
       </section>
 
       <section class="signal-strip" aria-label="Product principle">
-          <p><span>01</span> What changed across the sources you trust.</p>
-          <p><span>02</span> Which operating or product decision it touches.</p>
-          <p><span>03</span> What to inspect—and what deserves no time today.</p>
+          <p><span>01</span> Forward only the newsletters you choose.</p>
+          <p><span>02</span> Pick the public repos you care about.</p>
+          <p><span>03</span> Get one brief. Ignore the rest.</p>
       </section>
 
       <section class="section example-section" id="example">
         <div class="section-heading">
-          <p class="eyebrow">A labeled example, not a customer result</p>
-          <h2>Every section has a job. Every item earns the interruption.</h2>
-          <p>Paperboy caps each section, cites the evidence, explains the fit, and is allowed to conclude “watch” or “do nothing.”</p>
+          <p class="eyebrow">This is what lands in your inbox</p>
+          <h2>One short brief. Only changes worth your attention.</h2>
+          <p>Each item says what changed, why it matters, and what to check next. If nothing matters, Paperboy says so.</p>
         </div>
 
         <article class="impact-card impact-card-featured">
           <div class="impact-score" aria-label="Relevance score: 8 out of 10"><strong>8</strong><span>/10</span></div>
           <div class="impact-body">
             <div class="impact-meta">
-              <span>Repo Radar · research</span>
+              <span>GitHub update</span>
               <code>demo-labs/api-evals</code>
               <span>Example</span>
             </div>
-            <h3>A research result may change how this repo scores smaller models</h3>
+            <h3>A provider changed how streamed tool calls finish</h3>
             <div class="impact-grid">
               <div>
-                <h4>Why it may matter</h4>
-                <p>The fixture repository already evaluates structured model output. A fixed critique rubric may improve judge agreement without changing the serving model.</p>
+                <h4>Why it matters</h4>
+                <p>This repo handles streamed tool calls. The change may affect when it retries a failed request.</p>
               </div>
               <div class="inspect-box">
-                <h4>Repo Radar · inspect next</h4>
-                <p>Compare rubric-guided and freeform critique on one held-out set.</p>
+                <h4>Check next</h4>
+                <p>Run the existing partial-output test before changing any code.</p>
               </div>
             </div>
-            <a href="https://github.com/cgallic/paperboy/blob/main/examples/action-queue.demo.jsonl" target="_blank" rel="noreferrer">View the public fixture shape <span aria-hidden="true">↗</span></a>
+            <a href="https://github.com/cgallic/paperboy/blob/main/examples/action-queue.demo.jsonl" target="_blank" rel="noreferrer">View the example source <span aria-hidden="true">↗</span></a>
           </div>
         </article>
       </section>
@@ -147,38 +143,38 @@
       <section class="section route-section" id="how-it-works">
         <div class="section-heading section-heading-narrow">
           <p class="eyebrow">How it works</p>
-          <h2>Choose the inputs. Receive one useful edition.</h2>
+          <h2>Send a few sources. See your brief.</h2>
         </div>
         <ol class="delivery-route">
           <li>
             <span class="route-number">1</span>
-            <h3>Choose source lanes</h3>
-            <p>Forward newsletters, use the public catalog, and optionally select public repos.</p>
+            <h3>Request your free sample</h3>
+            <p>Leave your email. No card or account setup is required.</p>
           </li>
           <li>
             <span class="route-number">2</span>
-            <h3>Set your interests</h3>
-            <p>Name the themes, systems, and watchlist that deserve morning attention.</p>
+            <h3>Send the sources you read</h3>
+            <p>Forward a few newsletters or links and name the public repos you follow.</p>
           </li>
           <li>
             <span class="route-number">3</span>
-            <h3>Rank and cap the edition</h3>
-            <p>News, research, data, and repo signals compete for limited space.</p>
+            <h3>We build your sample</h3>
+            <p>Paperboy keeps only the changes connected to your work and links the evidence.</p>
           </li>
           <li>
             <span class="route-number route-number-final">✓</span>
-            <h3>Get the morning email</h3>
-            <p>Four short sections arrive with evidence—and silence when nothing clears the bar.</p>
+            <h3>Decide after you read it</h3>
+            <p>Keep the daily version for $49/month only if the sample earns a place in your morning.</p>
           </li>
         </ol>
       </section>
 
       <section class="permission-section">
         <div class="permission-copy">
-          <p class="eyebrow eyebrow-light">The permission line</p>
-          <h2>Explicit inputs,<br>not ambient access.</h2>
-          <p>Forward only the newsletters you choose. Public news and research come from a shared catalog. The optional GitHub App is read-only and limited to selected public repositories.</p>
-          <button class="button button-paper" type="button" data-route="setup" data-setup-step="sources">Preview the exact consent screen</button>
+          <p class="eyebrow eyebrow-light">You stay in control</p>
+          <h2>You choose what Paperboy reads.</h2>
+          <p>Paperboy never connects to Gmail. Forward only the messages you choose. Public GitHub context is read-only, and Paperboy cannot change your code.</p>
+          <button class="button button-paper" type="button" data-start>Get my free sample brief</button>
         </div>
         <div class="permission-ledger" aria-label="Planned GitHub permission ledger">
           <div><span>Repository metadata</span><strong>Read</strong></div>
@@ -186,79 +182,69 @@
           <div><span>Pull requests</span><strong>Read</strong></div>
           <div><span>Issues</span><strong>Read</strong></div>
           <div class="permission-zero"><span>Write permissions</span><strong>None</strong></div>
-          <p>Local fixture only. This prototype does not contact GitHub or register an App.</p>
+          <p>The current sample uses public repositories only. Private-repository access is not available.</p>
         </div>
       </section>
 
       <section class="section pricing-section" id="pricing">
         <div class="section-heading section-heading-narrow">
-          <p class="eyebrow">One paid wedge, one open-source path</p>
-          <h2>Pay for sharper decisions, not another summary.</h2>
-          <p>The commercial test is whether one morning edition prevents a missed change, weak vendor choice, or wasted technical chase. Founding-pilot requests are open now; no card is required.</p>
+          <p class="eyebrow">See it before you pay</p>
+          <h2>Your first personalized brief is free.</h2>
+          <p>If it earns a place in your morning, the founding pilot is $49/month. If it does not, do not continue.</p>
         </div>
         <div class="pricing-grid">
           <article class="price-card price-card-primary">
             <div>
-              <p class="price-label">For revenue-bearing AI, SaaS, and devtool operators</p>
-              <h3>Paperboy Operator</h3>
+              <p class="price-label">After your free sample</p>
+              <h3>Paperboy Daily Brief</h3>
               <p class="price"><span>$</span>49 <small>/ month</small></p>
-              <p class="hypothesis">Founding pilot: $49/month after your invite. Requesting a pilot does not start a subscription or charge a card.</p>
+              <p class="hypothesis">No card is collected until you have seen your sample and choose to continue.</p>
               <ul>
-                <li>One scheduled morning edition</li>
-                <li>Forwarded newsletters without inbox access</li>
-                <li>Public news, research, and data signals</li>
-                <li>Optional context from 1–5 public repos</li>
-                <li>Economic-decision lens for cost, dependency, vendor, and market changes</li>
-                <li>Capped sections, evidence, and feedback</li>
+                <li>One personalized morning brief</li>
+                <li>Forwarded newsletters without Gmail access</li>
+                <li>Up to five selected public GitHub repos</li>
+                <li>Links to every original source</li>
+                <li>Cancel monthly</li>
               </ul>
             </div>
-            <button class="button button-wide" type="button" data-start>Request the founding pilot</button>
-          </article>
-          <article class="price-card price-card-oss">
-            <div>
-              <p class="price-label">Run it yourself</p>
-              <h3>Paperboy Open Source</h3>
-              <p class="price price-free">Free <small>MIT licensed</small></p>
-              <p>Bring Linux, Ollama, Discord, and your own operations. The current project remains separate from the hosted product.</p>
-            </div>
-            <a class="button button-outline button-wide" href="https://github.com/cgallic/paperboy" target="_blank" rel="noreferrer">Open the GitHub project <span aria-hidden="true">↗</span></a>
+            <button class="button button-wide" type="button" data-start>Get my free sample brief</button>
           </article>
         </div>
       </section>
 
       <section class="section faq-section">
         <div class="section-heading section-heading-narrow">
-          <p class="eyebrow">Before you connect anything</p>
-          <h2>Reasonable questions, answered directly.</h2>
+          <p class="eyebrow">Straight answers</p>
+          <h2>What happens after you ask for a sample?</h2>
         </div>
         <div class="faq-list">
           <details>
-            <summary>Does Paperboy need every repository?</summary>
-            <p>No. GitHub is an optional source lane. If you use it, select one to five public repositories. This local preview uses fictional fixtures only.</p>
+            <summary>Does Paperboy read my inbox?</summary>
+            <p>No. Paperboy never connects to Gmail. You forward only the newsletters you choose.</p>
           </details>
           <details>
             <summary>Can Paperboy change my code?</summary>
-            <p>No. The planned GitHub access is read-only. The product does not write code, issues, pull requests, or run autonomous actions.</p>
+            <p>No. The sample uses public, read-only GitHub context. Paperboy cannot write code, issues, or pull requests.</p>
           </details>
           <details>
-            <summary>Does Paperboy read my inbox?</summary>
-            <p>No. Paperboy gives you a forwarding alias. It sees only messages you intentionally forward to that address. Gmail OAuth is excluded.</p>
+            <summary>What do you need to build my sample?</summary>
+            <p>A few newsletters or links, the public repos you follow, and a short note about what you are working on.</p>
           </details>
           <details>
-            <summary>What arrives by email?</summary>
-            <p>A capped edition: Today in 60 Seconds, Repo Radar, Research Worth Reading, and Watchlist / Do Nothing. Every substantive item links to evidence.</p>
+            <summary>Is the sample automated?</summary>
+            <p>The free sample includes human review while we validate the product. Scheduled delivery is not generally available yet.</p>
           </details>
           <details>
-            <summary>Is this the same as the open-source project?</summary>
-            <p>The hosted concept builds on the project's scoring and digest ideas. The free self-hosted SQLite/systemd/Discord project remains available and separate.</p>
+            <summary>What happens after the free sample?</summary>
+            <p>If it is useful, you can join the $49/month founding pilot. No card is collected until you choose to continue.</p>
           </details>
         </div>
       </section>
 
       <section class="final-cta">
-        <p class="eyebrow eyebrow-light">What matters, delivered.</p>
-        <h2>Turn the sources you already trust into one morning worth reading.</h2>
-        <button class="button button-paper button-large" type="button" data-start>Build a local Daily Brief <span aria-hidden="true">→</span></button>
+        <p class="eyebrow eyebrow-light">See it with your sources</p>
+        <h2>Find out what Paperboy would send you tomorrow.</h2>
+        <button class="button button-paper button-large" type="button" data-start>Get my free sample brief <span aria-hidden="true">→</span></button>
       </section>
     </section>
 
@@ -266,26 +252,26 @@
       <div class="flow-shell auth-shell">
         <button class="back-link" type="button" data-route="home"><span aria-hidden="true">←</span> Back to home</button>
         <div class="flow-card">
-          <p class="eyebrow">Founding pilot · $49/month</p>
-          <h1>Request your first Daily Brief.</h1>
-          <p>Leave your email and we’ll contact you about a personalized founding pilot. No Gmail access, inbox connection, or card is required.</p>
+          <p class="eyebrow">Free personalized sample</p>
+          <h1>Where should we send your sample?</h1>
+          <p>Enter your email. We’ll reply to collect a few sources and build your brief. No card, Gmail connection, or subscription.</p>
           <div class="guardrail">
-            <strong>Clear boundary</strong>
-            <span>This form requests the pilot only. The product tour that follows uses fictional data and does not connect your inbox or GitHub account.</span>
+            <strong>What happens next</strong>
+            <span>We email you once to collect your chosen sources. The product tour that follows uses fictional data.</span>
           </div>
           <form id="magic-link-form" novalidate>
             <div class="field">
               <label for="signin-email">Email address</label>
               <input id="signin-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby="email-help email-error">
-              <span class="field-help" id="email-help">Used only to contact you about the Paperboy founding pilot.</span>
+              <span class="field-help" id="email-help">Used only to build and deliver your Paperboy sample.</span>
               <span class="field-error" id="email-error" role="alert"></span>
             </div>
-            <button class="button button-wide" type="submit" id="pilot-submit">Request the $49 founding pilot</button>
+            <button class="button button-wide" type="submit" id="pilot-submit">Get my free sample brief</button>
           </form>
           <div class="magic-success" id="magic-success" hidden>
             <div class="success-mark" aria-hidden="true">✓</div>
-            <h2 id="pilot-success-title">Request received.</h2>
-            <p id="pilot-success-copy">We’ll use your email only to follow up about the founding pilot. No account or subscription was created.</p>
+            <h2 id="pilot-success-title">You’re on the sample list.</h2>
+            <p id="pilot-success-copy">We’ll email you to collect a few sources. No account, card, or subscription was created.</p>
             <button class="button button-wide" type="button" id="simulate-magic-link">Explore the product preview</button>
             <button class="text-button button-wide" type="button" id="change-email">Use a different email</button>
           </div>
@@ -500,9 +486,9 @@
           </div>
           <aside class="order-summary">
             <p class="price-label">Plan summary</p>
-            <h2>Paperboy Operator</h2>
+            <h2>Paperboy Daily Brief</h2>
             <p class="price"><span>$</span>49 <small>/ month</small></p>
-            <p class="hypothesis">$49 price hypothesis. The $29 / $49 / $79 test happens only after a personalized sample. No plan can be purchased here.</p>
+            <p class="hypothesis">The founding pilot is $49/month after the free sample. This product tour cannot create a charge.</p>
             <dl>
               <div><dt>Repositories</dt><dd id="checkout-repo-count">0 selected</dd></div>
               <div><dt>Delivery</dt><dd id="checkout-delivery">Not set</dd></div>
@@ -544,7 +530,7 @@
             <div class="account-card-heading">
               <div>
                 <p class="card-kicker">Subscription preview</p>
-                <h2>Paperboy Operator</h2>
+                <h2>Paperboy Daily Brief</h2>
               </div>
               <span class="status-pill" id="billing-pill">Active preview</span>
             </div>
@@ -647,8 +633,7 @@
     </div>
     <p>Local, no-secrets product surface for the Paperboy Daily Brief.</p>
     <div>
-      <a href="https://github.com/cgallic/paperboy" target="_blank" rel="noreferrer">GitHub</a>
-      <button class="text-button" type="button" data-route="account">State previews</button>
+      <span>Free sample first · $49/month only if useful</span>
     </div>
   </footer>
 
@@ -667,7 +652,7 @@
   </dialog>
 
   <noscript>
-    <div class="noscript">Paperboy needs JavaScript to submit a founding-pilot request and open the product tour. No Gmail, GitHub, or billing connection is made.</div>
+    <div class="noscript">Paperboy needs JavaScript to request a free sample and open the product tour. No Gmail, GitHub, or billing connection is made.</div>
   </noscript>
 </body>
 </html>
