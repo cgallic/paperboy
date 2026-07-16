@@ -216,6 +216,27 @@
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
+  function isKaiBuildsHost() {
+    return /(^|\.)kaibuilds\.com$/i.test(window.location.hostname);
+  }
+
+  function attributionFields() {
+    var params = new URLSearchParams(window.location.search);
+    var fields = {};
+    ["ref", "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid", "fbclid"].forEach(function (key) {
+      var value = params.get(key);
+      if (value) fields[key] = value;
+    });
+    return fields;
+  }
+
+  function recordKaiBuildsVisit() {
+    if (!isKaiBuildsHost()) return;
+    var pixel = new Image();
+    pixel.alt = "";
+    pixel.src = "/api/hit?slug=paperboy&r=" + Date.now();
+  }
+
   function getSelectedRepoObjects() {
     return fixtureRepos.filter(function (repo) {
       return state.selectedRepos.indexOf(repo.id) >= 0;
@@ -589,10 +610,13 @@
     mobileNav.hidden = open;
   });
 
-  document.getElementById("magic-link-form").addEventListener("submit", function (event) {
+  document.getElementById("magic-link-form").addEventListener("submit", async function (event) {
     event.preventDefault();
+    var form = event.currentTarget;
     var input = document.getElementById("signin-email");
     var error = document.getElementById("email-error");
+    var submit = document.getElementById("pilot-submit");
+    var email = input.value.trim();
     if (!isValidEmail(input.value.trim())) {
       error.textContent = "Enter a valid email address.";
       input.setAttribute("aria-invalid", "true");
@@ -601,10 +625,42 @@
     }
     error.textContent = "";
     input.removeAttribute("aria-invalid");
-    state.email = input.value.trim();
+    submit.disabled = true;
+    submit.textContent = isKaiBuildsHost() ? "Sending request…" : "Opening preview…";
+    state.email = email;
     state.delivery.email = state.email;
     saveState();
-    event.currentTarget.hidden = true;
+
+    if (isKaiBuildsHost()) {
+      try {
+        var response = await fetch("/api/lead", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(Object.assign({
+            slug: "paperboy",
+            email: email,
+            message: "Paperboy $49/month founding-pilot request",
+            offer: "Paperboy Operator founding pilot",
+            price: "$49/month",
+            source: "paperboy_landing",
+            page: window.location.href
+          }, attributionFields()))
+        });
+        if (!response.ok) throw new Error("Lead capture returned " + response.status);
+        document.getElementById("pilot-success-title").textContent = "Request received.";
+        document.getElementById("pilot-success-copy").textContent = "We’ll use your email only to follow up about the founding pilot. No account or subscription was created.";
+      } catch (captureError) {
+        error.textContent = "We couldn’t save that request. Please try again.";
+        submit.disabled = false;
+        submit.textContent = "Request the $49 founding pilot";
+        return;
+      }
+    } else {
+      document.getElementById("pilot-success-title").textContent = "Local preview ready.";
+      document.getElementById("pilot-success-copy").textContent = "This local copy did not submit your email. Use the live KaiBuilds page to request the founding pilot.";
+    }
+
+    form.hidden = true;
     document.getElementById("magic-success").hidden = false;
   });
 
@@ -763,6 +819,7 @@
     }
   }
 
+  recordKaiBuildsVisit();
   saveState();
   initialRoute();
 })();

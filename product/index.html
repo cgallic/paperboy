@@ -3,8 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Local, no-secrets Paperboy Daily Brief product prototype.">
+  <meta name="description" content="Paperboy turns forwarded newsletters, public intelligence, and selected GitHub repos into one evidence-linked Daily Brief.">
   <meta name="theme-color" content="#f3eee3">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://paperboy.kaibuilds.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Paperboy — Your Daily Intelligence Brief">
+  <meta property="og:description" content="Know what changes your next move. Request a $49/month founding pilot.">
+  <meta property="og:url" content="https://paperboy.kaibuilds.com/">
   <title>paperboy — Your Daily Brief</title>
   <link rel="stylesheet" href="styles.css">
   <script src="app.js" defer></script>
@@ -14,8 +20,8 @@
 
   <div class="local-banner" role="status">
     <span class="status-dot" aria-hidden="true"></span>
-    <strong>Local product preview</strong>
-    <span>No auth, GitHub connection, email, or billing is live. Nothing leaves this browser.</span>
+    <strong>Founding pilot open</strong>
+    <span>$49/month after your invite. The product tour is a preview; auth, scheduled delivery, and billing are not live yet.</span>
   </div>
 
   <header class="site-header" id="site-header">
@@ -33,8 +39,8 @@
       <a href="#how-it-works">How it works</a>
       <a href="#pricing">Pricing</a>
       <a href="https://github.com/cgallic/paperboy" target="_blank" rel="noreferrer">GitHub <span class="sr-only">(opens in a new tab)</span></a>
-      <button class="text-button" type="button" data-route="signin">Sign in</button>
-      <button class="button button-small" type="button" data-start>Start a brief</button>
+      <button class="text-button" type="button" data-route="signin">Founding pilot</button>
+      <button class="button button-small" type="button" data-start>Request a brief</button>
     </nav>
 
     <button class="menu-button" type="button" aria-expanded="false" aria-controls="mobile-nav">
@@ -45,8 +51,8 @@
       <a href="#how-it-works">How it works</a>
       <a href="#pricing">Pricing</a>
       <a href="https://github.com/cgallic/paperboy" target="_blank" rel="noreferrer">GitHub</a>
-      <button class="text-button" type="button" data-route="signin">Sign in</button>
-      <button class="button" type="button" data-start>Start a brief</button>
+      <button class="text-button" type="button" data-route="signin">Founding pilot</button>
+      <button class="button" type="button" data-start>Request a brief</button>
     </nav>
   </header>
 
@@ -58,7 +64,7 @@
           <h1>Know what changes your next move.</h1>
           <p class="hero-lede">Paperboy turns the newsletters you forward, public news and research, tracked data, and selected GitHub repos into one evidence-linked morning edition: what changes a decision, what deserves inspection, and what can wait.</p>
           <div class="hero-actions">
-            <button class="button button-large" type="button" data-start>Build a Daily Brief <span aria-hidden="true">→</span></button>
+            <button class="button button-large" type="button" data-start>Request a founding pilot <span aria-hidden="true">→</span></button>
             <a class="quiet-link" href="https://github.com/cgallic/paperboy" target="_blank" rel="noreferrer">View the open-source project <span aria-hidden="true">↗</span></a>
           </div>
           <ul class="trust-line" aria-label="Product boundaries">
@@ -188,7 +194,7 @@
         <div class="section-heading section-heading-narrow">
           <p class="eyebrow">One paid wedge, one open-source path</p>
           <h2>Pay for sharper decisions, not another summary.</h2>
-          <p>The commercial test is whether one morning edition prevents a missed change, weak vendor choice, or wasted technical chase. Pricing remains a hypothesis and is shown before sign-in.</p>
+          <p>The commercial test is whether one morning edition prevents a missed change, weak vendor choice, or wasted technical chase. Founding-pilot requests are open now; no card is required.</p>
         </div>
         <div class="pricing-grid">
           <article class="price-card price-card-primary">
@@ -196,7 +202,7 @@
               <p class="price-label">For revenue-bearing AI, SaaS, and devtool operators</p>
               <h3>Paperboy Operator</h3>
               <p class="price"><span>$</span>49 <small>/ month</small></p>
-              <p class="hypothesis">$49 is the primary price hypothesis—not a live offer. Validate $29 / $49 / $79 only after a personalized sample proves decision value.</p>
+              <p class="hypothesis">Founding pilot: $49/month after your invite. Requesting a pilot does not start a subscription or charge a card.</p>
               <ul>
                 <li>One scheduled morning edition</li>
                 <li>Forwarded newsletters without inbox access</li>
@@ -205,12 +211,8 @@
                 <li>Economic-decision lens for cost, dependency, vendor, and market changes</li>
                 <li>Capped sections, evidence, and feedback</li>
               </ul>
-              <div class="validation-offer">
-                <strong>$199 concierge calibration · validation option</strong>
-                <span>A possible one-time setup test, not a service available or fulfilled from this preview. A $149 small-Team plan is later only after retention.</span>
-              </div>
             </div>
-            <button class="button button-wide" type="button" data-start>Build a sample Daily Brief</button>
+            <button class="button button-wide" type="button" data-start>Request the founding pilot</button>
           </article>
           <article class="price-card price-card-oss">
             <div>
@@ -264,27 +266,27 @@
       <div class="flow-shell auth-shell">
         <button class="back-link" type="button" data-route="home"><span aria-hidden="true">←</span> Back to home</button>
         <div class="flow-card">
-          <p class="eyebrow">Local step 0</p>
-          <h1>Start your Daily Brief.</h1>
-          <p>Enter an email to preview the magic-link flow. No email is sent, and the address stays in this browser's local storage.</p>
+          <p class="eyebrow">Founding pilot · $49/month</p>
+          <h1>Request your first Daily Brief.</h1>
+          <p>Leave your email and we’ll contact you about a personalized founding pilot. No Gmail access, inbox connection, or card is required.</p>
           <div class="guardrail">
-            <strong>Simulation boundary</strong>
-            <span>Signing in does not connect your inbox or GitHub account. This page has no backend.</span>
+            <strong>Clear boundary</strong>
+            <span>This form requests the pilot only. The product tour that follows uses fictional data and does not connect your inbox or GitHub account.</span>
           </div>
           <form id="magic-link-form" novalidate>
             <div class="field">
               <label for="signin-email">Email address</label>
               <input id="signin-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby="email-help email-error">
-              <span class="field-help" id="email-help">Used only to personalize this local preview.</span>
+              <span class="field-help" id="email-help">Used only to contact you about the Paperboy founding pilot.</span>
               <span class="field-error" id="email-error" role="alert"></span>
             </div>
-            <button class="button button-wide" type="submit">Email me a sign-in link</button>
+            <button class="button button-wide" type="submit" id="pilot-submit">Request the $49 founding pilot</button>
           </form>
           <div class="magic-success" id="magic-success" hidden>
             <div class="success-mark" aria-hidden="true">✓</div>
-            <h2>Check your email—simulated.</h2>
-            <p>No message was sent. Continue with the local magic link to test the product flow.</p>
-            <button class="button button-wide" type="button" id="simulate-magic-link">Open simulated magic link</button>
+            <h2 id="pilot-success-title">Request received.</h2>
+            <p id="pilot-success-copy">We’ll use your email only to follow up about the founding pilot. No account or subscription was created.</p>
+            <button class="button button-wide" type="button" id="simulate-magic-link">Explore the product preview</button>
             <button class="text-button button-wide" type="button" id="change-email">Use a different email</button>
           </div>
         </div>
@@ -665,7 +667,7 @@
   </dialog>
 
   <noscript>
-    <div class="noscript">This local product preview needs JavaScript for the simulated setup flow. No network calls or live services are used.</div>
+    <div class="noscript">Paperboy needs JavaScript to submit a founding-pilot request and open the product tour. No Gmail, GitHub, or billing connection is made.</div>
   </noscript>
 </body>
 </html>

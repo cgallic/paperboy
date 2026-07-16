@@ -33,11 +33,24 @@ function requireText(source, text, label) {
   ["MAX_REPOS = 5", "repository cap"]
 ].forEach(([text, label]) => requireText(js, text, label));
 
+[
+  ["https://paperboy.kaibuilds.com/", "canonical KaiBuilds URL"],
+  ["Founding pilot: $49/month", "live pilot offer"],
+  ["Request the $49 founding pilot", "pilot lead CTA"]
+].forEach(([text, label]) => requireText(html, text, label));
+
+[
+  ['fetch("/api/lead"', "same-origin KaiBuilds lead capture"],
+  ["/api/hit?slug=paperboy", "KaiBuilds visit capture"],
+  ['slug: "paperboy"', "Paperboy capture slug"],
+  ["attributionFields", "campaign attribution capture"]
+].forEach(([text, label]) => requireText(js, text, label));
+
 const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
 const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
 if (duplicates.length) failures.push("Duplicate HTML ids: " + [...new Set(duplicates)].join(", "));
 
-if (/<(?:script|link)[^>]+(?:src|href)="https?:/i.test(html)) {
+if (/<script[^>]+src="https?:/i.test(html) || /<link(?=[^>]+rel="stylesheet")(?=[^>]+href="https?:)[^>]*>/i.test(html)) {
   failures.push("Remote script or stylesheet dependency found.");
 }
 
@@ -45,14 +58,17 @@ if (/<form[^>]+action=/i.test(html)) {
   failures.push("A form action could submit data outside the local preview.");
 }
 
-[
-  ["fetch(", "fetch"],
-  ["XMLHttpRequest", "XMLHttpRequest"],
-  ["WebSocket", "WebSocket"],
-  ["sendBeacon", "sendBeacon"]
-].forEach(([needle, label]) => {
-  if (js.includes(needle)) failures.push("Live network primitive found: " + label);
+if ((js.match(/fetch\(/g) || []).length !== 1 || !js.includes('fetch("/api/lead"')) {
+  failures.push("Only the same-origin /api/lead fetch is allowed.");
+}
+
+[["XMLHttpRequest", "XMLHttpRequest"], ["WebSocket", "WebSocket"], ["sendBeacon", "sendBeacon"]].forEach(([needle, label]) => {
+  if (js.includes(needle)) failures.push("Unexpected network primitive found: " + label);
 });
+
+if (/fetch\(\s*[`'\"]https?:/i.test(js)) {
+  failures.push("External fetch URL found.");
+}
 
 const cssOpen = (css.match(/{/g) || []).length;
 const cssClose = (css.match(/}/g) || []).length;
@@ -67,5 +83,5 @@ if (failures.length) {
 console.log("Paperboy product static checks passed.");
 console.log("- " + ids.length + " unique HTML ids");
 console.log("- no remote UI assets or form actions");
-console.log("- no JavaScript network primitives");
+console.log("- only same-origin KaiBuilds lead and visit capture");
 console.log("- required Daily Brief sections and demo boundaries present");

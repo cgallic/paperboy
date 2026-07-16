@@ -1,23 +1,25 @@
-# Paperboy Daily Intelligence Brief — local product surface
+# Paperboy Daily Intelligence Brief — validation surface
 
-This is a self-contained, no-secrets static prototype for the hosted Paperboy
-product direction.
+This is a self-contained, no-secrets validation surface for the hosted Paperboy
+product direction. It is deployed at `https://paperboy.kaibuilds.com/`.
 
 It demonstrates:
 
-- a Daily Intelligence Brief landing and $49/month Operator price hypothesis;
+- a Daily Intelligence Brief landing and $49/month founding-pilot offer;
 - explicit source selection for forwarded newsletters, public
   news/research/data, and optional read-only public GitHub repositories;
-- local-only magic-link, fixture repository, interests, schedule, checkout,
+- a live same-origin founding-pilot lead request on KaiBuilds;
+- local-only fixture repository, interests, schedule, checkout,
   account, privacy, and billing state previews;
 - a responsive email edition with Today in 60 Seconds, Repo Radar, Research
   Worth Reading, and Watchlist / Do Nothing;
 - capped fixture items, evidence links, and local feedback controls; and
 - the free self-hosted GitHub project as the acquisition path.
 
-No auth, connector, email, model, billing, or backend provider is configured.
-The JavaScript makes no network request. It persists only the demo state under
-the browser localStorage key `paperboy.product-demo.v2`.
+No auth, connector, scheduled email, model, or billing provider is configured.
+On a KaiBuilds host, JavaScript records a visit with `/api/hit` and submits the
+founding-pilot form to `/api/lead`; campaign parameters are preserved. The
+product-tour state remains local under `paperboy.product-demo.v2`.
 
 ## Serve locally
 
@@ -46,23 +48,24 @@ git diff --check
 
 ## Golden path
 
-1. Open the landing page and select **Build a Daily Brief**.
-2. Enter a valid email and open the simulated magic link.
-3. Keep or change the forwarding/public source lanes.
-4. Load fictional GitHub fixtures, search, and select up to five.
-5. Add interests, active themes, and a watchlist decision.
-6. Choose delivery days, time, and time zone.
-7. Open the responsive email preview.
-8. Continue to the disabled checkout handoff.
-9. Preview successful setup and inspect account/privacy/billing states.
-10. Clear all local demo data.
+1. Open the landing page and select **Request a founding pilot**.
+2. Enter a valid email. On KaiBuilds, confirm the lead request succeeds.
+3. Open the fictional product tour.
+4. Keep or change the forwarding/public source lanes.
+5. Load fictional GitHub fixtures, search, and select up to five.
+6. Add interests, active themes, and a watchlist decision.
+7. Choose delivery days, time, and time zone.
+8. Open the responsive email preview.
+9. Continue to the disabled checkout handoff.
+10. Preview successful setup and inspect account/privacy/billing states.
+11. Clear all local demo data.
 
 ## Acceptance checklist
 
 - [ ] Landing is clearly a Daily Intelligence Brief, not a generic summary or
   Repo Impact-only product.
-- [ ] Pricing shows $49/month as a hypothesis; $29/$49/$79 and $199
-  calibration are labeled validation options, not live offers.
+- [ ] Pricing shows a $49/month founding pilot and states that requesting it
+  does not create a subscription or charge.
 - [ ] Self-hosted Paperboy remains visible as the free acquisition path.
 - [ ] Source lanes explicitly distinguish forwarding, public catalog, and
   selected public GitHub repositories.
@@ -74,6 +77,8 @@ git diff --check
 - [ ] Email preview contains four capped sections and evidence links.
 - [ ] Feedback changes only local state.
 - [ ] Checkout cannot create a charge.
+- [ ] KaiBuilds lead capture uses only same-origin `/api/lead` and carries the
+  explicit `paperboy` slug and campaign attribution.
 - [ ] Account state previews cannot call auth, billing, email, or GitHub.
 - [ ] Desktop and mobile golden paths complete without horizontal overflow.
 - [ ] Keyboard focus, labels, field errors, reduced motion, and touch targets
