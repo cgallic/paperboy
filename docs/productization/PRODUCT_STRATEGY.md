@@ -1,7 +1,7 @@
 # Paper Boy product strategy
 
 **Decision date:** 2026-07-16
-**Recommendation:** Test a hosted **Paperboy Daily Brief** for independent technical builders at **$12/month** while keeping the current self-hosted GitHub project free. The brief should rank and synthesize explicitly forwarded newsletters, public news/research/data, and selected GitHub repositories into one evidence-backed morning edition. Repo Radar is one section, not the whole product.
+**Recommendation:** Sell a hosted **Paperboy Daily Intelligence Brief** to revenue-bearing technical founders and operators at a primary price of **$49/month** while keeping the current self-hosted GitHub project free as distribution and proof. The brief should rank and synthesize explicitly forwarded newsletters, public news/research/data, and selected GitHub repositories into one evidence-backed morning edition. Repo Radar is one section, not the whole product.
 
 ## Source-of-truth note
 
@@ -26,6 +26,8 @@ Future product decisions must state three things in order:
 
 Reject any wedge that changes the core job merely because one input or section appears easier to sell. **Repo Radar is a section of the Daily Brief, not Paperboy's product identity.**
 
+Commercially, preserving the core job does not mean preserving the OSS audience, easiest beta, or lowest price. Optimize for the product that can create durable revenue: choose an ICP with an expensive information problem, charge against the value of better decisions, and keep delivery costs bounded. Reject both failure modes—turning Paperboy into a narrow repo utility and pricing a decision-intelligence product like a commodity reader.
+
 ## Current product truth
 
 | Area | What exists now | Evidence |
@@ -42,7 +44,7 @@ Reject any wedge that changes the core job merely because one input or section a
 
 ## Recommended wedge
 
-### Paperboy Daily Brief for technical builders
+### Paperboy Daily Intelligence Brief for technical founders and operators
 
 **Promise:** Forward the newsletters you trust, choose the public sources and GitHub repositories you care about, and receive one ranked morning edition showing what changed, what connects across sources, why it matters, and what deserves action.
 
@@ -63,20 +65,23 @@ This wedge preserves Paperboy's original news-and-research identity and uses sel
 
 ### Primary ICP
 
-Independent technical founders, developers, researchers, and product operators who:
+Revenue-bearing technical founders and hands-on product/engineering operators who:
 
+- run an AI, SaaS, developer-tool, technical agency, or data product where a missed model, API, competitor, research, or repository change can waste days or change a revenue decision;
 - already receive multiple high-signal newsletters and follow public feeds, papers, datasets, or repositories;
 - maintain or depend on at least one public GitHub repository, without requiring repo ownership to define their whole information need;
-- repeatedly discover important connections late or spend too much time reconciling overlapping sources;
-- can make an implementation decision without team procurement; and
-- already pay for at least one developer productivity subscription.
+- personally reconcile overlapping sources and can act on the morning brief;
+- can purchase a sub-$100 monthly tool without procurement; and
+- already pay for developer productivity, research, or market-intelligence subscriptions.
 
-The first cohort should still skew toward AI and developer-tool builders because the current research scorer and source set are strongest there. Start with public repositories. Private-repository access introduces a trust and security sale that a $12 beta does not need.
+The first cohort should skew toward AI and developer-tool founders because the current research scorer and source set are strongest there and external change velocity is high. The commercial qualification is not job title alone: the buyer should be able to name a recent missed signal that cost at least several hours, delayed a product decision, or created avoidable spend. Start with public repositories. Private-repository access introduces a trust and security sale that the first small-software version does not need.
 
 ### Excluded from the first wedge
 
 - General-news consumers seeking a broad newspaper replacement.
+- Hobbyists whose information problem is interesting but not economically costly.
 - Users who want a read-later archive rather than a ranked morning decision surface.
+- Researchers or employees who need reimbursement/procurement for a $49 tool.
 - Engineering managers seeking standup replacement or velocity analytics.
 - Enterprise competitive-intelligence teams.
 - Teams that require private-code indexing, SSO, audit logs, or procurement.
@@ -122,7 +127,7 @@ The onboarding preview should produce one sample edition before payment. A credi
 ### In scope
 
 - Email address and a unique forwarding address for newsletters the user explicitly chooses.
-- A small allowlist of user-selected public RSS/Atom feeds, research sources, public data endpoints, and 1-5 public GitHub repositories.
+- A bounded allowlist of user-selected public RSS/Atom feeds, research sources, public data endpoints, and up to 10 public GitHub repositories.
 - A generated interest/context profile from onboarding answers, forwarded-source choices, and bounded public repo material such as README, dependency manifests, languages, releases, and topics.
 - The existing research/news/paper intake where it is reliable, with source-level provenance preserved.
 - One scheduled morning email surface with stable sections, evidence links, source attribution, and a hard item cap.
@@ -149,7 +154,7 @@ Keep the current SQLite/systemd project self-hosted and single-user. Do not expo
 - Gmail/Outlook mailbox access, broad inbox search, reply drafting, or sending as the user. Explicit forwarding is the only email intake.
 - Discord, Slack, mobile app, or dashboard delivery for hosted v1.
 - Autonomous PR creation, code changes, purchases, or external actions.
-- Team accounts, shared feeds, standup reports, analytics, SSO, or RBAC.
+- Team accounts in the initial Operator build, plus standup reports, analytics dashboards, SSO, or RBAC. The later Small Team offer is shared delivery/feedback only.
 - A read-later archive, full-text personal search engine, vector database, general personal memory product, or open-brane hosting.
 - Affiliate-ranked recommendations.
 - A marketplace or “agent factory.”
@@ -159,30 +164,82 @@ Keep the current SQLite/systemd project self-hosted and single-user. Do not expo
 ### Offer
 
 - **Self-hosted:** free, MIT GitHub project; users bring Linux, Ollama, Discord, and their own operation.
-- **Hosted Personal beta:** **$12/month**, monthly cancellation, explicit newsletter forwarding, bounded public feeds/research/data, 1-5 public repos, one scheduled morning edition, feedback learning, and no infrastructure setup.
-- **Annual plan:** do not introduce until monthly willingness-to-pay and 30-day retention clear the thresholds below. Then test $99/year against $12 monthly.
+- **Operator — primary offer:** **$49/month** for one recipient, explicit newsletter forwarding, up to 30 declared public/news/research/data sources, up to 10 public repos, one scheduled Daily Intelligence Brief, evidence, feedback learning, and no infrastructure setup.
+- **Annual:** test **$490/year** only after month-two retention clears the threshold below. Do not use an annual discount to hide weak monthly retention.
+- **Concierge setup — optional during validation:** **$199 one time** for source mapping, initial ranking calibration, and a live first-edition review. Keep the subscription usable without this service and remove the manual dependency as onboarding improves.
+- **Small Team — later expansion:** **$149/month** for up to five recipients sharing one source set and edition. Add only after Operator retention; keep it to shared delivery and feedback, not SSO, dashboards, permissions, or enterprise procurement.
 
 Do not launch a permanently free hosted tier during PMF testing. The free self-hosted project is already the open-source acquisition path. Offer a no-card sample brief or short trial instead.
 
-### $12 pressure test
+### $49 pressure test
 
 As of 2026-07-16, current primary pricing pages show:
 
 | Alternative | Current offer and price | What it proves | Paper Boy gap/opportunity |
 |---|---|---|---|
 | GitHub notifications | GitHub natively sends activity for watched repos to its inbox, mobile, or email; users can filter issue, PR, release, security, and discussion activity. [Official docs](https://docs.github.com/en/subscriptions-and-notifications/concepts/about-notifications), [subscription controls](https://docs.github.com/en/subscriptions-and-notifications/how-tos/managing-subscriptions-for-activity-on-github/managing-your-subscriptions) | Repo email is already native and carries no separate product purchase. | Repo Radar must synthesize repo activity with outside news/research rather than forward notifications. |
-| Digest | Starter is **$6/month** and includes AI newsletter summaries, RSS, news sources, and GitHub Trending sources. [Official pricing](https://usedigest.com/pricing/) | Multi-source daily email aggregation is inexpensive. | A $12 edition must rank across source types, merge duplicate claims, and explain evidence—not just collect widgets. |
-| Inoreader | Pro is **$7.50/month billed annually or $9.99 monthly**, with monitoring feeds, filters/rules, AI summaries, and scheduled email digests. [Official pricing](https://www.inoreader.com/pricing/feature/subscriptions) | Power users can build sophisticated filters below $12. | Paperboy must remove rule-building work and supply cross-source judgment plus a strict relevance bar. |
-| Digest AI | Pro is **$15/month** for unlimited newsletter sources, advanced summaries, categories, and custom delivery time. [Official pricing](https://www.newsletterdigest.tech/pricing) | Inbox-summary buyers already see a $15 reference price. | Paperboy at $12 is plausible if it joins forwarded claims to public evidence and other source classes. |
+| Digest | Starter is **$6/month** and includes AI newsletter summaries, RSS, news sources, and GitHub Trending sources. [Official pricing](https://usedigest.com/pricing/) | Multi-source daily email aggregation is inexpensive. | A $49 edition must demonstrably improve decisions through ranking, claim synthesis, and evidence—not just collect widgets. |
+| Inoreader | Pro is **$7.50/month billed annually or $9.99 monthly**, with monitoring feeds, filters/rules, AI summaries, and scheduled email digests. [Official pricing](https://www.inoreader.com/pricing/feature/subscriptions) | Power users can build sophisticated filters far below $49. | Paperboy must remove rule-building work and supply cross-source judgment plus a strict relevance bar for a buyer with an expensive miss problem. |
+| Digest AI | Pro is **$15/month** for unlimited newsletter sources, advanced summaries, categories, and custom delivery time. [Official pricing](https://www.newsletterdigest.tech/pricing) | Inbox-summary buyers already see a $15 reference price. | Paperboy earns a premium only when it joins forwarded claims to public evidence and makes the result decision-ready. |
 | Git Digest | **$25/month billed annually** for unlimited teammates/repos, code-change summaries, and daily/weekly email or Slack. [Official product and pricing](https://gitdigest.ai/) | Customers pay for selected-repo summaries that replace coordination work. | Paper Boy should not compete on standups; it should cover external change → internal impact. |
-| AlphaSignal | Free covers top AI stories/models/repos; Pro is **$350/year ($29.17/month)** for a work-personalized, ad-free newsletter covering models, repos, and papers. [Official pricing](https://alphasignal.ai/pricing) | The closest public-news/research promise already exists and charges above $12. | Paperboy differentiates through user-chosen forwarded sources, visible evidence, cross-source synthesis, and quiet-day restraint. |
+| AlphaSignal | Free covers top AI stories/models/repos; Pro is **$350/year ($29.17/month)** for a work-personalized, ad-free newsletter covering models, repos, and papers. [Official pricing](https://alphasignal.ai/pricing) | The closest public-news/research promise establishes a roughly $29 individual reference price. | Paperboy's $49 price requires a stronger outcome: user-chosen private-to-them forwarded sources, visible evidence, cross-source synthesis, feedback learning, and one next move. |
 | Feedly Market Intelligence | Standard is **$1,600/month billed annually**, including 100 AI feeds, newsletter templates, collaboration, and up to 10 seats. [Official pricing](https://feedly.com/market-intelligence/pricing) | Enterprise intelligence is a different budget and buyer. | Avoid enterprise features; win on individual setup speed and specificity. |
 
-**Conclusion:** Keep **$12/month** as the beta hypothesis. The broader Daily Brief supports the price better than the repo-only concept because it can replace several scanning rituals without moving into enterprise territory. It remains unvalidated. If the product only stacks source-by-source summaries, a $6-$10 reader wins. The paid delta is trusted ranking across source types, synthesis of repeated or conflicting claims, evidence, one useful next move, and the discipline not to manufacture news on quiet days.
+**Conclusion:** Lead with **$49/month**, not $12. A $12 price positions Paperboy beside commodity readers and attracts buyers with low-cost curiosity rather than an expensive decision problem. $49 is still self-serve small-software pricing, sits above the $25-$29 specialist references, and remains far below enterprise intelligence. That premium is earned only if the product combines the buyer's chosen sources, produces cross-source conclusions with evidence, and reliably changes a decision. Feedly's enterprise price shows budget headroom, but it is not direct proof that individuals will pay $49.
+
+### Price test
+
+Test actual checkout behavior after a personalized sample edition, not survey answers. Randomly quote **$29, $49, or $79/month** to 60 commercially qualified, activated prospects, 20 per cell.
+
+- Keep $49 as primary if at least 25% purchase and its conversion rate is no more than 25% lower than the $29 cell.
+- Move to $79 if it produces the highest gross profit per activated prospect and its first-month activation/retention is not worse than $49 by more than 10 percentage points.
+- Fall to $29 only if $29 converts at least 30% while $49 converts below 15% after the same sample quality.
+- If every cell converts below 15%, fix the outcome and ICP; do not conclude that the answer is a cheaper summary product.
+
+### Revenue model and margin gates
+
+Subscription is the base business. Setup revenue funds early learning; Team expansion raises account value after the single-user loop retains.
+
+| Illustrative mix | Operator MRR | Team MRR | Total MRR |
+|---|---:|---:|---:|
+| 50 Operator + 10 Team accounts | $2,450 | $1,490 | **$3,940** |
+| 200 Operator + 30 Team accounts | $9,800 | $4,470 | **$14,270** |
+
+These are arithmetic scenarios, not forecasts. Commercial gates:
+
+- Target Operator variable cost at or below **$5/account/month**; hard cap **$8**, leaving at least 84% gross margin at $49.
+- Target Team variable cost at or below **$20/account/month**; hard cap **$25**, leaving at least 83% gross margin at $149.
+- After concierge onboarding is removed, median support must stay below **15 minutes per Operator account per month**.
+- Use OSS/audience-led acquisition first. Target organic/blended CAC at or below one month of Operator gross profit (about **$41**) and any paid CAC below **$120**, a sub-three-month gross-profit payback.
+- If source fetch, inference, or support breaches the hard cap for two months, reduce source frequency/context, batch synthesis, or raise price before adding customers.
+
+## Distribution
+
+The free repo is a credibility and acquisition asset, not the hosted product's pricing anchor.
+
+1. **OSS conversion:** add a hosted sample CTA to the GitHub README and install docs: choose public sources/repos, receive one sample edition, then pay to schedule it. Do not cripple the self-hosted edition.
+2. **Founder-led proof:** publish recurring before/after examples through Connor's existing X, LinkedIn, and email audience: “43 inputs became four material signals and one decision,” with every claim and source visible.
+3. **Repo-owner outreach:** invite maintainers and technical founders whose public repos expose a clear stack. Generate a bounded sample from public context, then ask them to forward two newsletters to complete it.
+4. **Public demonstration:** publish one weekly all-public Paperboy edition. It should demonstrate synthesis and evidence without leaking customer source lists or forwarded content.
+5. **Referral loop:** after a customer records a useful action, offer one free month for a referred paid Operator. Cap credits so referrals improve CAC without creating a free hosted tier.
+
+Do not buy broad consumer-news traffic. Distribution should reach people who control a technical product and can recognize the cost of a missed signal.
+
+## Retention engine
+
+Retention should come from better judgment over time, not a growing unread archive.
+
+- Learn explicit source trust, topic weights, “already knew,” wrong-context, useful, and acted feedback.
+- Preserve a small decision ledger linking an item, its evidence, the recommended move, and whether the user acted.
+- Show a monthly value receipt: useful items, actions taken, sources pruned, and high-signal topics—not vanity counts of articles processed.
+- Detect dead or repetitive sources and recommend removal; a smaller improving source set is a feature.
+- Keep quiet-day behavior trustworthy. Padding the edition increases send volume but destroys the habit.
+
+The retention floor is at least one useful item in three of four weeks and one recorded action per month. If users open but do not rate, click evidence, or act, the product is an email habit without proven economic value.
 
 ### Affiliate revenue
 
-Subscription should be the PMF test. Affiliate monetization before trust is dangerous because it makes rankings suspect. Keep affiliate links out of the beta. After paid retention is proven, test clearly disclosed referral links only on items that already cleared the relevance score; referral availability must never affect ranking. Continue only if affiliate items have no worse usefulness/dismissal rate than non-affiliate items.
+Subscription should remain the base business. Affiliate monetization before trust is dangerous because it makes rankings suspect. Keep affiliate links out of the beta. After paid month-two retention clears 70%, test clearly disclosed vendor referral links only on items that already ranked without commercial inputs; referral availability, rate, or payout must never affect inclusion or order. Treat affiliate income as a later **5-15% revenue supplement**, not the reason the brief exists. Continue only if affiliate items have no worse usefulness/dismissal rate than non-affiliate items.
 
 ## PMF risks
 
@@ -192,7 +249,7 @@ Subscription should be the PMF test. Affiliate monetization before trust is dang
 4. **Actionability risk:** the current deterministic action queue can produce plausible but generic tasks; “one action” may not be worth doing.
 5. **Trust risk:** forwarded email retention and repository access create security questions. Broad mailbox or private-repo scope would amplify them.
 6. **Cadence risk:** a required daily edition may tempt the system to pad quiet days instead of reporting that nothing material changed.
-7. **Cost risk:** hosted inference, fetch, and email costs could make a $12 plan unattractive if scoring is not aggressively bounded.
+7. **Cost risk:** cross-source synthesis can expand inference and fetch costs faster than subscription revenue unless source frequency and context are bounded.
 8. **OSS cannibalization risk:** capable users may self-host, leaving the hosted product with higher-support customers.
 9. **Cold-start risk:** a user's chosen newsletters and feeds may have little overlap, leaving no convincing cross-source synthesis in the first edition.
 10. **Affiliate conflict risk:** monetized recommendations can destroy the trust the subscription depends on.
@@ -203,27 +260,27 @@ Run these in order. Do not use broad sign-up counts as PMF evidence.
 
 | Test | Method | Continue | Iterate | Kill or change wedge |
 |---|---|---|---|---|
-| Problem pull | Recruit 20 qualified technical builders. Ask each to forward two newsletters and choose at least one public feed/research/data source and one repo before showing a result. | At least 10 complete source setup; at least 6 ask to keep receiving the edition. | 6-9 complete setup. | Fewer than 6 complete setup. |
+| Problem pull | Recruit 20 commercially qualified technical founders/operators. Ask each to forward two newsletters and choose at least one public feed/research/data source and one repo before showing a result. | At least 10 complete source setup; at least 6 ask to keep receiving the edition. | 6-9 complete setup. | Fewer than 6 complete setup. |
 | Concierge activation | Manually configure the first 10 users and deliver a sample within 48 hours. | At least 7/10 mark one ranked or synthesized insight useful; at least 5/10 identify something they would otherwise have missed. | 5-6 useful. | Fewer than 5 useful. |
 | Signal precision | Capture item-level useful/not-useful/already-knew/wrong-context feedback. | At least 70% useful across the first 100 rated items; fewer than 20% already-knew plus wrong-context. | 50-69% useful. | Below 50% useful after one tuning cycle. |
 | Synthesis delta | Blind-test the Paperboy edition against source-by-source AI summaries for the same material. | At least 60% of users prefer Paperboy and can name a useful connection/evidence advantage. | 40-59% prefer it. | Below 40%; synthesis is not adding value. |
 | Quiet-day trust | Seed days with no threshold-clearing material and days with only weak material. | At least 80% of weak items are excluded; quiet-day editions are not rated less trustworthy than normal editions. | 60-79% excluded. | Below 60%; ranking is manufacturing news. |
-| Willingness to pay | After two useful weeks, require $12 to continue. | At least 8 of 20 qualified activated users pay. | 4-7 pay; test promise/onboarding once. | Fewer than 4 pay. |
-| Retention | Follow the first paid cohort for two billing cycles. | At least 70% retain into month two and at least 50% take a useful/acted action in 3 of 4 weeks. | 50-69% retain. | Below 50% month-two retention. |
-| Unit economics | Measure actual fetch, inference, email, and support burden. | Variable cost at or below $2/user/month and median support below 10 minutes/user/month. | Cost $2-$4. | Above $4 after bounded-model optimization. |
+| Willingness to pay | Run the $29/$49/$79 checkout test after one personalized sample. | $49 converts at least 25% and stays within 25% of the $29 conversion rate, or $79 yields higher gross profit without materially worse activation. | $29 converts at least 30% while $49 lands at 15-24%. | Every cell below 15%; fix outcome/ICP before price. |
+| Retention | Follow the first paid cohort for two billing cycles. | At least 70% retain into month two; at least 60% get a useful item in 3 of 4 weeks; at least 40% record one action/month. | 50-69% retain. | Below 50% month-two retention. |
+| Unit economics | Measure actual fetch, inference, email, support, and refunds. | Operator variable cost at or below $5/account/month and support below 15 minutes/month. | Cost $5-$8. | Above $8 for two months after bounded-model optimization. |
 | Affiliate trust, later only | After paid retention, show disclosed affiliate-eligible items to a small randomized cohort without changing rank. | Usefulness and dismissal remain within 5 percentage points of control. | 6-10 point degradation. | More than 10 point degradation; remove affiliate layer. |
 
 ## Product decisions
 
-1. **Wedge:** Paperboy Daily Brief for independent technical builders.
+1. **Wedge:** Paperboy Daily Intelligence Brief for revenue-bearing technical founders and operators.
 2. **Delivery:** one hosted morning email; explicit forwarding is also a bounded input.
-3. **Sources:** forwarded newsletters, allowlisted public news/research/data, and 1-5 selected public GitHub repositories; no mailbox or private-repo access.
+3. **Sources:** forwarded newsletters, allowlisted public news/research/data, and up to 10 selected public GitHub repositories; no mailbox or private-repo access.
 4. **Value unit:** a ranked, evidence-backed cross-source insight or decision—not a stack of summaries. Repo Radar is one section.
-5. **Price:** test $12/month; keep it labeled as a hypothesis until paid retention.
+5. **Price:** lead at $49/month and validate against $29/$79 with real checkout behavior; do not default to $12 because it is easier to sell.
 6. **Open-source boundary:** preserve the current self-hosted SQLite/systemd/Discord project; do not expose or multi-tenant it.
 7. **Safety:** recommendations only. No autonomous code or external action.
 8. **Monetization:** subscription first; no affiliate links during PMF beta.
-9. **Build order:** concierge edition across all source classes → bounded forwarding intake and source registry → ranking/dedup/synthesis → edition renderer → scheduled email + feedback → billing. Do not build team/dashboard/private-repo features before activation, synthesis-delta, and payment thresholds clear.
+9. **Build order:** sell paid concierge pilots and generate all-source editions manually → validate price/activation → build bounded forwarding intake and source registry → ranking/dedup/synthesis → edition renderer → scheduled email + feedback/value receipts → remove manual setup. Add the $149 small-Team delivery only after Operator retention. Do not build dashboards/private-repo/enterprise features before activation, synthesis-delta, payment, and margin thresholds clear.
 
 ## One-sentence positioning
 
