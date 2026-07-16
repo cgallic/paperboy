@@ -1,0 +1,61 @@
+target: paperboy-filtered-firehose
+stages:
+  brief:
+    problem: "Paperboy was presented as a newsletter and GitHub concierge even though the stronger product is an automatically configured relevance filter for a user-built public-feed firehose."
+    audience: "Technical founders and hands-on product or engineering leads who follow fast-moving public technical sources."
+    constraints:
+      - "The hero must state the firehose-to-filter outcome within one headline and one supporting paragraph."
+      - "Every primary conversion label must use Build my filter, with exactly one solid primary treatment above the fold."
+      - "The primary flow must generate a real preview from at least one public RSS or Atom URL without a human step."
+      - "The page must never claim inbox access, automatic newsletter subscription, account creation, scheduled delivery, or billing."
+      - "The implemented Design OS deterministic lint rules must report zero unwaived block failures before deployment."
+      - "The 390px browser path must have no horizontal overflow."
+    banned_adjective_check: true
+  divergence:
+    directions:
+      - name: "Signal Desk"
+        premise: "Make the product transformation visible as many editorial source slips compressed through the user's focus into a few ranked signals."
+        artifact: "docs/design/paperboy-firehose/direction-1-signal-desk.png"
+      - name: "Radar Console"
+        premise: "Present relevance as an always-on dark monitoring instrument with a radar field and ranked event queue."
+        artifact: "docs/design/paperboy-firehose/direction-2-radar-console.png"
+      - name: "Inbox Triage"
+        premise: "Use a familiar mail surface where relevant items are promoted and noise is visibly muted."
+        artifact: "docs/design/paperboy-firehose/direction-3-inbox-triage.png"
+  convergence:
+    chosen: "Signal Desk"
+    why: "It shows the many-to-few compression before explanation, preserves Paperboy's editorial identity, and avoids making the product look like another dashboard or email client."
+    killed:
+      - name: "Radar Console"
+        why: "The monitoring-dashboard premise overweights real-time operations and makes a morning relevance product feel heavier than it is."
+      - name: "Inbox Triage"
+        why: "The inbox metaphor repeats the category Paperboy is meant to replace and keeps the product anchored to email rather than user-chosen public sources."
+  build:
+    tokens_source: "product/styles.css :root token set"
+    components_reused:
+      - "site header and mobile navigation"
+      - "button and focus-state grammar"
+      - "editorial type and paper color tokens"
+      - "impact card"
+      - "pricing and FAQ sections"
+      - "same-origin KaiBuilds capture"
+    components_invented:
+      - "signal desk"
+      - "source preset chips"
+      - "live ranked preview cards"
+      - "three-to-one route mark"
+    invention_reasons:
+      signal desk: "No existing component visualized the product's defining many-inputs-to-few-signals transformation."
+      source preset chips: "The existing form had newsletter and repository fields but no one-click way to add a working public feed."
+      live ranked preview cards: "The existing success state only confirmed lead capture and could not render the real preview response."
+      three-to-one route mark: "The folded-page icon was generic and did not identify Paperboy's filtering behavior."
+  self_lint:
+    snapshot: "docs/design/paperboy-firehose/style-snapshot.json"
+    unwaived_block_failures: 0
+  critique:
+    lenses_run:
+      - structure
+      - craft
+      - brand
+    verdicts: "docs/design/paperboy-firehose/critique-summary.md"
+    fails_addressed: true

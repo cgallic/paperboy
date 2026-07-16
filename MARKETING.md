@@ -5,8 +5,8 @@
 ## Product
 
 - **Name:** Paperboy
-- **One-liner:** Paperboy turns chosen newsletters and public GitHub updates into one short daily brief.
-- **Category:** Personalized daily intelligence brief
+- **One-liner:** Paperboy turns a user-built firehose of public feeds into a short, source-linked brief ranked around what matters to them.
+- **Category:** Personal relevance filter
 - **URL:** https://paperboy.kaibuilds.com/
 
 ## ICP (Ideal Customer Profile)
@@ -35,17 +35,17 @@
 
 - General-news readers who do not need source-specific relevance
 - Enterprise teams requiring private-repository access, SSO, procurement, or compliance review
-- Buyers expecting fully automated hosted delivery today
+- Buyers requiring private sources, enterprise controls, or generally available scheduled delivery today
 
 ## Personas
 
 ### Persona 1: Signal-Drowned Builder — based on Competent Cog
 
 - **Who they are:** A capable technical founder who still reads and reconciles the important sources personally.
-- **Core frustration:** The useful update is buried among routine newsletters and notifications.
+- **Core frustration:** The useful update is buried inside the feeds, news, research, and notifications they still scan themselves.
 - **Language they use:** Hypothesis: “I missed that change,” “I already have too many feeds,” and “just tell me what matters.”
 - **Objections:** Another summary email; can build this with rules and an LLM; does not want inbox or code access.
-- **Decision trigger:** A free brief built from their sources proves it can remove a real morning task.
+- **Decision trigger:** An automatic preview from their actual public feeds proves the filter can remove a real scanning task.
 - **Channels they trust:** Technical newsletters, GitHub, founder communities, and peer recommendations.
 
 ### Persona 2: Change-Anxious Lead — based on Obsolescence Anxious
@@ -59,21 +59,21 @@
 
 ### User Segments
 
-- **Sample requester:** Leaves an email and then supplies a few newsletters, links, repos, and current interests.
-- **Founding-pilot buyer:** Chooses the $49/month human-assisted pilot after reviewing the personalized sample.
+- **Preview user:** Chooses presets or supplies public RSS/Atom feed URLs, a relevance focus, and an optional ignore list.
+- **Founding-pilot buyer:** Chooses the $49/month pilot after reviewing the automatic filtered preview.
 
 ## Value Prop
 
-- **Core transformation:** From checking many separate sources to reading one short brief about the changes connected to current work.
-- **Key actions:** Forward chosen newsletters; name public repos; describe current interests; read source-linked items; mark what was useful.
-- **Activation moment:** The first personalized sample contains at least one item the reader would otherwise have missed or spent time finding.
+- **Core transformation:** From scanning a self-built information firehose to reading only the few items connected to current work.
+- **Key actions:** Choose or paste public feeds; describe current interests; name what to ignore; run the filter; inspect source-linked matches.
+- **Activation moment:** The automatic first preview contains at least one relevant item and visibly removes unrelated feed noise.
 - **Aha moment:** The reader opens an original source or changes a concrete next step because of the brief.
 
 ## Business Model
 
-- **Monetization:** Free personalized sample, followed by an optional founding pilot
-- **Pricing:** $49/month after the free sample
-- **Stage:** Pre-PMF validation; hosted auth, automated delivery, and billing are not generally available
+- **Monetization:** Free automatic filtered preview, followed by an optional founding pilot
+- **Pricing:** $49/month after the free first brief
+- **Stage:** Pre-PMF validation; the public-feed preview is live, while accounts, scheduled delivery, and billing are not generally available
 
 ## Current Marketing
 
@@ -85,14 +85,14 @@
 
 ## Brand Voice
 
-- **Tone:** Plain, technical, specific, and skeptical of hype
+- **Tone:** Editorial, technical, specific, and skeptical of hype
 - **Banned patterns:** Internal strategy jargon, “operator” language, abstract intelligence claims, invented proof, and fake urgency
-- **Examples:** “Stop reading 20 newsletters every morning.” “Get one brief. Ignore the rest.”
+- **Examples:** “Build your firehose. Read only what matters.” “Every signal earns its place.”
 
 ## Competitive Landscape
 
-- **Top alternatives:** RSS/newsletter readers; GitHub notifications; email rules plus an LLM
-- **Our differentiation:** A brief grounded in both explicitly forwarded sources and selected public repos, with every item tied to a next check or a decision to ignore it
+- **Top alternatives:** RSS readers; read-it-later queues; email rules plus an LLM; manual daily scanning
+- **Our differentiation:** The user chooses the firehose and explicitly defines relevance and noise. Paperboy ranks, deduplicates, and explains the short list instead of presenting another chronological inbox.
 
 ## Key Metrics
 

@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Stop reading every update yourself. Get one daily brief from the newsletters and public GitHub repos you choose.">
+  <meta name="description" content="Build your own information firehose from Hacker News, RSS, research, and public sources. Paperboy filters it around what matters to you.">
   <meta name="theme-color" content="#f3eee3">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://paperboy.kaibuilds.com/">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Paperboy — Stop reading every update yourself">
-  <meta property="og:description" content="Get a free personalized brief from the newsletters and public GitHub repos you choose.">
+  <meta property="og:title" content="Paperboy — Build your firehose. Read only what matters.">
+  <meta property="og:description" content="Add Hacker News, RSS, research, and public sources. Get a ranked, source-linked brief filtered around your work.">
   <meta property="og:url" content="https://paperboy.kaibuilds.com/">
-  <title>Paperboy — One Daily Brief From Your Sources</title>
+  <title>Paperboy — Your Own Filtered Firehose</title>
   <link rel="stylesheet" href="styles.css">
   <script src="app.js" defer></script>
 </head>
@@ -20,17 +20,19 @@
 
   <div class="local-banner" role="status">
     <span class="status-dot" aria-hidden="true"></span>
-    <strong>Free personalized sample</strong>
-    <span>See your brief before deciding whether Paperboy is worth $49/month.</span>
+    <strong>Automatic first brief</strong>
+    <span>Add your feeds, define relevance, and see what survives the filter.</span>
   </div>
 
   <header class="site-header" id="site-header">
     <a class="brand" href="#home" data-route="home" aria-label="Paperboy home">
       <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true">
-        <path d="M7 5.5h16l6 6v19H7z"></path>
-        <path d="M23 5.5v6h6M11 17h14M11 22h10"></path>
-        <circle cx="11" cy="27" r="1.7"></circle>
-        <path class="brand-route" d="M12.8 27h8.7"></path>
+        <circle cx="7" cy="7" r="2"></circle>
+        <circle cx="18" cy="7" r="2"></circle>
+        <circle cx="29" cy="7" r="2"></circle>
+        <path d="M7 10c0 6 11 6 11 13M18 10v13M29 10c0 6-11 6-11 13"></path>
+        <path class="brand-route" d="M18 23v6"></path>
+        <circle cx="18" cy="31" r="2"></circle>
       </svg>
       <span>paperboy</span>
     </a>
@@ -38,7 +40,7 @@
     <nav class="site-nav" aria-label="Primary navigation">
       <a href="#how-it-works">How it works</a>
       <a href="#pricing">Pricing</a>
-      <button class="button button-small" type="button" data-start>Get my free sample</button>
+      <button class="button button-small" type="button" data-start>Build my filter</button>
     </nav>
 
     <button class="menu-button" type="button" aria-expanded="false" aria-controls="mobile-nav">
@@ -48,7 +50,7 @@
     <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation" hidden>
       <a href="#how-it-works">How it works</a>
       <a href="#pricing">Pricing</a>
-      <button class="button" type="button" data-start>Get my free sample</button>
+      <button class="button" type="button" data-start>Build my filter</button>
     </nav>
   </header>
 
@@ -56,86 +58,78 @@
     <section class="screen screen-home" data-screen="home">
       <section class="hero">
         <div class="hero-copy">
-          <p class="eyebrow"><span class="eyebrow-line"></span> Your newsletters and GitHub, summarized</p>
-          <h1>Stop reading 20 newsletters every morning.</h1>
-          <p class="hero-lede">Share the newsletters you trust, choose the public GitHub repos you follow, and get one daily brief with what changed and why it matters.</p>
+          <p class="eyebrow"><span class="eyebrow-line"></span> Your own filtered firehose</p>
+          <h1>Build your firehose. Read only what matters.</h1>
+          <p class="hero-lede">Add Hacker News, startup feeds, RSS, research, and other public sources. Paperboy ranks the stream against what you are building—and shows why each item made the cut.</p>
           <div class="hero-actions">
-            <button class="button button-large" type="button" data-start>Get my free sample brief <span aria-hidden="true">→</span></button>
-            <a class="quiet-link" href="#example">See a sample brief <span aria-hidden="true">↓</span></a>
+            <button class="button button-large" type="button" data-start>Build my filter <span aria-hidden="true">→</span></button>
+            <a class="quiet-link" href="#example">See the filter work <span aria-hidden="true">↓</span></a>
           </div>
           <ul class="trust-line" aria-label="Product boundaries">
+            <li>Any public RSS or Atom feed</li>
             <li>No Gmail access</li>
             <li>No credit card</li>
-            <li>Your first sample is free</li>
           </ul>
         </div>
 
-        <div class="hero-edition" aria-label="Example Paperboy Daily Brief">
-          <div class="edition-shadow edition-shadow-one" aria-hidden="true"></div>
-          <div class="edition-shadow edition-shadow-two" aria-hidden="true"></div>
-          <article class="edition-paper">
-            <header class="edition-masthead">
-              <div>
-                <span class="edition-brand">paperboy</span>
-                <span class="edition-label">Example edition</span>
-              </div>
-              <time datetime="2026-07-16">Jul. 16</time>
-            </header>
-            <p class="edition-kicker">Daily Brief · 3 source lanes</p>
-            <h2>Your morning in four useful sections.</h2>
-            <div class="edition-divider"></div>
-            <div class="edition-item">
-              <div class="edition-meta"><span>Today in 60 seconds</span><span>3 items</span><code>Public signals</code></div>
-              <h3>One pricing change and one API deadline worth checking</h3>
-              <p>Paperboy links each source and explains why the change belongs in your morning.</p>
-              <span class="inspect-link">Open the original sources <span aria-hidden="true">→</span></span>
-            </div>
-            <div class="edition-item edition-item-secondary">
-              <div class="edition-meta"><span>Repo Radar</span><span>8/10</span><code>agent-router</code></div>
-              <h3>A provider SDK changed its tool-stream contract</h3>
-            </div>
-            <footer class="edition-footer">
-              <span>Source-linked</span>
-              <span>Repo-specific</span>
-              <span>Nothing runs</span>
-            </footer>
+        <div class="signal-desk" aria-label="Example of sources filtered into a ranked brief">
+          <div class="desk-label"><span>Live product model</span><strong>Many inputs → a few signals</strong></div>
+          <div class="source-stack" aria-label="Example sources">
+            <div class="source-slip source-slip-hn"><span>HN</span><div><strong>Hacker News</strong><small>RSS · live feed</small></div></div>
+            <div class="source-slip source-slip-yc"><span>YC</span><div><strong>Startup feeds</strong><small>RSS / Atom</small></div></div>
+            <div class="source-slip source-slip-rss"><span>RSS</span><div><strong>Your feeds</strong><small>Blogs · releases</small></div></div>
+            <div class="source-slip source-slip-lab"><span>LAB</span><div><strong>Research</strong><small>arXiv · papers</small></div></div>
+          </div>
+          <div class="flow-rail" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="relevance-gate">
+            <span class="gate-kicker">Your filter</span>
+            <strong>AI agents<br>API changes<br>pricing risk</strong>
+            <small>Ignore: funding gossip</small>
+          </div>
+          <article class="ranked-signal">
+            <header><span>Made the cut</span><strong>8.7</strong></header>
+            <p class="signal-source">Hacker News · source linked</p>
+            <h2>A provider changed the pricing behind your fallback route</h2>
+            <p><strong>Why it matters:</strong> It overlaps the margin decision in your filter.</p>
+            <footer><span>1 of 4 signals</span><span>Open source ↗</span></footer>
           </article>
+          <p class="desk-boundary">Example layout. Your first live preview is generated from the public feeds you submit.</p>
         </div>
       </section>
 
       <section class="signal-strip" aria-label="Product principle">
-          <p><span>01</span> Forward only the newsletters you choose.</p>
-          <p><span>02</span> Pick the public repos you care about.</p>
-          <p><span>03</span> Get one brief. Ignore the rest.</p>
+          <p><span>01</span> Choose the firehose.</p>
+          <p><span>02</span> Define what deserves attention.</p>
+          <p><span>03</span> Read the few items that survive.</p>
       </section>
 
       <section class="section example-section" id="example">
         <div class="section-heading">
-          <p class="eyebrow">This is what lands in your inbox</p>
-          <h2>One short brief. Only changes worth your attention.</h2>
-          <p>Each item says what changed, why it matters, and what to check next. If nothing matters, Paperboy says so.</p>
+          <p class="eyebrow">The filter explains itself</p>
+          <h2>Every signal earns its place.</h2>
+          <p>Paperboy does not just summarize the stream. It ranks each item against your stated focus, links the source, and explains the match.</p>
         </div>
 
         <article class="impact-card impact-card-featured">
           <div class="impact-score" aria-label="Relevance score: 8 out of 10"><strong>8</strong><span>/10</span></div>
           <div class="impact-body">
             <div class="impact-meta">
-              <span>GitHub update</span>
-              <code>demo-labs/api-evals</code>
+              <span>Hacker News</span>
+              <code>AI infrastructure</code>
               <span>Example</span>
             </div>
-            <h3>A provider changed how streamed tool calls finish</h3>
+            <h3>A model provider changed the pricing behind your fallback route</h3>
             <div class="impact-grid">
               <div>
                 <h4>Why it matters</h4>
-                <p>This repo handles streamed tool calls. The change may affect when it retries a failed request.</p>
+                <p>Your filter names model margin and API changes. This item overlaps both, so it ranks above generic AI news.</p>
               </div>
               <div class="inspect-box">
-                <h4>Check next</h4>
-                <p>Run the existing partial-output test before changing any code.</p>
+                <h4>Why the rest disappeared</h4>
+                <p>Funding gossip and beginner tutorials match your ignore list, so they never enter the brief.</p>
               </div>
             </div>
-            <a href="https://github.com/cgallic/paperboy/blob/main/examples/action-queue.demo.jsonl" target="_blank" rel="noreferrer">View the example source <span aria-hidden="true">↗</span></a>
+            <a href="https://news.ycombinator.com/rss" target="_blank" rel="noreferrer">Open the Hacker News RSS feed <span aria-hidden="true">↗</span></a>
           </div>
         </article>
       </section>
@@ -143,71 +137,71 @@
       <section class="section route-section" id="how-it-works">
         <div class="section-heading section-heading-narrow">
           <p class="eyebrow">How it works</p>
-          <h2>Send a few sources. See your brief.</h2>
+          <h2>Three inputs. One automatic filter.</h2>
         </div>
         <ol class="delivery-route">
           <li>
             <span class="route-number">1</span>
-            <h3>Request your free sample</h3>
-            <p>Leave your email. No card or account setup is required.</p>
+            <h3>Build your firehose</h3>
+            <p>Start with Hacker News or paste the public RSS and Atom feeds you already follow.</p>
           </li>
           <li>
             <span class="route-number">2</span>
-            <h3>Send the sources you read</h3>
-            <p>Paste a few newsletter names or links and add the public repo URLs you follow.</p>
+            <h3>Define relevance</h3>
+            <p>Describe what you are building, watching, deciding, and tired of seeing.</p>
           </li>
           <li>
             <span class="route-number">3</span>
-            <h3>We build your sample</h3>
-            <p>Paperboy keeps only the changes connected to your work and links the evidence.</p>
+            <h3>See the filter run</h3>
+            <p>Paperboy validates the feeds, scans recent items, and ranks the best matches automatically.</p>
           </li>
           <li>
             <span class="route-number route-number-final">✓</span>
-            <h3>Decide after you read it</h3>
-            <p>Keep the daily version for $49/month only if the sample earns a place in your morning.</p>
+            <h3>Turn on the daily edition</h3>
+            <p>Join the $49/month founding pilot only if the first filtered brief is useful.</p>
           </li>
         </ol>
       </section>
 
       <section class="permission-section">
         <div class="permission-copy">
-          <p class="eyebrow eyebrow-light">You stay in control</p>
-          <h2>You choose what Paperboy reads.</h2>
-          <p>Paperboy never connects to Gmail. For the sample, paste only the newsletter names or links you choose. Public GitHub context is read-only, and Paperboy cannot change your code.</p>
-          <button class="button button-paper" type="button" data-start>Get my free sample brief</button>
+          <p class="eyebrow eyebrow-light">Automatic, without inbox access</p>
+          <h2>Paste feeds. Paperboy does the setup.</h2>
+          <p>Paperboy works from public RSS and Atom feeds. It validates each URL, reads a bounded set of recent items, removes duplicates, and ranks the result against your filter. No Gmail connection or manual concierge step is required.</p>
+          <button class="button button-paper" type="button" data-start>Build my filter</button>
         </div>
-        <div class="permission-ledger" aria-label="Planned GitHub permission ledger">
-          <div><span>Repository metadata</span><strong>Read</strong></div>
-          <div><span>Contents</span><strong>Read</strong></div>
-          <div><span>Pull requests</span><strong>Read</strong></div>
-          <div><span>Issues</span><strong>Read</strong></div>
-          <div class="permission-zero"><span>Write permissions</span><strong>None</strong></div>
-          <p>The current sample uses public repositories only. Private-repository access is not available.</p>
+        <div class="permission-ledger" aria-label="Automatic setup steps">
+          <div><span>Public feed validation</span><strong>Automatic</strong></div>
+          <div><span>Recent item scan</span><strong>Bounded</strong></div>
+          <div><span>Relevance ranking</span><strong>Your focus</strong></div>
+          <div><span>Duplicate removal</span><strong>Automatic</strong></div>
+          <div class="permission-zero"><span>Inbox access</span><strong>None</strong></div>
+          <p>Private feeds, paywalled sources, and email-only newsletters are not fetched by the live preview.</p>
         </div>
       </section>
 
       <section class="section pricing-section" id="pricing">
         <div class="section-heading section-heading-narrow">
-          <p class="eyebrow">See it before you pay</p>
-          <h2>Your first personalized brief is free.</h2>
-          <p>If it earns a place in your morning, the founding pilot is $49/month. If it does not, do not continue.</p>
+          <p class="eyebrow">Run the filter before you pay</p>
+          <h2>Your first filtered brief is free.</h2>
+          <p>Paste your public feeds and see the result. If it earns a place in your routine, the founding pilot is $49/month.</p>
         </div>
         <div class="pricing-grid">
           <article class="price-card price-card-primary">
             <div>
-              <p class="price-label">After your free sample</p>
-              <h3>Paperboy Daily Brief</h3>
+              <p class="price-label">After your free first brief</p>
+              <h3>Paperboy Filtered Firehose</h3>
               <p class="price"><span>$</span>49 <small>/ month</small></p>
               <p class="hypothesis">No card is collected until you have seen your sample and choose to continue.</p>
               <ul>
-                <li>One personalized morning brief</li>
-                <li>Chosen newsletters without Gmail access</li>
-                <li>Up to five selected public GitHub repos</li>
+                <li>Your chosen public RSS and Atom feeds</li>
+                <li>A relevance filter built around your work</li>
+                <li>One ranked morning edition</li>
                 <li>Links to every original source</li>
                 <li>Cancel monthly</li>
               </ul>
             </div>
-            <button class="button button-wide" type="button" data-start>Get my free sample brief</button>
+            <button class="button button-wide" type="button" data-start>Build my filter</button>
           </article>
         </div>
       </section>
@@ -215,36 +209,36 @@
       <section class="section faq-section">
         <div class="section-heading section-heading-narrow">
           <p class="eyebrow">Straight answers</p>
-          <h2>What happens after you ask for a sample?</h2>
+          <h2>What does automatic setup actually do?</h2>
         </div>
         <div class="faq-list">
           <details>
-            <summary>Does Paperboy read my inbox?</summary>
-            <p>No. Paperboy never connects to Gmail. For the sample, you paste only the newsletter names or links you choose.</p>
+            <summary>Do I need to connect Gmail?</summary>
+            <p>No. Paste public RSS or Atom feed URLs. Paperboy reads only those URLs.</p>
           </details>
           <details>
-            <summary>Can Paperboy change my code?</summary>
-            <p>No. The sample uses public, read-only GitHub context. Paperboy cannot write code, issues, or pull requests.</p>
+            <summary>Does Paperboy auto-subscribe me to newsletters?</summary>
+            <p>No. Many newsletters require email confirmation or expose no public feed. Use a public newsletter archive/feed when available; email-only ingestion is not part of the live preview.</p>
           </details>
           <details>
-            <summary>What do you need to build my sample?</summary>
-            <p>A few newsletters or links, the public repos you follow, and a short note about what you are working on.</p>
+            <summary>Which sources work right now?</summary>
+            <p>Public RSS and Atom feeds, including Hacker News and many blogs, release feeds, and research feeds.</p>
           </details>
           <details>
-            <summary>Is the sample automated?</summary>
-            <p>The free sample includes human review while we validate the product. Scheduled delivery is not generally available yet.</p>
+            <summary>Is the first brief automated?</summary>
+            <p>Yes. Paperboy validates the feeds, scans recent items, removes duplicates, and ranks them against the focus and ignore terms you provide.</p>
           </details>
           <details>
-            <summary>What happens after the free sample?</summary>
-            <p>If it is useful, you can join the $49/month founding pilot. No card is collected until you choose to continue.</p>
+            <summary>What happens after the free first brief?</summary>
+            <p>If it is useful, you can join the $49/month founding pilot for daily delivery. No card is collected by this page.</p>
           </details>
         </div>
       </section>
 
       <section class="final-cta">
-        <p class="eyebrow eyebrow-light">See it with your sources</p>
-        <h2>Find out what Paperboy would send you tomorrow.</h2>
-        <button class="button button-paper button-large" type="button" data-start>Get my free sample brief <span aria-hidden="true">→</span></button>
+        <p class="eyebrow eyebrow-light">Use your actual feeds</p>
+        <h2>Turn your firehose into a short list of things worth reading.</h2>
+        <button class="button button-paper button-large" type="button" data-start>Build my filter <span aria-hidden="true">→</span></button>
       </section>
     </section>
 
@@ -252,43 +246,51 @@
       <div class="flow-shell auth-shell">
         <button class="back-link" type="button" data-route="home"><span aria-hidden="true">←</span> Back to home</button>
         <div class="flow-card">
-          <p class="eyebrow">Free personalized sample</p>
-          <h1>Tell us what should go in your sample.</h1>
-          <p>Add the newsletters you read, any public GitHub repos you follow, and what you’re working on. No card, Gmail connection, or subscription.</p>
+          <p class="eyebrow">Automatic filter setup</p>
+          <h1>Build your first filtered firehose.</h1>
+          <p>Start with Hacker News or paste public RSS and Atom feeds. Tell Paperboy what matters and see a ranked preview automatically.</p>
           <div class="guardrail">
-            <strong>What happens next</strong>
-            <span>We build and email the personalized sample from what you submit here. The optional product tour uses fictional data.</span>
+            <strong>No human setup</strong>
+            <span>The live preview validates your public feeds, scans recent items, and ranks them against your filter. It does not connect to an inbox.</span>
           </div>
           <form id="magic-link-form" novalidate>
             <div class="field">
               <label for="signin-email">Email address</label>
               <input id="signin-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby="email-help email-error">
-              <span class="field-help" id="email-help">Used only to build and deliver your Paperboy sample.</span>
+              <span class="field-help" id="email-help">Used to save your request for the founding pilot. Your preview appears here first.</span>
               <span class="field-error" id="email-error" role="alert"></span>
             </div>
             <div class="field">
-              <label for="newsletter-sources">Newsletter names or URLs</label>
-              <textarea id="newsletter-sources" name="newsletter_sources" rows="4" placeholder="One per line, for example: Ben's Bites&#10;https://example.com/newsletter" required aria-describedby="newsletter-help"></textarea>
-              <span class="field-help" id="newsletter-help">One per line. We do not connect to your inbox.</span>
+              <label>Quick-start sources <span>optional</span></label>
+              <div class="preset-grid" id="source-presets" aria-label="Quick-start feed presets">
+                <button class="preset-chip" type="button" data-feed-preset="https://news.ycombinator.com/rss" aria-pressed="false"><span>HN</span> Hacker News</button>
+                <button class="preset-chip" type="button" data-feed-preset="https://export.arxiv.org/rss/cs.AI" aria-pressed="false"><span>AI</span> arXiv AI</button>
+                <button class="preset-chip" type="button" data-feed-preset="https://github.blog/feed/" aria-pressed="false"><span>GH</span> GitHub Blog</button>
+              </div>
             </div>
             <div class="field">
-              <label for="github-repos">Public GitHub repo URLs <span>optional</span></label>
-              <textarea id="github-repos" name="github_repo_urls" rows="3" placeholder="https://github.com/owner/repo" aria-describedby="github-help"></textarea>
-              <span class="field-help" id="github-help">Up to five public github.com repositories, one per line.</span>
+              <label for="source-urls">Public RSS or Atom feed URLs</label>
+              <textarea id="source-urls" name="source_urls" rows="5" placeholder="One feed URL per line&#10;https://news.ycombinator.com/rss&#10;https://example.com/feed.xml" required aria-describedby="source-help"></textarea>
+              <span class="field-help" id="source-help">Direct public feed URLs work now. Up to six sources per preview.</span>
             </div>
             <div class="field">
-              <label for="work-focus">What are you working on?</label>
-              <textarea id="work-focus" name="work_focus" rows="3" placeholder="The decisions, launches, risks, or technical changes that should make an item relevant." required></textarea>
+              <label for="work-focus">What should make an item relevant?</label>
+              <textarea id="work-focus" name="work_focus" rows="3" placeholder="For example: AI agent evaluation, API pricing changes, developer tools, and competitor launches." required></textarea>
+            </div>
+            <div class="field">
+              <label for="ignore-focus">What should Paperboy ignore? <span>optional</span></label>
+              <input id="ignore-focus" name="ignore_focus" type="text" placeholder="Funding gossip, beginner tutorials, hardware news">
             </div>
             <span class="form-error" id="intake-error" role="alert"></span>
-            <button class="button button-wide" type="submit" id="pilot-submit">Get my free sample brief</button>
+            <button class="button button-wide" type="submit" id="pilot-submit">Build my filter and preview it</button>
           </form>
           <div class="magic-success" id="magic-success" hidden>
             <div class="success-mark" aria-hidden="true">✓</div>
-            <h2 id="pilot-success-title">Your sample request is saved.</h2>
-            <p id="pilot-success-copy">We saved your sources. We’ll build and email your personalized sample. No account, card, or subscription was created.</p>
-            <button class="button button-wide" type="button" id="simulate-magic-link">Explore the product preview</button>
-            <button class="text-button button-wide" type="button" id="change-email">Use a different email</button>
+            <h2 id="pilot-success-title">Your filter ran.</h2>
+            <p id="pilot-success-copy">These are the strongest matches from the public feeds you submitted.</p>
+            <div class="preview-summary" id="preview-summary" aria-live="polite"></div>
+            <div class="live-preview-list" id="live-preview-list"></div>
+            <button class="text-button button-wide" type="button" id="change-email">Change the filter and run it again</button>
           </div>
         </div>
       </div>
@@ -297,7 +299,7 @@
     <section class="screen flow-screen setup-screen" data-screen="setup" hidden>
       <div class="setup-header">
         <a class="brand brand-compact" href="#home" data-route="home">
-          <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true"><path d="M7 5.5h16l6 6v19H7z"></path><path d="M23 5.5v6h6M11 17h14M11 22h10"></path><circle cx="11" cy="27" r="1.7"></circle><path class="brand-route" d="M12.8 27h8.7"></path></svg>
+          <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true"><circle cx="7" cy="7" r="2"></circle><circle cx="18" cy="7" r="2"></circle><circle cx="29" cy="7" r="2"></circle><path d="M7 10c0 6 11 6 11 13M18 10v13M29 10c0 6-11 6-11 13"></path><path class="brand-route" d="M18 23v6"></path><circle cx="18" cy="31" r="2"></circle></svg>
           <span>paperboy</span>
         </a>
         <button class="text-button" type="button" data-route="home">Save and exit</button>
@@ -518,7 +520,7 @@
       <div class="account-shell">
         <header class="account-header">
           <a class="brand brand-compact" href="#home" data-route="home">
-            <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true"><path d="M7 5.5h16l6 6v19H7z"></path><path d="M23 5.5v6h6M11 17h14M11 22h10"></path><circle cx="11" cy="27" r="1.7"></circle><path class="brand-route" d="M12.8 27h8.7"></path></svg>
+          <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true"><circle cx="7" cy="7" r="2"></circle><circle cx="18" cy="7" r="2"></circle><circle cx="29" cy="7" r="2"></circle><path d="M7 10c0 6 11 6 11 13M18 10v13M29 10c0 6-11 6-11 13"></path><path class="brand-route" d="M18 23v6"></path><circle cx="18" cy="31" r="2"></circle></svg>
             <span>paperboy</span>
           </a>
           <div>
@@ -643,12 +645,12 @@
 
   <footer class="site-footer" id="site-footer">
     <div class="brand brand-footer">
-      <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true"><path d="M7 5.5h16l6 6v19H7z"></path><path d="M23 5.5v6h6M11 17h14M11 22h10"></path><circle cx="11" cy="27" r="1.7"></circle><path class="brand-route" d="M12.8 27h8.7"></path></svg>
+      <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true"><circle cx="7" cy="7" r="2"></circle><circle cx="18" cy="7" r="2"></circle><circle cx="29" cy="7" r="2"></circle><path d="M7 10c0 6 11 6 11 13M18 10v13M29 10c0 6-11 6-11 13"></path><path class="brand-route" d="M18 23v6"></path><circle cx="18" cy="31" r="2"></circle></svg>
       <span>paperboy</span>
     </div>
-    <p>Local, no-secrets product surface for the Paperboy Daily Brief.</p>
+    <p>Build a public-source firehose. Read only what survives your filter.</p>
     <div>
-      <span>Free sample first · $49/month only if useful</span>
+      <span>Automatic first brief · $49/month only if useful</span>
     </div>
   </footer>
 

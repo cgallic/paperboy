@@ -38,3 +38,6 @@ config/models.env
 
 # Local source snapshot from extraction (not part of the public repo)
 _source-snapshot/
+
+# Browser smoke-test output
+/paperboy-*-smoke.png

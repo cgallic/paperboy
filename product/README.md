@@ -1,91 +1,70 @@
-# Paperboy Daily Intelligence Brief — validation surface
+# Paperboy Filtered Firehose — validation surface
 
-This is a self-contained, no-secrets validation surface for the hosted Paperboy
-product direction. It is deployed at `https://paperboy.kaibuilds.com/`.
+This self-contained product surface is deployed at
+`https://paperboy.kaibuilds.com/`.
 
-It demonstrates:
+The primary flow is real, bounded product behavior:
 
-- a cold-traffic Daily Brief landing with a free personalized sample;
-- explicit source selection for forwarded newsletters, public
-  news/research/data, and optional read-only public GitHub repositories;
-- a live same-origin concierge intake on KaiBuilds that records the email,
-  newsletter names or URLs, optional public GitHub repos, and work focus;
-- local-only fixture repository, interests, schedule, checkout,
-  account, privacy, and billing state previews;
-- a responsive email edition with Today in 60 Seconds, Repo Radar, Research
-  Worth Reading, and Watchlist / Do Nothing;
-- capped fixture items, evidence links, and local feedback controls; and
-- the free self-hosted GitHub project as the acquisition path.
+- choose a Hacker News, arXiv AI, or GitHub Blog preset, or paste public RSS/Atom feed URLs;
+- describe what should make an item relevant and optionally name noise to ignore;
+- call the same-origin `/api/firehose/preview` endpoint;
+- validate and safely fetch up to six public feeds;
+- scan, filter, rank, deduplicate, and source-link the recent items; and
+- render the strongest matches immediately in the browser.
 
-No auth, connector, scheduled email, model, or billing provider is configured.
-On a KaiBuilds host, JavaScript records a visit with `/api/hit` and submits the
-founding-pilot form to `/api/lead`; campaign parameters are preserved. The
-product-tour state remains local under `paperboy.product-demo.v2`.
+On a KaiBuilds host, JavaScript also records the successful preview request in
+the existing `/api/lead` queue with campaign attribution. The preview does not
+depend on that capture call and still renders if lead persistence fails.
+
+## Product boundary
+
+The live preview supports public RSS and Atom feeds. It does not connect to an
+inbox, auto-subscribe a user to email-only newsletters, persist per-user feed
+registries, create accounts, schedule delivery, charge a card, or send the
+daily edition. The existing setup/account/checkout routes remain clearly
+labeled local fixture previews and are not linked from the primary live flow.
 
 ## Serve locally
 
-From the repository root:
+Run the API from the repository root so `/api/firehose/preview` is available:
 
 ```powershell
-python -m http.server 4173
+pip install -e ".[all]"
+python -m uvicorn paperboy.api.main:app --reload --port 4173
 ```
 
-Open:
+Then open `http://127.0.0.1:4173/`.
 
-```text
-http://127.0.0.1:4173/product/
-```
-
-Serving from the repository root keeps future local fixture links available.
-No environment variables, package installation, or secret files are needed.
-
-## Static checks
+## Static and browser checks
 
 ```powershell
 node --check product/app.js
 node product/check.mjs
+python tests/product_ui_smoke.py
 git diff --check
 ```
 
 ## Golden path
 
-1. Open the landing page and select **Get my free sample brief**.
-2. Enter a valid email, at least one newsletter name or URL, optional public
-   GitHub repo URLs, and the work focus that should rank the sample.
-3. On KaiBuilds, confirm the complete intake persists in Admin under `paperboy`.
-4. Open the fictional product tour.
-5. Keep or change the forwarding/public source lanes.
-6. Load fictional GitHub fixtures, search, and select up to five.
-7. Add interests, active themes, and a watchlist decision.
-8. Choose delivery days, time, and time zone.
-9. Open the responsive email preview.
-10. Continue to the disabled checkout handoff.
-11. Preview successful setup and inspect account/privacy/billing states.
-12. Clear all local demo data.
+1. Open the landing page and select **Build my filter**.
+2. Enter an email used for founding-pilot follow-up.
+3. Choose one quick-start feed or paste up to six public RSS/Atom feed URLs.
+4. Describe what should make an item relevant.
+5. Optionally provide comma-separated ignore terms.
+6. Run the filter and inspect the ranked, source-linked results.
+7. Change the filter and rerun it without creating an account or subscription.
 
 ## Acceptance checklist
 
-- [ ] Landing is clearly a Daily Intelligence Brief, not a generic summary or
-  Repo Impact-only product.
-- [ ] The hero names the manual behavior to replace and explains the product
-  in one sentence.
-- [ ] Every primary CTA says **Get my free sample brief**.
-- [ ] Pricing makes the first personalized sample free and presents the
-  $49/month founding pilot only after the sample.
-- [ ] Source lanes explicitly distinguish forwarding, public catalog, and
-  selected public GitHub repositories.
-- [ ] Forwarding copy states that Gmail OAuth is not used.
-- [ ] GitHub copy states selected repositories, exact planned read scopes, and
-  zero write permission.
-- [ ] Fixture repo picker enforces the 1–5 cap and supports search/selected-only.
-- [ ] Interests and delivery steps validate required fields.
-- [ ] Email preview contains four capped sections and evidence links.
-- [ ] Feedback changes only local state.
-- [ ] Checkout cannot create a charge.
-- [ ] KaiBuilds lead capture uses only same-origin `/api/lead` and carries the
-  explicit `paperboy` slug, campaign attribution, newsletter sources, optional
-  public repo URLs, and work focus.
-- [ ] Account state previews cannot call auth, billing, email, or GitHub.
-- [ ] Desktop and mobile golden paths complete without horizontal overflow.
-- [ ] Keyboard focus, labels, field errors, reduced motion, and touch targets
-  meet the prototype accessibility baseline.
+- [ ] Hero positions Paperboy as a personal relevance filter, not a newsletter summarizer.
+- [ ] The many-inputs-to-few-signals transformation is visible above the fold.
+- [ ] Every primary CTA says **Build my filter**; the header CTA is visually secondary.
+- [ ] Public-feed presets and a direct URL intake are available.
+- [ ] Input rejects missing email, feeds, or relevance focus before network calls.
+- [ ] `/api/firehose/preview` is same-origin, bounded, and rejects private/non-public destinations.
+- [ ] Per-source failures do not discard valid feed results.
+- [ ] Preview items include title, source, score, relevance explanation, and original URL.
+- [ ] Successful live previews persist source URLs, focus, ignore terms, and attribution to KaiBuilds Admin.
+- [ ] Copy never claims Gmail access, automatic newsletter subscription, account creation, scheduled delivery, or billing.
+- [ ] Desktop and mobile flows complete without horizontal overflow.
+- [ ] Keyboard focus, labels, errors, reduced motion, target size, contrast, and typography pass the implemented Design OS floor.

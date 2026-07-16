@@ -12,10 +12,10 @@ function requireText(source, text, label) {
 }
 
 [
-  ["Share the newsletters you trust", "newsletter source lane"],
-  ["public GitHub repos you follow", "GitHub source lane"],
-  ["You choose what Paperboy reads", "access boundary"],
-  ["Your first personalized brief is free", "entry offer"],
+  ["Build your firehose. Read only what matters.", "filtered-firehose promise"],
+  ["Hacker News", "Hacker News source"],
+  ["Any public RSS or Atom feed", "open feed boundary"],
+  ["Your first filtered brief is free", "entry offer"],
   ["$</span>49", "$49 price hypothesis"],
   ["No charge can be created here", "disabled checkout boundary"]
 ].forEach(([text, label]) => requireText(html, text, label));
@@ -31,26 +31,28 @@ function requireText(source, text, label) {
 
 [
   ["https://paperboy.kaibuilds.com/", "canonical KaiBuilds URL"],
-  ["Stop reading 20 newsletters every morning.", "cold-traffic promise"],
-  ["Your first personalized brief is free.", "free sample offer"],
-  ["Get my free sample brief", "single lead CTA"]
+  ["Build your firehose. Read only what matters.", "cold-traffic promise"],
+  ["Your first filtered brief is free.", "free first-brief offer"],
+  ["Build my filter", "single lead CTA"]
 ].forEach(([text, label]) => requireText(html, text, label));
 
 [
+  ['fetch("/api/firehose/preview"', "same-origin live feed preview"],
   ['fetch("/api/lead"', "same-origin KaiBuilds lead capture"],
-  ["result.ok !== true", "confirmed lead persistence"],
+  ["previewResult.ok !== true", "confirmed preview response"],
+  ["captureResult.ok !== true", "confirmed lead persistence"],
   ["/api/hit?slug=paperboy", "KaiBuilds visit capture"],
   ['slug: "paperboy"', "Paperboy capture slug"],
-  ["newsletter_sources: newsletterSources", "newsletter intake persistence"],
-  ["github_repo_urls: githubRepoUrls", "GitHub intake persistence"],
+  ["source_urls: sourceUrls", "public feed intake persistence"],
   ["work_focus: workFocus", "work-focus intake persistence"],
+  ["ignore_focus: ignoreFocus", "ignore-list intake persistence"],
   ["attributionFields", "campaign attribution capture"]
 ].forEach(([text, label]) => requireText(js, text, label));
 
 [
-  ["newsletter-sources", "newsletter intake field"],
-  ["github-repos", "GitHub intake field"],
-  ["work-focus", "work-focus intake field"]
+  ["source-urls", "public feed intake field"],
+  ["work-focus", "work-focus intake field"],
+  ["ignore-focus", "noise filter intake field"]
 ].forEach(([text, label]) => requireText(html, text, label));
 
 [
@@ -68,7 +70,7 @@ if (html.includes("We’ll email you to collect a few sources")) {
   failures.push("Stale follow-up-only intake copy found.");
 }
 
-const primaryCtaMatches = html.match(/Get my free sample brief/g) || [];
+const primaryCtaMatches = html.match(/Build my filter/g) || [];
 if (primaryCtaMatches.length < 4) failures.push("Primary free-sample CTA is not repeated consistently.");
 
 const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
@@ -83,8 +85,8 @@ if (/<form[^>]+action=/i.test(html)) {
   failures.push("A form action could submit data outside the local preview.");
 }
 
-if ((js.match(/fetch\(/g) || []).length !== 1 || !js.includes('fetch("/api/lead"')) {
-  failures.push("Only the same-origin /api/lead fetch is allowed.");
+if ((js.match(/fetch\(/g) || []).length !== 2 || !js.includes('fetch("/api/firehose/preview"') || !js.includes('fetch("/api/lead"')) {
+  failures.push("Only the same-origin firehose preview and lead capture fetches are allowed.");
 }
 
 [["XMLHttpRequest", "XMLHttpRequest"], ["WebSocket", "WebSocket"], ["sendBeacon", "sendBeacon"]].forEach(([needle, label]) => {
@@ -108,5 +110,5 @@ if (failures.length) {
 console.log("Paperboy product static checks passed.");
 console.log("- " + ids.length + " unique HTML ids");
 console.log("- no remote UI assets or form actions");
-console.log("- only same-origin KaiBuilds lead and visit capture");
+console.log("- only same-origin firehose preview, KaiBuilds lead, and visit capture");
 console.log("- required Daily Brief sections and demo boundaries present");

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" role="img" aria-labelledby="title desc">
+  <title id="title">Paperboy direction two: Radar Console</title>
+  <desc id="desc">A dark monitoring console with source counts, radar rings, and a live signal queue.</desc>
+  <rect width="1280" height="800" fill="#0b1015"/>
+  <rect x="34" y="28" width="1212" height="64" rx="10" fill="#141c24" stroke="#2b3742"/>
+  <text x="65" y="68" fill="#f2f6fa" font-family="Arial" font-size="23" font-weight="700">paperboy / radar</text>
+  <text x="1160" y="67" fill="#77d19c" font-family="monospace" font-size="12">LIVE</text>
+  <rect x="34" y="116" width="756" height="642" rx="12" fill="#111922" stroke="#2b3742"/>
+  <text x="68" y="166" fill="#86aef7" font-family="monospace" font-size="12">PERSONAL RELEVANCE RADAR</text>
+  <circle cx="410" cy="421" r="230" fill="none" stroke="#263746"/><circle cx="410" cy="421" r="170" fill="none" stroke="#263746"/><circle cx="410" cy="421" r="108" fill="none" stroke="#263746"/>
+  <line x1="180" y1="421" x2="640" y2="421" stroke="#263746"/><line x1="410" y1="191" x2="410" y2="651" stroke="#263746"/>
+  <path d="M410 421 L585 300 A230 230 0 0 1 624 507 Z" fill="#2864dc" opacity=".22"/>
+  <circle cx="565" cy="322" r="8" fill="#77d19c"/><circle cx="608" cy="486" r="6" fill="#f0a84a"/><circle cx="323" cy="385" r="5" fill="#86aef7"/>
+  <rect x="814" y="116" width="432" height="642" rx="12" fill="#111922" stroke="#2b3742"/>
+  <text x="848" y="166" fill="#86aef7" font-family="monospace" font-size="12">RANKED SIGNAL QUEUE</text>
+  <g font-family="Arial"><rect x="848" y="196" width="364" height="122" rx="8" fill="#18242f"/><text x="872" y="225" fill="#77d19c" font-family="monospace" font-size="11">9.1 / HACKER NEWS</text><text x="872" y="258" fill="#f2f6fa" font-size="18" font-weight="700">API pricing changed</text><text x="872" y="286" fill="#9cabb7" font-size="14">Matches model margin watchlist</text>
+  <rect x="848" y="338" width="364" height="122" rx="8" fill="#18242f"/><text x="872" y="367" fill="#f0a84a" font-family="monospace" font-size="11">7.8 / ARXIV</text><text x="872" y="400" fill="#f2f6fa" font-size="18" font-weight="700">Eval method worth testing</text><text x="872" y="428" fill="#9cabb7" font-size="14">Matches current agent work</text>
+  <rect x="848" y="480" width="364" height="122" rx="8" fill="#18242f"/><text x="872" y="509" fill="#86aef7" font-family="monospace" font-size="11">6.4 / RSS</text><text x="872" y="542" fill="#f2f6fa" font-size="18" font-weight="700">Competitor shipped a change</text><text x="872" y="570" fill="#9cabb7" font-size="14">Matches competitor watchlist</text></g>
+  <rect x="848" y="632" width="364" height="70" rx="5" fill="#2864dc"/><text x="1030" y="675" text-anchor="middle" fill="white" font-family="Arial" font-size="16" font-weight="700">BUILD MY RADAR</text>
+</svg>

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "paperboy"
 version = "0.2.0"
-description = "Daily email brief from chosen newsletters and public GitHub repositories, ranked against your work."
+description = "Personal relevance filter that turns public RSS and Atom feeds into a short, source-linked brief."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }

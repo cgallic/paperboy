@@ -11,18 +11,25 @@ Static files from product/ are served at / so the landing page works.
 """
 from __future__ import annotations
 
+import asyncio
 import json
 import sqlite3
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
 from paperboy.config import settings
 from paperboy.db import connect, init_schema
+from paperboy.firehose import (
+    MAX_REQUEST_BYTES,
+    PreviewValidationError,
+    build_firehose_preview,
+    validate_preview_payload,
+)
 from paperboy.health import run_all
 from paperboy.logging_config import configure_logging, get_logger
 
@@ -211,6 +218,35 @@ async def render_brief(request: Request) -> JSONResponse:
                 "html": html,
             }
         )
+
+
+@app.post("/api/firehose/preview")
+async def preview_firehose(request: Request) -> JSONResponse:
+    """Return an instant, source-linked RSS/Atom relevance preview."""
+    content_length = request.headers.get("content-length")
+    if content_length:
+        try:
+            if int(content_length) > MAX_REQUEST_BYTES:
+                raise HTTPException(status_code=413, detail="request body is too large")
+        except ValueError:
+            raise HTTPException(status_code=400, detail="invalid content-length") from None
+    try:
+        raw_body = await request.body()
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail="could not read request body") from exc
+    if len(raw_body) > MAX_REQUEST_BYTES:
+        raise HTTPException(status_code=413, detail="request body is too large")
+    try:
+        payload = json.loads(raw_body)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=400, detail="request body must be valid JSON") from exc
+    try:
+        sources, focus, ignore = validate_preview_payload(payload)
+    except PreviewValidationError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    result = await asyncio.to_thread(build_firehose_preview, sources, focus, ignore)
+    return JSONResponse(result)
 
 
 # ---------------------------------------------------------------------------

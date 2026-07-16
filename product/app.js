@@ -3,6 +3,7 @@
 
   var STORAGE_KEY = "paperboy.product-demo.v2";
   var MAX_REPOS = 5;
+  var MAX_PREVIEW_SOURCES = 6;
 
   var fixtureRepos = [
     { id: "agent-router", name: "demo-labs/agent-router", language: "TypeScript", description: "Routes tool-using agents across model providers." },
@@ -220,6 +221,74 @@
     return value.split(/\r?\n/).map(function (line) {
       return line.trim();
     }).filter(Boolean);
+  }
+
+  function previewErrorMessage(response, result) {
+    if (result && typeof result.detail === "string") return result.detail;
+    if (result && result.detail && typeof result.detail.message === "string") return result.detail.message;
+    if (result && typeof result.message === "string") return result.message;
+    return "Paperboy could not read those feeds. Check the URLs and try again.";
+  }
+
+  function renderLivePreview(result) {
+    var summary = document.getElementById("preview-summary");
+    var list = document.getElementById("live-preview-list");
+    var items = result && Array.isArray(result.items) ? result.items : [];
+    var sourceResults = result && Array.isArray(result.sources) ? result.sources : [];
+    var failed = sourceResults.filter(function (source) { return source.status !== "ok"; });
+    var scanned = result && Number.isFinite(result.scanned) ? result.scanned : items.length;
+    summary.replaceChildren();
+    list.replaceChildren();
+
+    var summaryStrong = document.createElement("strong");
+    summaryStrong.textContent = items.length + (items.length === 1 ? " signal" : " signals") + " made the cut";
+    var summaryCopy = document.createElement("span");
+    summaryCopy.textContent = scanned + " recent items scanned" + (failed.length ? " · " + failed.length + " feed error" + (failed.length === 1 ? "" : "s") : "");
+    summary.append(summaryStrong, summaryCopy);
+
+    if (!items.length) {
+      var empty = document.createElement("p");
+      empty.className = "preview-empty";
+      empty.textContent = "No recent item matched strongly enough. Broaden the focus or add another feed, then run the filter again.";
+      list.appendChild(empty);
+    }
+
+    items.forEach(function (item, index) {
+      var article = document.createElement("article");
+      article.className = "live-preview-card";
+      var meta = document.createElement("div");
+      meta.className = "live-preview-meta";
+      var rank = document.createElement("span");
+      rank.textContent = "0" + (index + 1);
+      var source = document.createElement("span");
+      source.textContent = item.source || "Public feed";
+      var score = document.createElement("strong");
+      score.textContent = typeof item.score === "number" ? item.score.toFixed(1) : "—";
+      meta.append(rank, source, score);
+
+      var title = document.createElement("h3");
+      title.textContent = item.title || "Untitled feed item";
+      var why = document.createElement("p");
+      why.textContent = item.why || item.summary || "Matched the focus supplied for this preview.";
+      article.append(meta, title, why);
+
+      if (item.url) {
+        var link = document.createElement("a");
+        link.href = item.url;
+        link.target = "_blank";
+        link.rel = "noreferrer";
+        link.textContent = "Open original source ↗";
+        article.appendChild(link);
+      }
+      list.appendChild(article);
+    });
+
+    failed.forEach(function (source) {
+      var warning = document.createElement("p");
+      warning.className = "preview-source-error";
+      warning.textContent = "Skipped " + (source.url || "one feed") + ": " + (source.error || "could not read feed");
+      list.appendChild(warning);
+    });
   }
 
   function isKaiBuildsHost() {
@@ -624,9 +693,9 @@
     var intakeError = document.getElementById("intake-error");
     var submit = document.getElementById("pilot-submit");
     var email = input.value.trim();
-    var newsletterSources = sourceLines(document.getElementById("newsletter-sources").value);
-    var githubRepoUrls = sourceLines(document.getElementById("github-repos").value);
+    var sourceUrls = sourceLines(document.getElementById("source-urls").value);
     var workFocus = document.getElementById("work-focus").value.trim();
+    var ignoreFocus = document.getElementById("ignore-focus").value.trim();
     if (!isValidEmail(input.value.trim())) {
       error.textContent = "Enter a valid email address.";
       input.setAttribute("aria-invalid", "true");
@@ -636,64 +705,82 @@
     error.textContent = "";
     input.removeAttribute("aria-invalid");
     intakeError.textContent = "";
-    if (!newsletterSources.length) {
-      intakeError.textContent = "Add at least one newsletter name or URL.";
-      document.getElementById("newsletter-sources").focus();
+    if (!sourceUrls.length) {
+      intakeError.textContent = "Add at least one public RSS or Atom feed URL.";
+      document.getElementById("source-urls").focus();
+      return;
+    }
+    if (sourceUrls.length > MAX_PREVIEW_SOURCES || sourceUrls.some(function (url) { return !/^https?:\/\/\S+$/i.test(url); })) {
+      intakeError.textContent = "Use up to six public feed URLs beginning with http:// or https://.";
+      document.getElementById("source-urls").focus();
       return;
     }
     if (!workFocus) {
-      intakeError.textContent = "Tell us what you are working on so the sample can be ranked for you.";
+      intakeError.textContent = "Describe what should make an item relevant.";
       document.getElementById("work-focus").focus();
       return;
     }
-    if (githubRepoUrls.length > MAX_REPOS || githubRepoUrls.some(function (url) {
-      return !/^https:\/\/github\.com\/[^/\s]+\/[^/\s]+\/?$/i.test(url);
-    })) {
-      intakeError.textContent = "Use up to five public GitHub repo URLs in https://github.com/owner/repo format.";
-      document.getElementById("github-repos").focus();
-      return;
-    }
     submit.disabled = true;
-    submit.textContent = isKaiBuildsHost() ? "Requesting sample…" : "Opening preview…";
+    submit.textContent = "Scanning and ranking feeds…";
     state.email = email;
     state.delivery.email = state.email;
     saveState();
 
+    try {
+      var previewResponse = await fetch("/api/firehose/preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sources: sourceUrls,
+          focus: workFocus,
+          ignore: ignoreFocus ? ignoreFocus.split(",").map(function (term) { return term.trim(); }).filter(Boolean) : []
+        })
+      });
+      var previewResult = await previewResponse.json();
+      if (!previewResponse.ok || !previewResult || previewResult.ok !== true) {
+        throw new Error(previewErrorMessage(previewResponse, previewResult));
+      }
+      renderLivePreview(previewResult);
+    } catch (previewError) {
+      intakeError.textContent = previewError && previewError.message ? previewError.message : "Paperboy could not read those feeds. Try again.";
+      submit.disabled = false;
+      submit.textContent = "Build my filter and preview it";
+      return;
+    }
+
+    var captureSaved = false;
     if (isKaiBuildsHost()) {
       try {
-        var response = await fetch("/api/lead", {
+        var captureResponse = await fetch("/api/lead", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(Object.assign({
             slug: "paperboy",
             email: email,
-            message: "Paperboy personalized sample intake",
-            offer: "Free personalized Paperboy sample",
+            message: "Paperboy automatic filtered-firehose preview",
+            offer: "Free automatic first filtered brief",
             price: "$49/month after sample",
-            source: "paperboy_sample_request",
+            source: "paperboy_filter_preview",
             page: window.location.href,
-            newsletter_sources: newsletterSources,
-            github_repo_urls: githubRepoUrls,
-            work_focus: workFocus
+            source_urls: sourceUrls,
+            work_focus: workFocus,
+            ignore_focus: ignoreFocus
           }, attributionFields()))
         });
-        var result = await response.json();
-        if (!response.ok || !result || result.ok !== true) {
+        var captureResult = await captureResponse.json();
+        if (!captureResponse.ok || !captureResult || captureResult.ok !== true) {
           throw new Error("Lead capture did not confirm persistence");
         }
-        document.getElementById("pilot-success-title").textContent = "Your sample request is saved.";
-        document.getElementById("pilot-success-copy").textContent = "We saved your sources. We’ll build and email your personalized sample. No account, card, or subscription was created.";
+        captureSaved = true;
       } catch (captureError) {
-        error.textContent = "We couldn’t save that request. Please try again.";
-        submit.disabled = false;
-        submit.textContent = "Get my free sample brief";
-        return;
+        captureSaved = false;
       }
-    } else {
-      document.getElementById("pilot-success-title").textContent = "Local preview ready.";
-      document.getElementById("pilot-success-copy").textContent = "This local copy did not submit your email. Use the live KaiBuilds page to request a free personalized sample.";
     }
 
+    document.getElementById("pilot-success-title").textContent = "Your filter ran.";
+    document.getElementById("pilot-success-copy").textContent = captureSaved
+      ? "Your strongest matches are below. We also saved your email and filter for founding-pilot follow-up. No card or subscription was created."
+      : "Your strongest matches are below. The preview worked, but your email was not saved; no card or subscription was created.";
     form.hidden = true;
     document.getElementById("magic-success").hidden = false;
   });
@@ -701,13 +788,27 @@
   document.getElementById("change-email").addEventListener("click", function () {
     document.getElementById("magic-success").hidden = true;
     document.getElementById("magic-link-form").hidden = false;
-    document.getElementById("signin-email").focus();
+    var submit = document.getElementById("pilot-submit");
+    submit.disabled = false;
+    submit.textContent = "Build my filter and preview it";
+    document.getElementById("source-urls").focus();
   });
 
-  document.getElementById("simulate-magic-link").addEventListener("click", function () {
-    state.magicLinkPreviewed = true;
-    saveState();
-    routeTo("setup", { step: "sources" });
+  document.querySelectorAll("[data-feed-preset]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      var input = document.getElementById("source-urls");
+      var url = button.getAttribute("data-feed-preset");
+      var sources = sourceLines(input.value);
+      var existingIndex = sources.indexOf(url);
+      if (existingIndex >= 0) {
+        sources.splice(existingIndex, 1);
+        button.setAttribute("aria-pressed", "false");
+      } else {
+        sources.push(url);
+        button.setAttribute("aria-pressed", "true");
+      }
+      input.value = sources.join("\n");
+    });
   });
 
   document.getElementById("source-forwarding").addEventListener("change", function (event) {
