@@ -41,6 +41,7 @@ function requireText(source, text, label) {
 
 [
   ['fetch("/api/lead"', "same-origin KaiBuilds lead capture"],
+  ["result.ok !== true", "confirmed lead persistence"],
   ["/api/hit?slug=paperboy", "KaiBuilds visit capture"],
   ['slug: "paperboy"', "Paperboy capture slug"],
   ["attributionFields", "campaign attribution capture"]

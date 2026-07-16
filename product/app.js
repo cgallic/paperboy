@@ -646,7 +646,10 @@
             page: window.location.href
           }, attributionFields()))
         });
-        if (!response.ok) throw new Error("Lead capture returned " + response.status);
+        var result = await response.json();
+        if (!response.ok || !result || result.ok !== true) {
+          throw new Error("Lead capture did not confirm persistence");
+        }
         document.getElementById("pilot-success-title").textContent = "Request received.";
         document.getElementById("pilot-success-copy").textContent = "We’ll use your email only to follow up about the founding pilot. No account or subscription was created.";
       } catch (captureError) {
