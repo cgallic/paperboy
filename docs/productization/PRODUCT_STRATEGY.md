@@ -1,7 +1,7 @@
 # Paper Boy product strategy
 
 **Decision date:** 2026-07-16
-**Recommendation:** Test a hosted **Repo Impact Brief** for individual AI builders at **$12/month** while keeping the current self-hosted GitHub project free. Do not position Paper Boy as a generic AI newsletter, a blackboard, or an autonomous agent factory.
+**Recommendation:** Test a hosted **Paperboy Daily Brief** for independent technical builders at **$12/month** while keeping the current self-hosted GitHub project free. The brief should rank and synthesize explicitly forwarded newsletters, public news/research/data, and selected GitHub repositories into one evidence-backed morning edition. Repo Radar is one section, not the whole product.
 
 ## Source-of-truth note
 
@@ -12,7 +12,19 @@ Live read-only checks were also run on 2026-07-16:
 - **Brain host/source:** `agent:/home/connor/brain/events.db`. Relevant exact events include `1286611` (`claude-laptop/message`, the 10,000-to-12 positioning and open-brane relationship), `1187894` (`claude-laptop/message`, Paper Boy as a Discord daily digest and desired action-queue demo), and `1188408` (`claude-laptop/message`, the explicit file-first, no-external-send action-queue contract).
 - **Gmail source:** live Gmail API via DWD for `connor@kaicalls.com` and `me@connorgallic.com`. Exact searches for `"Paper Boy"`, `paperboy`, `"cgallic/paperboy"`, `from:github paperboy`, and `subject:paperboy` found no current Paper Boy product thread. The three `paperboy` hits in `me@connorgallic.com` were unrelated 2018-2019 newsletter mentions (thread IDs `16aa268aed0e00e2`, `16a9701a0f54d7e0`, `1633b15f8a98ea8d`). No product requirement is inferred from those emails.
 
-The 2026-07-16 operator direction is therefore treated as the forward product brief: **email is the first hosted delivery surface, and selected GitHub repositories are the first personalization context.** Neither is represented as a capability that already exists.
+The 2026-07-16 operator direction is therefore treated as the forward product brief: **a hosted morning email combining explicitly forwarded email/newsletters, public news/research/data, and selected GitHub repositories.** These are proposed hosted inputs/delivery, not capabilities represented as already existing. “Forwarded email” means messages intentionally sent to a Paperboy address, not broad mailbox access.
+
+## Correction guardrail
+
+Discovery correctly identified Paperboy's existing core job as a daily news-and-research digest. The first product synthesis then overrode that evidence with a narrow paid-wedge heuristic and made Repo Impact the product. That was the wrong abstraction.
+
+Future product decisions must state three things in order:
+
+1. **Existing core job:** rank a large news/research firehose into a small daily digest.
+2. **Requested expansion:** add explicitly forwarded newsletters, public data, selected GitHub sources/context, and hosted email delivery.
+3. **Paid delta:** cross-source relevance ranking, synthesis, evidence, feedback learning, and quiet-day discipline.
+
+Reject any wedge that changes the core job merely because one input or section appears easier to sell. **Repo Radar is a section of the Daily Brief, not Paperboy's product identity.**
 
 ## Current product truth
 
@@ -30,89 +42,92 @@ The 2026-07-16 operator direction is therefore treated as the forward product br
 
 ## Recommended wedge
 
-### Repo Impact Brief for AI builders
+### Paperboy Daily Brief for technical builders
 
-**Promise:** Paper Boy watches the technical firehose through the lens of the public GitHub repositories you select. It emails only the changes worth acting on, explains why each matters to a named repo, and recommends one next action.
+**Promise:** Forward the newsletters you trust, choose the public sources and GitHub repositories you care about, and receive one ranked morning edition showing what changed, what connects across sources, why it matters, and what deserves action.
 
-The email should have no more than five items:
+The edition is a brief, not a dump. It should take less than five minutes to scan and use stable sections:
 
-1. What changed.
-2. Which selected repo it affects.
-3. Why it matters now.
-4. The source evidence.
-5. One recommended action, or an explicit “watch, do nothing.”
+1. **The three that matter** — the highest-ranked items across every source.
+2. **Newsletter signals** — only novel claims from explicitly forwarded messages.
+3. **News + data moves** — public developments or material metric changes.
+4. **Research** — papers that clear the user's relevance threshold.
+5. **Repo Radar** — external changes or watched-repo activity tied to a selected repo.
+6. **One next move** — one recommended action, or an explicit “watch; do nothing.”
 
-If nothing clears the relevance bar, Paper Boy sends nothing. Silence is part of the product.
+On a quiet day, Paperboy sends a one-line “nothing material changed” edition instead of padding the brief. Users may later opt to skip empty editions, but the beta should preserve the morning ritual while proving that the ranking bar is real.
 
-This wedge connects the strongest existing asset—system-specific research scoring—to a context source developers already maintain. It is narrower than “personalized news,” more actionable than a repository-activity summary, and substantially smaller than enterprise market intelligence.
+This wedge preserves Paperboy's original news-and-research identity and uses selected repositories as one personalization signal. Its differentiation is not generic summarization. It is **cross-source relevance ranking, synthesis of corroborating or conflicting signals, evidence links, and quiet-day discipline**.
 
 ## ICP and job to be done
 
 ### Primary ICP
 
-Solo developers, technical founders, and AI-tool builders who:
+Independent technical founders, developers, researchers, and product operators who:
 
-- actively maintain roughly 2-10 public GitHub repositories;
-- follow AI models, libraries, papers, and developer tooling;
-- repeatedly discover important changes late or spend too much time scanning;
+- already receive multiple high-signal newsletters and follow public feeds, papers, datasets, or repositories;
+- maintain or depend on at least one public GitHub repository, without requiring repo ownership to define their whole information need;
+- repeatedly discover important connections late or spend too much time reconciling overlapping sources;
 - can make an implementation decision without team procurement; and
 - already pay for at least one developer productivity subscription.
 
-Start with public repositories. Private-repository access introduces a trust and security sale that a $12 beta does not need.
+The first cohort should still skew toward AI and developer-tool builders because the current research scorer and source set are strongest there. Start with public repositories. Private-repository access introduces a trust and security sale that a $12 beta does not need.
 
 ### Excluded from the first wedge
 
-- General news consumers.
-- Nontechnical newsletter readers.
+- General-news consumers seeking a broad newspaper replacement.
+- Users who want a read-later archive rather than a ranked morning decision surface.
 - Engineering managers seeking standup replacement or velocity analytics.
 - Enterprise competitive-intelligence teams.
 - Teams that require private-code indexing, SSO, audit logs, or procurement.
 
 ### JTBD
 
-> When new tools, releases, papers, and technical news pile up, tell me only what changes a decision in the code I am already shipping, so I can act before the information goes stale without reading the entire firehose.
+> When trusted newsletters, public news, research, data, and repository changes pile up in separate places, give me one ranked morning view of what is materially new, how the signals connect, and what deserves my attention or action.
 
 ### Sharp pain
 
-The pain is not “too much content.” Cheap readers already summarize content. The pain is the missing join between an external change and the developer's actual repositories. Existing tools usually answer either **what happened on the internet** or **what changed inside my repos**. The wedge must answer **what happened outside my repos that should change what I do inside them**.
+The pain is not merely “too much content.” Cheap readers already summarize feeds and newsletters. The sharper pain is that the same underlying change arrives fragmented across an email, a public article, a paper, a dataset, and a repository release. The user must deduplicate it, judge source quality, resolve disagreement, and decide whether it matters. Paperboy must answer **what is materially new, what the sources collectively imply, and what deserves action**. Repo Radar supplies extra context when code is affected; it is not required for every useful item.
 
 ## Recurring value loop
 
 ```text
-select public repos
+forward chosen newsletters + select feeds/data/repos
         ↓
-derive a small repo/stack profile
+build an explicit interest, source, and repo-context profile
         ↓
-scan papers, releases, and technical news
+ingest new items with source identity and evidence
         ↓
-score against the selected repos
+deduplicate, rank relevance, and synthesize cross-source claims
         ↓
-email only threshold-clearing impacts + one action
+assemble the ranked morning edition + one next move
         ↓
-useful / not useful / acted / wrong-repo feedback
+useful / not useful / already knew / acted / wrong-context feedback
         ↓
-tune interests, sources, and thresholds for the next brief
+tune sources, interests, ranking, sections, and thresholds
 ```
 
 The existing `research-interests.md` contract is the seed for this loop, but user feedback is not yet implemented. Current digest code only excludes items after separate feedback/answer events exist; it does not provide the hosted feedback capture needed here ([`prompt_digest.py:55-86`](https://github.com/cgallic/paperboy/blob/526ae15ed76b501a53e3c0439b7215d234d8ec7c/paperboy/digest/prompt_digest.py#L55-L86)).
 
 ## Activation moment
 
-Activation is not “connected a repo” or “opened the first email.” It is:
+Activation is not “forwarded an email,” “selected a repo,” or “opened the first brief.” It is:
 
-> Within 48 hours of selecting repos, the user marks at least one item useful and agrees that its recommended action applies to a specific repo.
+> Within 48 hours of adding at least three sources, the user marks one cross-source insight useful or acts on one item they would otherwise have missed.
 
-The onboarding preview should produce one sample brief before payment. If Paper Boy cannot find a credible repo-specific impact from recent public signals, it has not activated the user.
+The onboarding preview should produce one sample edition before payment. A credible activation can be a newsletter claim corroborated by public data, a research result connected to a watched tool, or a Repo Radar item. If the preview merely restates individual summaries without ranking or synthesis, Paperboy has not activated the user.
 
 ## Hosted MVP
 
 ### In scope
 
-- Email address plus 1-5 public GitHub repo URLs.
-- A generated stack profile from bounded public repo material such as the README, dependency manifests, languages, releases, and topics.
-- The existing research/news/paper intake where it is reliable, plus selected-repo context for scoring.
-- One scheduled email surface, with evidence links and a hard item cap.
-- Four feedback actions: useful, not useful, acted, wrong repo.
+- Email address and a unique forwarding address for newsletters the user explicitly chooses.
+- A small allowlist of user-selected public RSS/Atom feeds, research sources, public data endpoints, and 1-5 public GitHub repositories.
+- A generated interest/context profile from onboarding answers, forwarded-source choices, and bounded public repo material such as README, dependency manifests, languages, releases, and topics.
+- The existing research/news/paper intake where it is reliable, with source-level provenance preserved.
+- One scheduled morning email surface with stable sections, evidence links, source attribution, and a hard item cap.
+- Claim-level deduplication and lightweight cross-source synthesis that distinguishes corroboration, disagreement, and a single-source claim.
+- Five feedback actions: useful, not useful, already knew, acted, wrong context.
 - Per-user source, repo, threshold, delivery-time, and feedback configuration.
 - Basic run, delivery, click, feedback, and cost telemetry.
 - A clear deletion path for account/config data.
@@ -121,14 +136,21 @@ The onboarding preview should produce one sample brief before payment. If Paper 
 
 Keep the current SQLite/systemd project self-hosted and single-user. Do not expose its database or mutate it into the hosted multi-tenant service. The hosted product should reuse scoring contracts and content shapes behind a separate scheduled service and tenant configuration layer. This preserves the free project and avoids turning a local, unauthenticated event log into a public SaaS backend.
 
+### Source boundaries
+
+- **Forwarded email:** accept only messages intentionally forwarded or subscribed to a per-user Paperboy address. Do not request Gmail OAuth, read an inbox, follow reply chains, or ingest attachments in MVP.
+- **Public news/research/data:** use declared RSS/Atom feeds and documented public APIs/endpoints. Keep the source URL, publication time, retrieval time, and claim evidence. Do not add broad web crawling or paywall bypass.
+- **GitHub:** accept selected public repository URLs and documented public metadata/content. Use repositories as both watched sources and relevance context. Do not request private-code scopes.
+- **User control:** every source must be visible, removable, and attributable in the edition. Deleting a source stops future ingest; deleting the account removes tenant configuration and retained forwarded content.
+
 ### Explicit non-goals
 
 - Private repository access or broad GitHub OAuth scopes.
-- Gmail mailbox ingestion. Email is delivery in the first wedge, not an inbox data source.
+- Gmail/Outlook mailbox access, broad inbox search, reply drafting, or sending as the user. Explicit forwarding is the only email intake.
 - Discord, Slack, mobile app, or dashboard delivery for hosted v1.
 - Autonomous PR creation, code changes, purchases, or external actions.
 - Team accounts, shared feeds, standup reports, analytics, SSO, or RBAC.
-- A vector database, general personal memory product, or open-brane hosting.
+- A read-later archive, full-text personal search engine, vector database, general personal memory product, or open-brane hosting.
 - Affiliate-ranked recommendations.
 - A marketplace or “agent factory.”
 
@@ -137,7 +159,7 @@ Keep the current SQLite/systemd project self-hosted and single-user. Do not expo
 ### Offer
 
 - **Self-hosted:** free, MIT GitHub project; users bring Linux, Ollama, Discord, and their own operation.
-- **Hosted Personal beta:** **$12/month**, monthly cancellation, 1-5 public repos, scheduled repo-impact email, feedback learning, and no infrastructure setup.
+- **Hosted Personal beta:** **$12/month**, monthly cancellation, explicit newsletter forwarding, bounded public feeds/research/data, 1-5 public repos, one scheduled morning edition, feedback learning, and no infrastructure setup.
 - **Annual plan:** do not introduce until monthly willingness-to-pay and 30-day retention clear the thresholds below. Then test $99/year against $12 monthly.
 
 Do not launch a permanently free hosted tier during PMF testing. The free self-hosted project is already the open-source acquisition path. Offer a no-card sample brief or short trial instead.
@@ -148,15 +170,15 @@ As of 2026-07-16, current primary pricing pages show:
 
 | Alternative | Current offer and price | What it proves | Paper Boy gap/opportunity |
 |---|---|---|---|
-| GitHub notifications | GitHub natively sends activity for watched repos to its inbox, mobile, or email; users can filter issue, PR, release, security, and discussion activity. [Official docs](https://docs.github.com/en/subscriptions-and-notifications/concepts/about-notifications), [subscription controls](https://docs.github.com/en/subscriptions-and-notifications/how-tos/managing-subscriptions-for-activity-on-github/managing-your-subscriptions) | Repo email is already native and carries no separate product purchase. | Paper Boy cannot charge merely for forwarding repository activity. It must connect external signals to repo decisions. |
-| Digest | Starter is **$6/month** and includes AI newsletter summaries, RSS, news sources, and GitHub Trending sources. [Official pricing](https://usedigest.com/pricing/) | Multi-source daily email aggregation is inexpensive. | A $12 brief must be twice as decision-useful, not just better formatted. |
-| Inoreader | Pro is **$7.50/month billed annually or $9.99 monthly**, with monitoring feeds, filters/rules, AI summaries, and scheduled email digests. [Official pricing](https://www.inoreader.com/pricing/feature/subscriptions) | Power users can build sophisticated filters below $12. | Paper Boy must remove configuration work and supply repo-fit judgment. |
-| Digest AI | Pro is **$15/month** for unlimited newsletter sources, advanced summaries, categories, and custom delivery time. [Official pricing](https://www.newsletterdigest.tech/pricing) | Inbox-summary buyers already see a $15 reference price. | Paper Boy at $12 is plausible, but only if selected repos materially improve ranking. |
+| GitHub notifications | GitHub natively sends activity for watched repos to its inbox, mobile, or email; users can filter issue, PR, release, security, and discussion activity. [Official docs](https://docs.github.com/en/subscriptions-and-notifications/concepts/about-notifications), [subscription controls](https://docs.github.com/en/subscriptions-and-notifications/how-tos/managing-subscriptions-for-activity-on-github/managing-your-subscriptions) | Repo email is already native and carries no separate product purchase. | Repo Radar must synthesize repo activity with outside news/research rather than forward notifications. |
+| Digest | Starter is **$6/month** and includes AI newsletter summaries, RSS, news sources, and GitHub Trending sources. [Official pricing](https://usedigest.com/pricing/) | Multi-source daily email aggregation is inexpensive. | A $12 edition must rank across source types, merge duplicate claims, and explain evidence—not just collect widgets. |
+| Inoreader | Pro is **$7.50/month billed annually or $9.99 monthly**, with monitoring feeds, filters/rules, AI summaries, and scheduled email digests. [Official pricing](https://www.inoreader.com/pricing/feature/subscriptions) | Power users can build sophisticated filters below $12. | Paperboy must remove rule-building work and supply cross-source judgment plus a strict relevance bar. |
+| Digest AI | Pro is **$15/month** for unlimited newsletter sources, advanced summaries, categories, and custom delivery time. [Official pricing](https://www.newsletterdigest.tech/pricing) | Inbox-summary buyers already see a $15 reference price. | Paperboy at $12 is plausible if it joins forwarded claims to public evidence and other source classes. |
 | Git Digest | **$25/month billed annually** for unlimited teammates/repos, code-change summaries, and daily/weekly email or Slack. [Official product and pricing](https://gitdigest.ai/) | Customers pay for selected-repo summaries that replace coordination work. | Paper Boy should not compete on standups; it should cover external change → internal impact. |
-| AlphaSignal | Free covers top AI stories/models/repos; Pro is **$350/year ($29.17/month)** for a work-personalized, ad-free newsletter covering models, repos, and papers. [Official pricing](https://alphasignal.ai/pricing) | The closest broad promise already exists and charges above $12. | Paper Boy needs verifiable repo-specific “why/action,” not another AI-engineer digest. |
+| AlphaSignal | Free covers top AI stories/models/repos; Pro is **$350/year ($29.17/month)** for a work-personalized, ad-free newsletter covering models, repos, and papers. [Official pricing](https://alphasignal.ai/pricing) | The closest public-news/research promise already exists and charges above $12. | Paperboy differentiates through user-chosen forwarded sources, visible evidence, cross-source synthesis, and quiet-day restraint. |
 | Feedly Market Intelligence | Standard is **$1,600/month billed annually**, including 100 AI feeds, newsletter templates, collaboration, and up to 10 seats. [Official pricing](https://feedly.com/market-intelligence/pricing) | Enterprise intelligence is a different budget and buyer. | Avoid enterprise features; win on individual setup speed and specificity. |
 
-**Conclusion:** $12 is a reasonable hypothesis between commodity aggregation and specialized AI-engineer intelligence. It is not validated. If the product is only “pick repos, get an email summary,” GitHub plus a $6-$10 reader wins. The paid delta must be repo-specific impact and trusted next-action judgment.
+**Conclusion:** Keep **$12/month** as the beta hypothesis. The broader Daily Brief supports the price better than the repo-only concept because it can replace several scanning rituals without moving into enterprise territory. It remains unvalidated. If the product only stacks source-by-source summaries, a $6-$10 reader wins. The paid delta is trusted ranking across source types, synthesis of repeated or conflicting claims, evidence, one useful next move, and the discipline not to manufacture news on quiet days.
 
 ### Affiliate revenue
 
@@ -164,15 +186,15 @@ Subscription should be the PMF test. Affiliate monetization before trust is dang
 
 ## PMF risks
 
-1. **Commodity risk:** summarization and email delivery are already cheap or free.
+1. **Commodity risk:** summarization and email delivery are already cheap or free; Paperboy must prove better decisions, not prettier summaries.
 2. **Precision risk:** one irrelevant daily email can train the user to ignore all later emails.
-3. **Context risk:** public README/manifests may not reveal the user's actual roadmap or constraints.
+3. **Source-quality risk:** forwarded newsletters and public sources can repeat the same unsupported claim, creating false confidence unless provenance and corroboration remain visible.
 4. **Actionability risk:** the current deterministic action queue can produce plausible but generic tasks; “one action” may not be worth doing.
-5. **Trust risk:** repository access, even public-only, creates security questions. Private repo scope would amplify them.
-6. **Cadence risk:** daily may be too frequent for repo-level impact. A three-times-weekly or event-triggered brief may retain better.
+5. **Trust risk:** forwarded email retention and repository access create security questions. Broad mailbox or private-repo scope would amplify them.
+6. **Cadence risk:** a required daily edition may tempt the system to pad quiet days instead of reporting that nothing material changed.
 7. **Cost risk:** hosted inference, fetch, and email costs could make a $12 plan unattractive if scoring is not aggressively bounded.
 8. **OSS cannibalization risk:** capable users may self-host, leaving the hosted product with higher-support customers.
-9. **Cold-start risk:** a user may select a quiet or poorly documented repo and receive no convincing first impact.
+9. **Cold-start risk:** a user's chosen newsletters and feeds may have little overlap, leaving no convincing cross-source synthesis in the first edition.
 10. **Affiliate conflict risk:** monetized recommendations can destroy the trust the subscription depends on.
 
 ## Falsifiable PMF tests
@@ -181,10 +203,11 @@ Run these in order. Do not use broad sign-up counts as PMF evidence.
 
 | Test | Method | Continue | Iterate | Kill or change wedge |
 |---|---|---|---|---|
-| Problem pull | Recruit 20 qualified AI builders from repo-owner communities. Ask for 1-5 public repos before showing a generated result. | At least 10 provide repos; at least 6 ask to keep receiving the brief. | 6-9 provide repos. | Fewer than 6 provide repos. |
-| Concierge activation | Manually configure the first 10 users and deliver a sample within 48 hours. | At least 7/10 mark one repo-specific item useful; at least 5/10 agree with the action. | 5-6 useful. | Fewer than 5 useful. |
-| Signal precision | For each brief, capture item-level useful/not-useful feedback. | At least 70% useful across the first 100 rated items; fewer than 15% wrong-repo. | 50-69% useful. | Below 50% useful after one tuning cycle. |
-| Cadence | Randomize daily versus Monday/Wednesday/Friday for 20 users over four weeks. Measure useful/acted feedback, not opens. | Keep the cadence with at least 20% higher actions per delivered email; daily survives only if it wins. | Difference under 20%: default to lower frequency. | Both cadences produce action in fewer than 20% of emails. |
+| Problem pull | Recruit 20 qualified technical builders. Ask each to forward two newsletters and choose at least one public feed/research/data source and one repo before showing a result. | At least 10 complete source setup; at least 6 ask to keep receiving the edition. | 6-9 complete setup. | Fewer than 6 complete setup. |
+| Concierge activation | Manually configure the first 10 users and deliver a sample within 48 hours. | At least 7/10 mark one ranked or synthesized insight useful; at least 5/10 identify something they would otherwise have missed. | 5-6 useful. | Fewer than 5 useful. |
+| Signal precision | Capture item-level useful/not-useful/already-knew/wrong-context feedback. | At least 70% useful across the first 100 rated items; fewer than 20% already-knew plus wrong-context. | 50-69% useful. | Below 50% useful after one tuning cycle. |
+| Synthesis delta | Blind-test the Paperboy edition against source-by-source AI summaries for the same material. | At least 60% of users prefer Paperboy and can name a useful connection/evidence advantage. | 40-59% prefer it. | Below 40%; synthesis is not adding value. |
+| Quiet-day trust | Seed days with no threshold-clearing material and days with only weak material. | At least 80% of weak items are excluded; quiet-day editions are not rated less trustworthy than normal editions. | 60-79% excluded. | Below 60%; ranking is manufacturing news. |
 | Willingness to pay | After two useful weeks, require $12 to continue. | At least 8 of 20 qualified activated users pay. | 4-7 pay; test promise/onboarding once. | Fewer than 4 pay. |
 | Retention | Follow the first paid cohort for two billing cycles. | At least 70% retain into month two and at least 50% take a useful/acted action in 3 of 4 weeks. | 50-69% retain. | Below 50% month-two retention. |
 | Unit economics | Measure actual fetch, inference, email, and support burden. | Variable cost at or below $2/user/month and median support below 10 minutes/user/month. | Cost $2-$4. | Above $4 after bounded-model optimization. |
@@ -192,16 +215,16 @@ Run these in order. Do not use broad sign-up counts as PMF evidence.
 
 ## Product decisions
 
-1. **Wedge:** Repo Impact Brief for individual AI builders.
-2. **Delivery:** email only for the hosted PMF test.
-3. **Context:** 1-5 selected public GitHub repos; no private access in MVP.
-4. **Value unit:** one repo-specific decision or action, not an article summary.
+1. **Wedge:** Paperboy Daily Brief for independent technical builders.
+2. **Delivery:** one hosted morning email; explicit forwarding is also a bounded input.
+3. **Sources:** forwarded newsletters, allowlisted public news/research/data, and 1-5 selected public GitHub repositories; no mailbox or private-repo access.
+4. **Value unit:** a ranked, evidence-backed cross-source insight or decision—not a stack of summaries. Repo Radar is one section.
 5. **Price:** test $12/month; keep it labeled as a hypothesis until paid retention.
 6. **Open-source boundary:** preserve the current self-hosted SQLite/systemd/Discord project; do not expose or multi-tenant it.
 7. **Safety:** recommendations only. No autonomous code or external action.
 8. **Monetization:** subscription first; no affiliate links during PMF beta.
-9. **Build order:** concierge proof → sample generator → scheduled email + feedback → billing. Do not build team/dashboard/private-repo features before the activation and payment thresholds clear.
+9. **Build order:** concierge edition across all source classes → bounded forwarding intake and source registry → ranking/dedup/synthesis → edition renderer → scheduled email + feedback → billing. Do not build team/dashboard/private-repo features before activation, synthesis-delta, and payment thresholds clear.
 
 ## One-sentence positioning
 
-**Paper Boy reads the releases, papers, and technical news you do not have time to track, checks them against the GitHub repos you are actually shipping, and emails only what changes your next move.**
+**Paperboy turns the newsletters, news, research, data, and repositories you trust into one ranked morning edition—showing what is new, what connects, the evidence behind it, and what deserves your next move.**
