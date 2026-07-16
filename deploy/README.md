@@ -8,7 +8,8 @@ Production authority:
 - customer intake and visit stats: existing KaiBuilds capture service on
   `127.0.0.1:9120`
 
-Deploy the API with `docker compose up -d paperboy`. The optional scheduler is
+Copy `deploy/paperboy.env.example` to `.env`, then deploy the API with
+`docker compose up -d paperboy`. The optional scheduler is
 behind the `scheduler` Compose profile and must not be started until a real
 customer-source ingestion and delivery configuration exists.
 
