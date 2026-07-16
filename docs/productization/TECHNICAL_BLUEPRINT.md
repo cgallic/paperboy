@@ -6,27 +6,30 @@ Verified: 2026-07-16
 
 ## Executive decision
 
-Productize one narrow loop:
+Productize one narrow loop as the **Paperboy Daily Intelligence Brief**:
 
-> Forward useful email and connect selected GitHub repositories. Paper Boy
-> turns the highest-signal changes into one scheduled email and a reviewable
-> blackboard. Nothing acts on the user's accounts.
+> Forward useful newsletters, select public news/research/data sources, and
+> optionally connect selected GitHub repositories. Paperboy ranks and
+> synthesizes the highest-signal changes into one evidence-backed morning
+> edition. Nothing acts on the user's accounts.
 
 The smallest paid boundary is a hosted, single-owner workspace with:
 
 1. passwordless sign-in;
 2. a private inbound email address (forwarding, not Gmail OAuth);
-3. an optional read-only GitHub App installed on selected repositories;
-4. a timezone, delivery time, and short interest profile;
-5. one daily email plus a blackboard of the same ranked items;
-6. approve, dismiss, and useful/not-useful feedback; and
-7. subscription and retention limits enforced on the server.
+3. a public news/research/data source catalog;
+4. an optional read-only GitHub App installed on selected repositories;
+5. a timezone, delivery time, and short interest profile;
+6. one daily intelligence email, capped by configured plan limits, with a
+   one-line edition instead of filler when nothing clears the relevance bar;
+7. useful/not-useful feedback; and
+8. subscription and retention limits enforced on the server.
 
-RSS and research-paper discovery remain useful, but as a shared public catalog
-that enriches the private email/GitHub digest. The action queue remains a human
-review surface. Affiliate/referral mechanics, a general personal knowledge
-graph, agent execution, Gmail-wide access, team collaboration, and repository
-write operations are outside the first subscription boundary.
+Repo Radar is an optional section inside the brief, not the product identity.
+The action queue remains a human review surface. A web blackboard,
+affiliate/referral mechanics, a general personal knowledge graph, agent
+execution, Gmail-wide access, team collaboration, and repository write
+operations are outside the first subscription boundary.
 
 This is a hosted product alongside the existing self-hosted edition. Do not
 break the local SQLite/systemd workflow to make the SaaS work.
@@ -240,16 +243,18 @@ Use a `workspace` even for the single-user pilot. It prevents a painful schema
 rewrite when a second owner or assistant is added. Launch supports one owner
 membership; the role model is present but invitations are not.
 
-Separate data into two planes:
+Separate data into three planes:
 
-- **Global public catalog:** RSS stories and public research papers. Fetch once,
-  dedupe once, and score cheaply before applying workspace-specific relevance.
-- **Private workspace events:** forwarded email and selected-repository GitHub
-  activity. Never share candidates, embeddings, prompts, or outputs between
-  workspaces.
+- **Global public catalog:** public news, RSS stories, research papers, and data
+  releases. Fetch once, dedupe once, and score cheaply before applying
+  workspace-specific relevance.
+- **Private workspace events:** explicitly forwarded newsletters. Never share
+  candidates, embeddings, prompts, or outputs between workspaces.
+- **Selected repository context:** optional read-only GitHub activity used by a
+  subordinate Repo Radar section and workspace-specific relevance scoring.
 
-Do not sell “an AI brain.” Sell the scheduled paper and blackboard. A digest
-item may propose an action, but Paper Boy cannot send email on the user's
+Do not sell “an AI brain” or a repository monitor. Sell the scheduled Daily
+Intelligence Brief. A digest item may propose an action, but Paperboy cannot send email on the user's
 behalf, modify a repository, open an issue, or invoke an agent in the first
 subscription release.
 

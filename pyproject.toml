@@ -40,6 +40,7 @@ paperboy-ingest-papers = "paperboy.ingest.research_papers:main"
 paperboy-score-papers = "paperboy.score.research_papers:main"
 paperboy-prompt-digest = "paperboy.digest.prompt_digest:main"
 paperboy-research-digest = "paperboy.digest.research_digest:main"
+paperboy-daily-brief-sample = "paperboy.daily_brief.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["paperboy*"]

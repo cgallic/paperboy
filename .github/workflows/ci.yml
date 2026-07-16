@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Compile package
+        run: python -m compileall -q paperboy
+      - name: Run tests
+        run: python -m unittest discover -s tests -v
+      - name: Preserve current action-queue smoke
+        run: python -m paperboy.digest.action_queue --dry-run > /tmp/action-queue.json
+      - name: Render local Daily Intelligence Brief sample
+        run: python -m paperboy.daily_brief.cli --input examples/daily-brief.sample.json --out-dir /tmp/paperboy-daily-brief
