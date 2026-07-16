@@ -193,7 +193,7 @@ async def render_brief(request: Request) -> JSONResponse:
 
     if body:
         return JSONResponse({"ok": False, "error": "fixture_overrides_not_supported"}, status_code=400)
-    path = Path(__file__).resolve().parents[2] / "examples" / "daily-brief.sample.json"
+    path = settings.app_root / "examples" / "daily-brief.sample.json"
 
     import tempfile
 
@@ -217,7 +217,7 @@ async def render_brief(request: Request) -> JSONResponse:
 # Static files (landing page)
 # ---------------------------------------------------------------------------
 
-_product_dir = Path(__file__).resolve().parents[2] / "product"
+_product_dir = settings.app_root / "product"
 if _product_dir.exists():
     app.mount("/", StaticFiles(directory=str(_product_dir), html=True), name="product")
 

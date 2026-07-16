@@ -11,6 +11,7 @@ from paperboy.config import PaperboyConfig
 class ConfigTests(unittest.TestCase):
     def test_defaults_are_sane(self) -> None:
         cfg = PaperboyConfig()
+        self.assertEqual(cfg.app_root, Path.cwd())
         self.assertEqual(cfg.fast_model, "llama3.2:3b")
         self.assertEqual(cfg.research_model, "qwen2.5:7b")
         self.assertEqual(cfg.prompt_digest_limit, 12)

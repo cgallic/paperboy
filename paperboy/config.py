@@ -24,6 +24,7 @@ class PaperboyConfig(BaseSettings):
     )
 
     # Paths
+    app_root: Path = Field(default_factory=Path.cwd)
     root: Path = Field(default_factory=lambda: Path.home() / ".paperboy")
     db: Path | None = None
 

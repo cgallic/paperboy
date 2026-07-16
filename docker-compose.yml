@@ -7,6 +7,7 @@ services:
     ports:
       - "127.0.0.1:${PAPERBOY_HOST_PORT:-9122}:8000"
     environment:
+      PAPERBOY_APP_ROOT: /app
       PAPERBOY_ROOT: /app/data
       PAPERBOY_DB: /app/data/events.db
       PAPERBOY_DISCORD_WEBHOOK: ${PAPERBOY_DISCORD_WEBHOOK:-}
@@ -43,6 +44,7 @@ services:
     restart: unless-stopped
     profiles: ["scheduler"]
     environment:
+      PAPERBOY_APP_ROOT: /app
       PAPERBOY_ROOT: /app/data
       PAPERBOY_DB: /app/data/events.db
       PAPERBOY_DISCORD_WEBHOOK: ${PAPERBOY_DISCORD_WEBHOOK:-}
