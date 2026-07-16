@@ -34,7 +34,8 @@ def main() -> None:
         assert page.locator('link[rel="canonical"]').get_attribute("href") == "https://paperboy.kaibuilds.com/"
         assert page.locator(".trust-line").get_by_text("No Gmail access", exact=True).is_visible()
         assert page.get_by_role("button", name="Get my free sample brief").first.is_visible()
-        page.screenshot(path=str(ROOT / "paperboy-live-smoke.png"), full_page=True)
+        page.wait_for_timeout(500)
+        page.screenshot(path=str(ROOT / "paperboy-live-smoke.png"))
 
         if args.submit_test_lead:
             page.get_by_role("button", name="Get my free sample brief").first.click()
