@@ -82,6 +82,11 @@ a:hover {
   box-shadow: var(--focus);
 }
 
+h1[tabindex="-1"]:focus {
+  outline: 0;
+  box-shadow: none;
+}
+
 [hidden] {
   display: none !important;
 }
