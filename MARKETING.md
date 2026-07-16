@@ -35,7 +35,7 @@
 
 - General-news readers who do not need source-specific relevance
 - Enterprise teams requiring private-repository access, SSO, procurement, or compliance review
-- Buyers requiring private sources, enterprise controls, or generally available scheduled delivery today
+- Buyers requiring private sources, enterprise controls, or team administration
 
 ## Personas
 
@@ -59,26 +59,26 @@
 
 ### User Segments
 
-- **Preview user:** Chooses presets or supplies public RSS/Atom feed URLs, a relevance focus, and an optional ignore list.
-- **Founding-pilot buyer:** Chooses the $49/month pilot after reviewing the automatic filtered preview.
+- **Launch subscriber:** Chooses presets or supplies public RSS/Atom feed URLs, a relevance focus, and an optional ignore list, then activates the daily edition.
+- **Future paid buyer:** Keeps reading enough daily editions to justify the planned $49/month founding price.
 
 ## Value Prop
 
 - **Core transformation:** From scanning a self-built information firehose to reading only the few items connected to current work.
-- **Key actions:** Choose or paste public feeds; describe current interests; name what to ignore; run the filter; inspect source-linked matches.
-- **Activation moment:** The automatic first preview contains at least one relevant item and visibly removes unrelated feed noise.
+- **Key actions:** Choose or paste public feeds; describe current interests; name what to ignore; activate the daily brief; inspect source-linked matches; self-manage or unsubscribe.
+- **Activation moment:** The automatic first edition contains at least one relevant item and the private management screen confirms daily delivery is active.
 - **Aha moment:** The reader opens an original source or changes a concrete next step because of the brief.
 
 ## Business Model
 
-- **Monetization:** Free automatic filtered preview, followed by an optional founding pilot
-- **Pricing:** $49/month after the free first brief
-- **Stage:** Pre-PMF validation; the public-feed preview is live, while accounts, scheduled delivery, and billing are not generally available
+- **Monetization:** Free automatic daily delivery during launch; paid conversion is the next validation step
+- **Pricing:** Planned founding price of $49/month; not yet collected
+- **Stage:** Pre-PMF validation; automatic setup, persistence, scheduled delivery, and self-service unsubscribe are live, while billing is not
 
 ## Current Marketing
 
 - **Channels active:** KaiBuilds landing page and GitHub
-- **Email platform:** Manual follow-up through the KaiBuilds lead queue
+- **Email platform:** Paperboy's scheduled delivery worker through the configured server mail transport
 - **Ad platforms:** None launched
 - **Social:** Unknown
 - **Content:** Open-source GitHub repository

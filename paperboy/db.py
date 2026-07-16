@@ -68,6 +68,38 @@ CREATE TABLE IF NOT EXISTS event_tags (
     PRIMARY KEY (event_id, tag)
 );
 CREATE INDEX IF NOT EXISTS idx_event_tags_tag ON event_tags(tag);
+
+CREATE TABLE IF NOT EXISTS firehose_subscriptions (
+    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+    email            TEXT    NOT NULL UNIQUE,
+    sources_json     TEXT    NOT NULL,
+    focus            TEXT    NOT NULL,
+    ignore_json      TEXT    NOT NULL,
+    attribution_json TEXT    NOT NULL DEFAULT '{}',
+    token_hash       TEXT    NOT NULL UNIQUE,
+    token_nonce      TEXT    NOT NULL UNIQUE,
+    active           INTEGER NOT NULL DEFAULT 1,
+    created_at       TEXT    NOT NULL,
+    updated_at       TEXT    NOT NULL,
+    unsubscribed_at  TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_firehose_subscriptions_active
+    ON firehose_subscriptions(active);
+
+CREATE TABLE IF NOT EXISTS firehose_deliveries (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    subscription_id   INTEGER NOT NULL,
+    delivery_date     TEXT    NOT NULL,
+    attempted_at      TEXT    NOT NULL,
+    completed_at      TEXT,
+    status            TEXT    NOT NULL,
+    detail            TEXT    NOT NULL DEFAULT '',
+    item_count        INTEGER NOT NULL DEFAULT 0,
+    FOREIGN KEY (subscription_id) REFERENCES firehose_subscriptions(id),
+    UNIQUE (subscription_id, delivery_date)
+);
+CREATE INDEX IF NOT EXISTS idx_firehose_deliveries_date
+    ON firehose_deliveries(delivery_date);
 """
 
 

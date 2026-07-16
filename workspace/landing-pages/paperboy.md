@@ -4,17 +4,17 @@
 
 - **Target audience:** Technical founders and hands-on product/engineering leads
 - **Traffic source:** Cold paid traffic
-- **Goal:** Build and run an automatic public-feed relevance filter
-- **Offer after value:** Optional $49/month founding pilot for daily delivery
-- **Evidence tier:** Live bounded RSS/Atom preview; pre-PMF pricing and daily-delivery hypothesis
+- **Goal:** Activate an automatic daily brief from public feeds
+- **Offer after value:** Free launch access; planned founding price of $49/month
+- **Evidence tier:** Live bounded RSS/Atom filtering, durable subscription, scheduled delivery, and self-service unsubscribe; pre-PMF pricing hypothesis
 
 ## Wireframe
 
 1. Hero: name the filtered-firehose outcome and show the many-to-few transformation
 2. Example: show one ranked item with its relevance explanation and original source
-3. How it works: sources, relevance, automatic preview, then optional pilot
+3. How it works: sources, relevance, automatic first edition, then daily delivery
 4. Automatic-setup boundary: public feeds only; no Gmail or human concierge step
-5. Pricing: run the filter free, then consider the $49/month pilot
+5. Pricing: activate free during launch; disclose the planned $49/month founding price
 6. FAQ: source support, newsletter limits, automation, and delivery status
 7. Final CTA: repeat the automatic filter action
 
@@ -28,9 +28,9 @@
 
 **Subhead:** Add Hacker News, startup feeds, RSS, research, and other public sources. Paperboy ranks the stream against what you are building—and shows why each item made the cut.
 
-**CTA:** Build my filter
+**CTA:** Start my daily brief
 
-**Risk reversal:** Any public RSS or Atom feed. No Gmail access. No credit card.
+**Risk reversal:** Any public RSS or Atom feed. No Gmail access. No card during launch.
 
 ### Example
 
@@ -43,25 +43,25 @@ Paperboy ranks each item against the user’s stated focus, links the original s
 1. Start with Hacker News or paste up to six public RSS/Atom feed URLs.
 2. Describe what should be relevant and what Paperboy should ignore.
 3. Paperboy validates the feeds, scans recent items, deduplicates them, and ranks the strongest matches automatically.
-4. Join the $49/month founding pilot only if the first filtered brief is useful.
+4. Paperboy saves the filter and delivers one ranked edition each day.
 
 ### Automatic Setup Boundary
 
 **Headline:** Paste feeds. Paperboy does the setup.
 
-The live preview works from public RSS and Atom feeds. It does not connect to Gmail, auto-subscribe the user to email-only newsletters, create an account, schedule delivery, or collect a card.
+The live setup works from public RSS and Atom feeds. It does not connect to Gmail or auto-subscribe the user to email-only newsletters. A successful setup saves one private subscription, schedules daily delivery, and provides self-service management. It does not collect a card during launch.
 
 ### Pricing
 
-**Headline:** Your first filtered brief is free.
+**Headline:** Start the daily brief without a card.
 
-Run the filter with actual public feeds. If the result earns a place in the user’s routine, the founding pilot is $49/month.
+Activate the daily brief with actual public feeds. The planned founding price is $49/month, but Paperboy is not collecting payment during launch.
 
 ### Final CTA
 
 **Headline:** Turn your firehose into a short list of things worth reading.
 
-**CTA:** Build my filter
+**CTA:** Start my daily brief
 
 ## Quality Gate Results
 
@@ -70,5 +70,5 @@ Run the filter with actual public feeds. If the result earns a place in the user
 - **Banned words:** Pass
 - **AI slop:** Pass
 - **Single primary CTA:** Pass; header treatment is visually secondary to the hero CTA
-- **Claims:** Public RSS/Atom validation, bounded scanning, lexical ranking, ignore filtering, deduplication, and source links are implemented; scheduled delivery remains explicitly a pilot
-- **First test:** Filtered-firehose headline and automatic CTA against the former newsletter-led baseline; primary metric is successful previews per eligible visit, followed by pilot interest
+- **Claims:** Public RSS/Atom validation, bounded scanning, lexical ranking, ignore filtering, deduplication, durable subscriptions, scheduled email delivery, source links, tokenized management, and unsubscribe are implemented
+- **First test:** Automatic-daily-brief headline against the former preview-only baseline; primary metrics are successful subscription activations, edition opens/clicks, and seven-day retention

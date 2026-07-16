@@ -28,7 +28,8 @@ def _create_smtp_connection() -> smtplib.SMTP | smtplib.SMTP_SSL:
     if port == 465:
         return smtplib.SMTP_SSL(host, port, context=context, timeout=30)
     conn = smtplib.SMTP(host, port, timeout=30)
-    conn.starttls(context=context)
+    if settings.smtp_starttls:
+        conn.starttls(context=context)
     return conn
 
 

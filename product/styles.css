@@ -1361,6 +1361,72 @@ p {
   margin-left: 0;
 }
 
+.subscription-ledger {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 24px 0 14px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 8px;
+  background: #fffdf8;
+}
+
+.subscription-ledger div {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 15px 16px;
+  border-right: 1px solid var(--rule);
+}
+
+.subscription-ledger div:last-child {
+  border-right: 0;
+}
+
+.subscription-ledger span {
+  color: var(--ink-soft);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.subscription-ledger strong {
+  font-size: 14px;
+}
+
+.management-summary {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-left: 4px solid var(--approve);
+  background: #edf8f0;
+  color: #244a30;
+  font-size: 13px;
+}
+
+.management-summary[hidden] {
+  display: none;
+}
+
+.management-summary p {
+  margin: 0;
+}
+
+.subscription-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0 10px;
+}
+
+.subscription-actions[hidden] {
+  display: none;
+}
+
+.subscription-actions .button {
+  flex: 1;
+}
+
 .preview-summary {
   display: flex;
   justify-content: space-between;
@@ -3048,6 +3114,24 @@ dialog h2 {
 
   .preview-summary {
     align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .subscription-ledger {
+    grid-template-columns: 1fr;
+  }
+
+  .subscription-ledger div {
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .subscription-ledger div:last-child {
+    border-bottom: 0;
+  }
+
+  .subscription-actions {
+    align-items: stretch;
     flex-direction: column;
   }
 

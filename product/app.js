@@ -3,7 +3,7 @@
 
   var STORAGE_KEY = "paperboy.product-demo.v2";
   var MAX_REPOS = 5;
-  var MAX_PREVIEW_SOURCES = 6;
+  var MAX_SUBSCRIPTION_SOURCES = 6;
 
   var fixtureRepos = [
     { id: "agent-router", name: "demo-labs/agent-router", language: "TypeScript", description: "Routes tool-using agents across model providers." },
@@ -114,6 +114,9 @@
   var pendingDialogAction = null;
   var currentScreen = "home";
   var currentStep = "sources";
+  var activeManageUrl = "";
+  var activeStatusUrl = "";
+  var activeUnsubscribeUrl = "";
 
   var screens = Array.prototype.slice.call(document.querySelectorAll("[data-screen]"));
   var siteHeader = document.getElementById("site-header");
@@ -223,11 +226,11 @@
     }).filter(Boolean);
   }
 
-  function previewErrorMessage(response, result) {
+  function subscriptionErrorMessage(response, result) {
     if (result && typeof result.detail === "string") return result.detail;
     if (result && result.detail && typeof result.detail.message === "string") return result.detail.message;
     if (result && typeof result.message === "string") return result.message;
-    return "Paperboy could not read those feeds. Check the URLs and try again.";
+    return "Paperboy could not activate the daily brief. Check the feeds and try again.";
   }
 
   function renderLivePreview(result) {
@@ -289,6 +292,88 @@
       warning.textContent = "Skipped " + (source.url || "one feed") + ": " + (source.error || "could not read feed");
       list.appendChild(warning);
     });
+  }
+
+  function actionUrl(value) {
+    if (typeof value !== "string" || !value.trim()) return "";
+    try {
+      var parsed = new URL(value, window.location.origin);
+      if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return "";
+      if (parsed.origin !== window.location.origin) return "";
+      return parsed.href;
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function renderSubscriptionActions(result) {
+    activeManageUrl = actionUrl(result && result.manage_url);
+    activeStatusUrl = actionUrl(result && result.status_url);
+    activeUnsubscribeUrl = actionUrl(result && result.unsubscribe_url);
+    document.getElementById("manage-subscription").hidden = !activeStatusUrl && !activeManageUrl;
+    document.getElementById("unsubscribe-subscription").hidden = !activeUnsubscribeUrl;
+    document.getElementById("subscription-actions").hidden = !activeStatusUrl && !activeManageUrl && !activeUnsubscribeUrl;
+  }
+
+  function showSubscriptionPreview(result) {
+    var preview = result && result.preview;
+    var wrapper = document.getElementById("preview-results");
+    if (preview && Array.isArray(preview.items)) {
+      renderLivePreview(preview);
+      wrapper.hidden = false;
+    } else {
+      wrapper.hidden = true;
+      document.getElementById("preview-summary").replaceChildren();
+      document.getElementById("live-preview-list").replaceChildren();
+    }
+  }
+
+  function subscriptionDetails(result) {
+    if (!result || typeof result !== "object") return null;
+    return result.subscription && typeof result.subscription === "object" ? result.subscription : result;
+  }
+
+  function renderManagedSubscription(result) {
+    var details = subscriptionDetails(result);
+    if (!details) return;
+    var status = String(details.status || result.status || "active").toLowerCase();
+    var delivery = details.delivery || details.schedule || "Daily · automatic";
+    var isActive = status === "active" || status === "subscribed";
+    document.getElementById("subscription-status").textContent = isActive ? "Active" : status.replace(/_/g, " ");
+    document.getElementById("subscription-delivery").textContent = typeof delivery === "string" ? delivery : "Daily · automatic";
+    if (result.manage_url || result.status_url || result.unsubscribe_url) renderSubscriptionActions(result);
+
+    var summary = document.getElementById("management-summary");
+    summary.replaceChildren();
+    if (details.email_masked) {
+      var email = document.createElement("p");
+      email.textContent = "Delivering to " + details.email_masked;
+      summary.appendChild(email);
+    }
+    if (details.focus) {
+      var focus = document.createElement("p");
+      focus.textContent = "Filter: " + details.focus;
+      summary.appendChild(focus);
+    }
+    if (Array.isArray(details.sources)) {
+      var sources = document.createElement("p");
+      sources.textContent = details.sources.length + (details.sources.length === 1 ? " public source" : " public sources") + " connected";
+      summary.appendChild(sources);
+    }
+    if (details.next_delivery_at && isActive) {
+      var next = document.createElement("p");
+      next.textContent = "Next delivery: " + details.next_delivery_at;
+      summary.appendChild(next);
+    }
+    summary.hidden = !summary.childElementCount;
+
+    document.getElementById("subscription-success-title").textContent = isActive
+      ? "Your daily brief is active."
+      : "This daily brief is unsubscribed.";
+    document.getElementById("subscription-success-copy").textContent = isActive
+      ? "Paperboy saved this filter and will deliver the strongest matches automatically."
+      : "Automatic delivery is off. You can create a new filter whenever you are ready.";
+    document.getElementById("unsubscribe-subscription").hidden = !isActive || !activeUnsubscribeUrl;
   }
 
   function isKaiBuildsHost() {
@@ -691,7 +776,7 @@
     var input = document.getElementById("signin-email");
     var error = document.getElementById("email-error");
     var intakeError = document.getElementById("intake-error");
-    var submit = document.getElementById("pilot-submit");
+    var submit = document.getElementById("subscription-submit");
     var email = input.value.trim();
     var sourceUrls = sourceLines(document.getElementById("source-urls").value);
     var workFocus = document.getElementById("work-focus").value.trim();
@@ -710,7 +795,7 @@
       document.getElementById("source-urls").focus();
       return;
     }
-    if (sourceUrls.length > MAX_PREVIEW_SOURCES || sourceUrls.some(function (url) { return !/^https?:\/\/\S+$/i.test(url); })) {
+    if (sourceUrls.length > MAX_SUBSCRIPTION_SOURCES || sourceUrls.some(function (url) { return !/^https?:\/\/\S+$/i.test(url); })) {
       intakeError.textContent = "Use up to six public feed URLs beginning with http:// or https://.";
       document.getElementById("source-urls").focus();
       return;
@@ -721,66 +806,44 @@
       return;
     }
     submit.disabled = true;
-    submit.textContent = "Scanning and ranking feeds…";
+    submit.textContent = "Validating and activating…";
     state.email = email;
     state.delivery.email = state.email;
     saveState();
 
+    var subscribeResult;
     try {
-      var previewResponse = await fetch("/api/firehose/preview", {
+      var subscribeResponse = await fetch("/api/firehose/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: JSON.stringify(Object.assign({
+          email: email,
           sources: sourceUrls,
           focus: workFocus,
           ignore: ignoreFocus ? ignoreFocus.split(",").map(function (term) { return term.trim(); }).filter(Boolean) : []
-        })
+        }, {
+          source: "paperboy_automatic_subscription",
+          page: window.location.href
+        }, attributionFields()))
       });
-      var previewResult = await previewResponse.json();
-      if (!previewResponse.ok || !previewResult || previewResult.ok !== true) {
-        throw new Error(previewErrorMessage(previewResponse, previewResult));
+      subscribeResult = await subscribeResponse.json();
+      if (!subscribeResponse.ok || !subscribeResult || subscribeResult.ok !== true || subscribeResult.status !== "subscribed") {
+        throw new Error(subscriptionErrorMessage(subscribeResponse, subscribeResult));
       }
-      renderLivePreview(previewResult);
-    } catch (previewError) {
-      intakeError.textContent = previewError && previewError.message ? previewError.message : "Paperboy could not read those feeds. Try again.";
+    } catch (subscriptionError) {
+      intakeError.textContent = subscriptionError && subscriptionError.message ? subscriptionError.message : "Paperboy could not activate the daily brief. Try again.";
       submit.disabled = false;
-      submit.textContent = "Build my filter and preview it";
+      submit.textContent = "Start my daily brief";
       return;
     }
 
-    var captureSaved = false;
-    if (isKaiBuildsHost()) {
-      try {
-        var captureResponse = await fetch("/api/lead", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(Object.assign({
-            slug: "paperboy",
-            email: email,
-            message: "Paperboy automatic filtered-firehose preview",
-            offer: "Free automatic first filtered brief",
-            price: "$49/month after sample",
-            source: "paperboy_filter_preview",
-            page: window.location.href,
-            source_urls: sourceUrls,
-            work_focus: workFocus,
-            ignore_focus: ignoreFocus
-          }, attributionFields()))
-        });
-        var captureResult = await captureResponse.json();
-        if (!captureResponse.ok || !captureResult || captureResult.ok !== true) {
-          throw new Error("Lead capture did not confirm persistence");
-        }
-        captureSaved = true;
-      } catch (captureError) {
-        captureSaved = false;
-      }
-    }
-
-    document.getElementById("pilot-success-title").textContent = "Your filter ran.";
-    document.getElementById("pilot-success-copy").textContent = captureSaved
-      ? "Your strongest matches are below. We also saved your email and filter for founding-pilot follow-up. No card or subscription was created."
-      : "Your strongest matches are below. The preview worked, but your email was not saved; no card or subscription was created.";
+    document.getElementById("subscription-success-title").textContent = "Your daily brief is active.";
+    document.getElementById("subscription-success-copy").textContent = "Paperboy saved your sources and filter. It will refresh them and deliver the strongest matches to your email automatically. No card was collected.";
+    document.getElementById("subscription-status").textContent = "Active";
+    document.getElementById("subscription-delivery").textContent = "Daily · automatic";
+    document.getElementById("management-summary").hidden = true;
+    showSubscriptionPreview(subscribeResult);
+    renderSubscriptionActions(subscribeResult);
     form.hidden = true;
     document.getElementById("magic-success").hidden = false;
   });
@@ -788,10 +851,73 @@
   document.getElementById("change-email").addEventListener("click", function () {
     document.getElementById("magic-success").hidden = true;
     document.getElementById("magic-link-form").hidden = false;
-    var submit = document.getElementById("pilot-submit");
+    var submit = document.getElementById("subscription-submit");
     submit.disabled = false;
-    submit.textContent = "Build my filter and preview it";
+    submit.textContent = "Start my daily brief";
     document.getElementById("source-urls").focus();
+  });
+
+  async function refreshManagedSubscription(url) {
+    var response = await fetch(url, { headers: { "Accept": "application/json" } });
+    var result = await response.json();
+    if (!response.ok || !result || result.ok !== true || ["active", "unsubscribed"].indexOf(result.status) < 0) {
+      throw new Error(subscriptionErrorMessage(response, result));
+    }
+    renderManagedSubscription(result);
+    return result;
+  }
+
+  document.getElementById("manage-subscription").addEventListener("click", async function (event) {
+    var button = event.currentTarget;
+    if (!activeStatusUrl && activeManageUrl) {
+      window.location.assign(activeManageUrl);
+      return;
+    }
+    if (!activeStatusUrl) return;
+    button.disabled = true;
+    button.textContent = "Refreshing…";
+    try {
+      await refreshManagedSubscription(activeStatusUrl);
+      toast("Subscription status refreshed.");
+    } catch (error) {
+      document.getElementById("subscription-success-copy").textContent = error && error.message
+        ? error.message
+        : "Paperboy could not load this subscription.";
+    } finally {
+      button.disabled = false;
+      button.textContent = "Refresh subscription status";
+    }
+  });
+
+  document.getElementById("unsubscribe-subscription").addEventListener("click", function () {
+    if (!activeUnsubscribeUrl) return;
+    openConfirm(
+      "Stop this daily brief?",
+      "Paperboy will stop automatic delivery. Your existing source links are not deleted by this action.",
+      "Unsubscribe",
+      async function () {
+        var button = document.getElementById("unsubscribe-subscription");
+        button.disabled = true;
+        try {
+          var response = await fetch(activeUnsubscribeUrl, {
+            method: "POST",
+            headers: { "Accept": "application/json" }
+          });
+          var result = await response.json();
+          if (!response.ok || !result || result.ok !== true || result.status !== "unsubscribed") {
+            throw new Error(subscriptionErrorMessage(response, result));
+          }
+          renderManagedSubscription(result);
+          toast("Daily delivery stopped.");
+        } catch (error) {
+          document.getElementById("subscription-success-copy").textContent = error && error.message
+            ? error.message
+            : "Paperboy could not stop this subscription. Try again.";
+        } finally {
+          button.disabled = false;
+        }
+      }
+    );
   });
 
   document.querySelectorAll("[data-feed-preset]").forEach(function (button) {
@@ -942,8 +1068,40 @@
     pendingDialogAction = null;
   });
 
+  async function openManagedSubscription(token) {
+    routeTo("signin");
+    document.getElementById("magic-link-form").hidden = true;
+    document.getElementById("magic-success").hidden = false;
+    document.getElementById("subscription-success-title").textContent = "Loading your daily brief…";
+    document.getElementById("subscription-success-copy").textContent = "Paperboy is checking the current subscription status.";
+    document.getElementById("subscription-status").textContent = "Checking";
+    document.getElementById("preview-results").hidden = true;
+    var encoded = encodeURIComponent(token);
+    renderSubscriptionActions({
+      status_url: "/api/firehose/subscriptions/" + encoded,
+      manage_url: window.location.href,
+      unsubscribe_url: "/api/firehose/subscriptions/" + encoded + "/unsubscribe"
+    });
+    try {
+      await refreshManagedSubscription(activeStatusUrl);
+    } catch (error) {
+      document.getElementById("subscription-success-title").textContent = "Paperboy could not open this daily brief.";
+      document.getElementById("subscription-success-copy").textContent = error && error.message
+        ? error.message
+        : "The management link may be invalid or expired.";
+      document.getElementById("subscription-status").textContent = "Unavailable";
+      document.getElementById("subscription-delivery").textContent = "Not confirmed";
+      document.getElementById("unsubscribe-subscription").hidden = true;
+    }
+  }
+
   function initialRoute() {
     detectTimezone();
+    var manageToken = new URLSearchParams(location.search).get("manage");
+    if (manageToken) {
+      openManagedSubscription(manageToken);
+      return;
+    }
     var hash = location.hash.replace(/^#/, "");
     if (hash.indexOf("setup/") === 0) {
       routeTo("setup", { step: hash.split("/")[1] });

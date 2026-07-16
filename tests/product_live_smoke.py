@@ -10,7 +10,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--submit-test-lead", action="store_true")
+    parser.add_argument(
+        "--submit-test-subscription",
+        "--submit-test-lead",
+        dest="submit_test_subscription",
+        action="store_true",
+    )
     args = parser.parse_args()
 
     console_errors: list[str] = []
@@ -32,23 +37,26 @@ def main() -> None:
         assert page.title() == "Paperboy — Your Own Filtered Firehose"
         assert page.locator('link[rel="canonical"]').get_attribute("href") == "https://paperboy.kaibuilds.com/"
         assert page.locator(".trust-line").get_by_text("No Gmail access", exact=True).is_visible()
-        assert page.get_by_role("button", name="Build my filter").first.is_visible()
+        assert page.get_by_role("button", name="Start my daily brief").first.is_visible()
         page.wait_for_timeout(500)
         page.screenshot(path=str(ROOT / "paperboy-live-smoke.png"))
 
-        if args.submit_test_lead:
-            page.get_by_role("button", name="Build my filter").first.click()
+        if args.submit_test_subscription:
+            page.get_by_role("button", name="Start my daily brief").first.click()
             page.get_by_label("Email address").fill("paperboy-deploy-smoke@example.invalid")
             page.get_by_label("Public RSS or Atom feed URLs").fill("https://news.ycombinator.com/rss")
             page.get_by_label("What should make an item relevant?").fill("AI infrastructure and API pricing")
             page.get_by_label("What should Paperboy ignore?").fill("funding gossip")
-            page.locator("#pilot-submit").click()
-            page.get_by_role("heading", name="Your filter ran.").wait_for(timeout=45_000)
+            page.locator("#subscription-submit").click()
+            page.get_by_role("heading", name="Your daily brief is active.").wait_for(timeout=45_000)
+            page.get_by_role("button", name="Unsubscribe", exact=True).click()
+            page.locator("#confirm-dialog").get_by_role("button", name="Unsubscribe").click()
+            page.get_by_role("heading", name="This daily brief is unsubscribed.").wait_for(timeout=10_000)
 
         mobile = browser.new_page(viewport={"width": 390, "height": 844})
         mobile.goto("https://paperboy.kaibuilds.com/", wait_until="networkidle")
         mobile.get_by_role("button", name="Toggle navigation").click()
-        assert mobile.locator("#mobile-nav").get_by_role("button", name="Build my filter", exact=True).is_visible()
+        assert mobile.locator("#mobile-nav").get_by_role("button", name="Start my daily brief", exact=True).is_visible()
         assert mobile.evaluate("document.documentElement.scrollWidth <= document.documentElement.clientWidth")
         browser.close()
 
@@ -58,7 +66,11 @@ def main() -> None:
     print("Paperboy live Playwright smoke passed")
     print("- public TLS page, canonical, product boundary, and CTA passed")
     print("- mobile navigation and overflow checks passed")
-    print("- deploy smoke lead submitted" if args.submit_test_lead else "- no lead submitted")
+    print(
+        "- deploy smoke subscription activated and unsubscribed"
+        if args.submit_test_subscription
+        else "- no subscription created"
+    )
 
 
 if __name__ == "__main__":

@@ -15,8 +15,9 @@ function requireText(source, text, label) {
   ["Build your firehose. Read only what matters.", "filtered-firehose promise"],
   ["Hacker News", "Hacker News source"],
   ["Any public RSS or Atom feed", "open feed boundary"],
-  ["Your first filtered brief is free", "entry offer"],
-  ["$</span>49", "$49 price hypothesis"],
+  ["Start the daily brief without a card.", "automatic launch offer"],
+  ["$</span>0", "no-payment launch price"],
+  ["Planned founding price: $49/month", "$49 price hypothesis"],
   ["No charge can be created here", "disabled checkout boundary"]
 ].forEach(([text, label]) => requireText(html, text, label));
 
@@ -32,20 +33,20 @@ function requireText(source, text, label) {
 [
   ["https://paperboy.kaibuilds.com/", "canonical KaiBuilds URL"],
   ["Build your firehose. Read only what matters.", "cold-traffic promise"],
-  ["Your first filtered brief is free.", "free first-brief offer"],
-  ["Build my filter", "single lead CTA"]
+  ["Start the daily brief without a card.", "no-card launch offer"],
+  ["Start my daily brief", "single subscription CTA"]
 ].forEach(([text, label]) => requireText(html, text, label));
 
 [
-  ['fetch("/api/firehose/preview"', "same-origin live feed preview"],
-  ['fetch("/api/lead"', "same-origin KaiBuilds lead capture"],
-  ["previewResult.ok !== true", "confirmed preview response"],
-  ["captureResult.ok !== true", "confirmed lead persistence"],
+  ['fetch("/api/firehose/subscribe"', "same-origin automatic subscription"],
+  ['subscribeResult.status !== "subscribed"', "confirmed active subscription response"],
+  ["activeStatusUrl", "tokenized in-page management status"],
+  ["activeUnsubscribeUrl", "tokenized unsubscribe action"],
+  ["result.status !== \"unsubscribed\"", "confirmed unsubscribe response"],
   ["/api/hit?slug=paperboy", "KaiBuilds visit capture"],
-  ['slug: "paperboy"', "Paperboy capture slug"],
-  ["source_urls: sourceUrls", "public feed intake persistence"],
-  ["work_focus: workFocus", "work-focus intake persistence"],
-  ["ignore_focus: ignoreFocus", "ignore-list intake persistence"],
+  ["sources: sourceUrls", "public feed intake persistence"],
+  ["focus: workFocus", "work-focus intake persistence"],
+  ["ignore: ignoreFocus", "ignore-list intake persistence"],
   ["attributionFields", "campaign attribution capture"]
 ].forEach(([text, label]) => requireText(js, text, label));
 
@@ -61,7 +62,9 @@ function requireText(source, text, label) {
   "revenue-bearing",
   "One paid wedge",
   "Paperboy Operator",
-  "Request a founding pilot"
+  "Request a founding pilot",
+  "saved your email and filter for founding-pilot follow-up",
+  "No card or subscription was created"
 ].forEach((text) => {
   if (html.includes(text)) failures.push("Stale internal copy found: " + text);
 });
@@ -70,8 +73,8 @@ if (html.includes("We’ll email you to collect a few sources")) {
   failures.push("Stale follow-up-only intake copy found.");
 }
 
-const primaryCtaMatches = html.match(/Build my filter/g) || [];
-if (primaryCtaMatches.length < 4) failures.push("Primary free-sample CTA is not repeated consistently.");
+const primaryCtaMatches = html.match(/Start my daily brief/g) || [];
+if (primaryCtaMatches.length < 4) failures.push("Primary automatic-subscription CTA is not repeated consistently.");
 
 const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
 const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
@@ -85,8 +88,12 @@ if (/<form[^>]+action=/i.test(html)) {
   failures.push("A form action could submit data outside the local preview.");
 }
 
-if ((js.match(/fetch\(/g) || []).length !== 2 || !js.includes('fetch("/api/firehose/preview"') || !js.includes('fetch("/api/lead"')) {
-  failures.push("Only the same-origin firehose preview and lead capture fetches are allowed.");
+if ((js.match(/fetch\(/g) || []).length !== 3 || !js.includes('fetch("/api/firehose/subscribe"') || !js.includes("refreshManagedSubscription(activeStatusUrl)") || !js.includes("fetch(activeUnsubscribeUrl")) {
+  failures.push("Only same-origin subscription, status, and unsubscribe fetches are allowed.");
+}
+
+if (js.includes('/api/firehose/preview') || js.includes('/api/lead')) {
+  failures.push("Stale preview or lead-capture endpoint found in the automatic setup flow.");
 }
 
 [["XMLHttpRequest", "XMLHttpRequest"], ["WebSocket", "WebSocket"], ["sendBeacon", "sendBeacon"]].forEach(([needle, label]) => {
@@ -110,5 +117,5 @@ if (failures.length) {
 console.log("Paperboy product static checks passed.");
 console.log("- " + ids.length + " unique HTML ids");
 console.log("- no remote UI assets or form actions");
-console.log("- only same-origin firehose preview, KaiBuilds lead, and visit capture");
+console.log("- only same-origin subscription, status, unsubscribe, and visit capture");
 console.log("- required Daily Brief sections and demo boundaries present");

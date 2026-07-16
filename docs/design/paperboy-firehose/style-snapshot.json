@@ -8,9 +8,9 @@
    "line_height_px": 18,
    "color": "rgb(255, 255, 255)",
    "background_color": "rgb(17, 22, 28)",
-   "chars_per_line": 20,
+   "chars_per_line": 23,
    "is_large_text": false,
-   "sample_text": "Automatic first brief"
+   "sample_text": "Automatic daily delivery"
   },
   {
    "selector": "html > body > div.local-banner > span",
@@ -20,9 +20,9 @@
    "line_height_px": 18,
    "color": "rgb(220, 228, 236)",
    "background_color": "rgb(17, 22, 28)",
-   "chars_per_line": 59,
+   "chars_per_line": 67,
    "is_large_text": false,
-   "sample_text": "Add your feeds, define relevance, and see what survives the filter."
+   "sample_text": "Add your feeds once. Paperboy filters and delivers what survives every day."
   },
   {
    "selector": "header#site-header > a.brand > span",
@@ -68,9 +68,9 @@
    "line_height_px": 21,
    "color": "rgb(21, 23, 26)",
    "background_color": "rgba(243, 238, 227, 0.88)",
-   "chars_per_line": 18,
+   "chars_per_line": 23,
    "is_large_text": false,
-   "sample_text": "Build my filter"
+   "sample_text": "Start my daily brief"
   },
   {
    "selector": "section.screen > section.hero > div.hero-copy > p.eyebrow",
@@ -116,9 +116,9 @@
    "line_height_px": 21,
    "color": "rgb(251, 248, 241)",
    "background_color": "rgb(21, 23, 26)",
-   "chars_per_line": 24,
+   "chars_per_line": 28,
    "is_large_text": false,
-   "sample_text": "Build my filter"
+   "sample_text": "Start my daily brief"
   },
   {
    "selector": "div.hero-copy > div.hero-actions > button.button > span",
@@ -188,9 +188,9 @@
    "line_height_px": 24,
    "color": "rgb(85, 92, 99)",
    "background_color": "rgb(243, 238, 227)",
-   "chars_per_line": 19,
+   "chars_per_line": 27,
    "is_large_text": false,
-   "sample_text": "No credit card"
+   "sample_text": "No card during launch"
   },
   {
    "selector": "section.hero > div.signal-desk > div.desk-label > span",
@@ -502,7 +502,7 @@
    "background_color": "rgb(233, 224, 208)",
    "chars_per_line": 82,
    "is_large_text": false,
-   "sample_text": "Example layout. Your first live preview is generated from the public feeds you submit."
+   "sample_text": "Example layout. Setup validates your feeds and generates the first live cut before activating daily delivery."
   },
   {
    "selector": "main#main > section.screen > section.signal-strip > p",
@@ -562,7 +562,7 @@
    "background_color": "rgb(17, 22, 28)",
    "chars_per_line": 59,
    "is_large_text": false,
-   "sample_text": "Read the few items that survive."
+   "sample_text": "Get the daily cut automatically."
   },
   {
    "selector": "section.screen > section.signal-strip > p > span",
@@ -778,7 +778,7 @@
    "background_color": "rgb(243, 238, 227)",
    "chars_per_line": 32,
    "is_large_text": true,
-   "sample_text": "Three inputs. One automatic filter."
+   "sample_text": "Three inputs. One automatic daily brief."
   },
   {
    "selector": "section#how-it-works > ol.delivery-route > li > span.route-number",
@@ -874,7 +874,7 @@
    "background_color": "rgb(243, 238, 227)",
    "chars_per_line": 33,
    "is_large_text": false,
-   "sample_text": "See the filter run"
+   "sample_text": "Let Paperboy set it up"
   },
   {
    "selector": "section#how-it-works > ol.delivery-route > li > p",
@@ -886,7 +886,7 @@
    "background_color": "rgb(243, 238, 227)",
    "chars_per_line": 31,
    "is_large_text": false,
-   "sample_text": "Paperboy validates the feeds, scans recent items, and ranks the best matches automatically."
+   "sample_text": "Paperboy validates the feeds, scans recent items, ranks the best matches, and saves the filter automatically."
   },
   {
    "selector": "section#how-it-works > ol.delivery-route > li > span.route-number",
@@ -910,7 +910,7 @@
    "background_color": "rgb(243, 238, 227)",
    "chars_per_line": 33,
    "is_large_text": false,
-   "sample_text": "Turn on the daily edition"
+   "sample_text": "Wake up to the daily cut"
   },
   {
    "selector": "section#how-it-works > ol.delivery-route > li > p",
@@ -922,7 +922,7 @@
    "background_color": "rgb(243, 238, 227)",
    "chars_per_line": 31,
    "is_large_text": false,
-   "sample_text": "Join the $49/month founding pilot only if the first filtered brief is useful."
+   "sample_text": "Your active filter refreshes the sources and sends the strongest matches to your email every day."
   },
   {
    "selector": "section.screen > section.permission-section > div.permission-copy > p.eyebrow",
@@ -968,9 +968,9 @@
    "line_height_px": 21,
    "color": "rgb(21, 23, 26)",
    "background_color": "rgb(251, 248, 241)",
-   "chars_per_line": 18,
+   "chars_per_line": 23,
    "is_large_text": false,
-   "sample_text": "Build my filter"
+   "sample_text": "Start my daily brief"
   },
   {
    "selector": "section.permission-section > div.permission-ledger > div > span",
@@ -1114,7 +1114,7 @@
    "background_color": "rgb(243, 238, 227)",
    "chars_per_line": 127,
    "is_large_text": false,
-   "sample_text": "Run the filter before you pay"
+   "sample_text": "Launch access"
   },
   {
    "selector": "section#pricing > div.section-heading > h2",
@@ -1126,7 +1126,7 @@
    "background_color": "rgb(243, 238, 227)",
    "chars_per_line": 32,
    "is_large_text": true,
-   "sample_text": "Your first filtered brief is free."
+   "sample_text": "Start the daily brief without a card."
   },
   {
    "selector": "section#pricing > div.section-heading > p",
@@ -1138,7 +1138,7 @@
    "background_color": "rgb(243, 238, 227)",
    "chars_per_line": 68,
    "is_large_text": false,
-   "sample_text": "Paste your public feeds and see the result. If it earns a place in your routine, the founding pilot is $49/month."
+   "sample_text": "Paste your public feeds and activate automatic daily delivery. Paperboy is not collecting payment during launch."
   },
   {
    "selector": "div.pricing-grid > article.price-card > div > p.price-label",
@@ -1150,7 +1150,7 @@
    "background_color": "rgb(17, 22, 28)",
    "chars_per_line": 113,
    "is_large_text": false,
-   "sample_text": "After your free first brief"
+   "sample_text": "Available during launch"
   },
   {
    "selector": "div.pricing-grid > article.price-card > div > h3",
@@ -1174,7 +1174,7 @@
    "background_color": "rgb(17, 22, 28)",
    "chars_per_line": 21,
    "is_large_text": true,
-   "sample_text": "49"
+   "sample_text": "0"
   },
   {
    "selector": "article.price-card > div > p.price > span",
@@ -1196,9 +1196,9 @@
    "line_height_px": 24,
    "color": "rgb(237, 242, 246)",
    "background_color": "rgb(17, 22, 28)",
-   "chars_per_line": 7,
+   "chars_per_line": 5,
    "is_large_text": false,
-   "sample_text": "/ month"
+   "sample_text": "today"
   },
   {
    "selector": "div.pricing-grid > article.price-card > div > p.hypothesis",
@@ -1210,7 +1210,7 @@
    "background_color": "rgb(17, 22, 28)",
    "chars_per_line": 113,
    "is_large_text": false,
-   "sample_text": "No card is collected until you have seen your sample and choose to continue."
+   "sample_text": "Planned founding price: $49/month. No card or payment is collected yet."
   },
   {
    "selector": "article.price-card > div > ul > li",
@@ -1282,7 +1282,7 @@
    "background_color": "rgb(21, 23, 26)",
    "chars_per_line": 97,
    "is_large_text": false,
-   "sample_text": "Build my filter"
+   "sample_text": "Start my daily brief"
   },
   {
    "selector": "section.screen > section.section > div.section-heading > p.eyebrow",
@@ -1402,7 +1402,7 @@
    "background_color": "rgb(243, 238, 227)",
    "chars_per_line": 90,
    "is_large_text": false,
-   "sample_text": "Yes. Paperboy validates the feeds, scans recent items, removes duplicates, and ranks them against the focus and ignore terms you provide."
+   "sample_text": "Yes. Paperboy validates the feeds, scans recent items, removes duplicates, ranks them against your filter, and activates daily delivery."
   },
   {
    "selector": "section.section > div.faq-list > details > summary",
@@ -1414,7 +1414,7 @@
    "background_color": "rgb(243, 238, 227)",
    "chars_per_line": 75,
    "is_large_text": true,
-   "sample_text": "What happens after the free first brief?"
+   "sample_text": "Do I need to wait for someone to set it up?"
   },
   {
    "selector": "section.section > div.faq-list > details > p",
@@ -1426,7 +1426,7 @@
    "background_color": "rgb(243, 238, 227)",
    "chars_per_line": 90,
    "is_large_text": false,
-   "sample_text": "If it is useful, you can join the $49/month founding pilot for daily delivery. No card is collected by this page."
+   "sample_text": "No. A successful setup saves the filter and activates daily delivery immediately. If Paperboy cannot validate or save it, the page shows the error and does not claim the subscription is active."
   },
   {
    "selector": "main#main > section.screen > section.final-cta > p.eyebrow",
@@ -1460,9 +1460,9 @@
    "line_height_px": 21,
    "color": "rgb(21, 23, 26)",
    "background_color": "rgb(251, 248, 241)",
-   "chars_per_line": 24,
+   "chars_per_line": 28,
    "is_large_text": false,
-   "sample_text": "Build my filter"
+   "sample_text": "Start my daily brief"
   },
   {
    "selector": "section.screen > section.final-cta > button.button > span",
@@ -1496,7 +1496,7 @@
    "line_height_px": 21,
    "color": "rgb(85, 92, 99)",
    "background_color": "rgb(243, 238, 227)",
-   "chars_per_line": 118,
+   "chars_per_line": 117,
    "is_large_text": false,
    "sample_text": "Build a public-source firehose. Read only what survives your filter."
   },
@@ -1508,9 +1508,9 @@
    "line_height_px": 21,
    "color": "rgb(21, 23, 26)",
    "background_color": "rgb(243, 238, 227)",
-   "chars_per_line": 41,
+   "chars_per_line": 42,
    "is_large_text": false,
-   "sample_text": "Automatic first brief \u00b7 $49/month only if useful"
+   "sample_text": "Automatic daily delivery \u00b7 no card during launch"
   }
  ],
  "font_families": [
@@ -1604,12 +1604,12 @@
   },
   {
    "selector": "header#site-header > nav.site-nav > button.button",
-   "width": 128.015625,
+   "width": 160.765625,
    "height": 42
   },
   {
    "selector": "section.hero > div.hero-copy > div.hero-actions > button.button",
-   "width": 165.828125,
+   "width": 198.578125,
    "height": 58
   },
   {
@@ -1624,7 +1624,7 @@
   },
   {
    "selector": "section.screen > section.permission-section > div.permission-copy > button.button",
-   "width": 128.015625,
+   "width": 160.765625,
    "height": 48
   },
   {
@@ -1634,7 +1634,7 @@
   },
   {
    "selector": "main#main > section.screen > section.final-cta > button.button",
-   "width": 165.828125,
+   "width": 198.578125,
    "height": 58
   }
  ],
@@ -1671,7 +1671,7 @@
   },
   {
    "level": 2,
-   "text": "Three inputs. One automatic filter.",
+   "text": "Three inputs. One automatic daily brief.",
    "font_size_px": 48
   },
   {
@@ -1686,12 +1686,12 @@
   },
   {
    "level": 3,
-   "text": "See the filter run",
+   "text": "Let Paperboy set it up",
    "font_size_px": 16
   },
   {
    "level": 3,
-   "text": "Turn on the daily edition",
+   "text": "Wake up to the daily cut",
    "font_size_px": 16
   },
   {
@@ -1701,7 +1701,7 @@
   },
   {
    "level": 2,
-   "text": "Your first filtered brief is free.",
+   "text": "Start the daily brief without a card.",
    "font_size_px": 48
   },
   {
@@ -1753,7 +1753,7 @@
    "property": "transform, background, border-color, box-shadow"
   }
  ],
- "url": "http://127.0.0.1:4173/",
+ "url": "http://127.0.0.1:8028/",
  "viewport": {
   "width": 1440,
   "height": 900

@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Build your own information firehose from Hacker News, RSS, research, and public sources. Paperboy filters it around what matters to you.">
+  <meta name="description" content="Build a daily brief from Hacker News, RSS, research, and public sources. Paperboy filters the firehose around what matters to you and delivers the cut automatically.">
   <meta name="theme-color" content="#f3eee3">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://paperboy.kaibuilds.com/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Paperboy — Build your firehose. Read only what matters.">
-  <meta property="og:description" content="Add Hacker News, RSS, research, and public sources. Get a ranked, source-linked brief filtered around your work.">
+  <meta property="og:description" content="Add Hacker News, RSS, research, and public sources once. Paperboy filters them around your work and delivers a ranked, source-linked brief every day.">
   <meta property="og:url" content="https://paperboy.kaibuilds.com/">
   <title>Paperboy — Your Own Filtered Firehose</title>
   <link rel="stylesheet" href="styles.css">
@@ -20,8 +20,8 @@
 
   <div class="local-banner" role="status">
     <span class="status-dot" aria-hidden="true"></span>
-    <strong>Automatic first brief</strong>
-    <span>Add your feeds, define relevance, and see what survives the filter.</span>
+    <strong>Automatic daily delivery</strong>
+    <span>Add your feeds once. Paperboy filters and delivers what survives every day.</span>
   </div>
 
   <header class="site-header" id="site-header">
@@ -40,7 +40,7 @@
     <nav class="site-nav" aria-label="Primary navigation">
       <a href="#how-it-works">How it works</a>
       <a href="#pricing">Pricing</a>
-      <button class="button button-small" type="button" data-start>Build my filter</button>
+      <button class="button button-small" type="button" data-start>Start my daily brief</button>
     </nav>
 
     <button class="menu-button" type="button" aria-expanded="false" aria-controls="mobile-nav">
@@ -50,7 +50,7 @@
     <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation" hidden>
       <a href="#how-it-works">How it works</a>
       <a href="#pricing">Pricing</a>
-      <button class="button" type="button" data-start>Build my filter</button>
+      <button class="button" type="button" data-start>Start my daily brief</button>
     </nav>
   </header>
 
@@ -62,13 +62,13 @@
           <h1>Build your firehose. Read only what matters.</h1>
           <p class="hero-lede">Add Hacker News, startup feeds, RSS, research, and other public sources. Paperboy ranks the stream against what you are building—and shows why each item made the cut.</p>
           <div class="hero-actions">
-            <button class="button button-large" type="button" data-start>Build my filter <span aria-hidden="true">→</span></button>
+            <button class="button button-large" type="button" data-start>Start my daily brief <span aria-hidden="true">→</span></button>
             <a class="quiet-link" href="#example">See the filter work <span aria-hidden="true">↓</span></a>
           </div>
           <ul class="trust-line" aria-label="Product boundaries">
             <li>Any public RSS or Atom feed</li>
             <li>No Gmail access</li>
-            <li>No credit card</li>
+            <li>No card during launch</li>
           </ul>
         </div>
 
@@ -93,14 +93,14 @@
             <p><strong>Why it matters:</strong> It overlaps the margin decision in your filter.</p>
             <footer><span>1 of 4 signals</span><span>Open source ↗</span></footer>
           </article>
-          <p class="desk-boundary">Example layout. Your first live preview is generated from the public feeds you submit.</p>
+            <p class="desk-boundary">Example layout. Setup validates your feeds and generates the first live cut before activating daily delivery.</p>
         </div>
       </section>
 
       <section class="signal-strip" aria-label="Product principle">
           <p><span>01</span> Choose the firehose.</p>
           <p><span>02</span> Define what deserves attention.</p>
-          <p><span>03</span> Read the few items that survive.</p>
+          <p><span>03</span> Get the daily cut automatically.</p>
       </section>
 
       <section class="section example-section" id="example">
@@ -137,7 +137,7 @@
       <section class="section route-section" id="how-it-works">
         <div class="section-heading section-heading-narrow">
           <p class="eyebrow">How it works</p>
-          <h2>Three inputs. One automatic filter.</h2>
+          <h2>Three inputs. One automatic daily brief.</h2>
         </div>
         <ol class="delivery-route">
           <li>
@@ -152,13 +152,13 @@
           </li>
           <li>
             <span class="route-number">3</span>
-            <h3>See the filter run</h3>
-            <p>Paperboy validates the feeds, scans recent items, and ranks the best matches automatically.</p>
+            <h3>Let Paperboy set it up</h3>
+            <p>Paperboy validates the feeds, scans recent items, ranks the best matches, and saves the filter automatically.</p>
           </li>
           <li>
             <span class="route-number route-number-final">✓</span>
-            <h3>Turn on the daily edition</h3>
-            <p>Join the $49/month founding pilot only if the first filtered brief is useful.</p>
+            <h3>Wake up to the daily cut</h3>
+            <p>Your active filter refreshes the sources and sends the strongest matches to your email every day.</p>
           </li>
         </ol>
       </section>
@@ -168,7 +168,7 @@
           <p class="eyebrow eyebrow-light">Automatic, without inbox access</p>
           <h2>Paste feeds. Paperboy does the setup.</h2>
           <p>Paperboy works from public RSS and Atom feeds. It validates each URL, reads a bounded set of recent items, removes duplicates, and ranks the result against your filter. No Gmail connection or manual concierge step is required.</p>
-          <button class="button button-paper" type="button" data-start>Build my filter</button>
+          <button class="button button-paper" type="button" data-start>Start my daily brief</button>
         </div>
         <div class="permission-ledger" aria-label="Automatic setup steps">
           <div><span>Public feed validation</span><strong>Automatic</strong></div>
@@ -182,17 +182,17 @@
 
       <section class="section pricing-section" id="pricing">
         <div class="section-heading section-heading-narrow">
-          <p class="eyebrow">Run the filter before you pay</p>
-          <h2>Your first filtered brief is free.</h2>
-          <p>Paste your public feeds and see the result. If it earns a place in your routine, the founding pilot is $49/month.</p>
+          <p class="eyebrow">Launch access</p>
+          <h2>Start the daily brief without a card.</h2>
+          <p>Paste your public feeds and activate automatic daily delivery. Paperboy is not collecting payment during launch.</p>
         </div>
         <div class="pricing-grid">
           <article class="price-card price-card-primary">
             <div>
-              <p class="price-label">After your free first brief</p>
+              <p class="price-label">Available during launch</p>
               <h3>Paperboy Filtered Firehose</h3>
-              <p class="price"><span>$</span>49 <small>/ month</small></p>
-              <p class="hypothesis">No card is collected until you have seen your sample and choose to continue.</p>
+              <p class="price"><span>$</span>0 <small>today</small></p>
+              <p class="hypothesis">Planned founding price: $49/month. No card or payment is collected yet.</p>
               <ul>
                 <li>Your chosen public RSS and Atom feeds</li>
                 <li>A relevance filter built around your work</li>
@@ -201,7 +201,7 @@
                 <li>Cancel monthly</li>
               </ul>
             </div>
-            <button class="button button-wide" type="button" data-start>Build my filter</button>
+            <button class="button button-wide" type="button" data-start>Start my daily brief</button>
           </article>
         </div>
       </section>
@@ -226,11 +226,11 @@
           </details>
           <details>
             <summary>Is the first brief automated?</summary>
-            <p>Yes. Paperboy validates the feeds, scans recent items, removes duplicates, and ranks them against the focus and ignore terms you provide.</p>
+            <p>Yes. Paperboy validates the feeds, scans recent items, removes duplicates, ranks them against your filter, and activates daily delivery.</p>
           </details>
           <details>
-            <summary>What happens after the free first brief?</summary>
-            <p>If it is useful, you can join the $49/month founding pilot for daily delivery. No card is collected by this page.</p>
+            <summary>Do I need to wait for someone to set it up?</summary>
+            <p>No. A successful setup saves the filter and activates daily delivery immediately. If Paperboy cannot validate or save it, the page shows the error and does not claim the subscription is active.</p>
           </details>
         </div>
       </section>
@@ -238,7 +238,7 @@
       <section class="final-cta">
         <p class="eyebrow eyebrow-light">Use your actual feeds</p>
         <h2>Turn your firehose into a short list of things worth reading.</h2>
-        <button class="button button-paper button-large" type="button" data-start>Build my filter <span aria-hidden="true">→</span></button>
+        <button class="button button-paper button-large" type="button" data-start>Start my daily brief <span aria-hidden="true">→</span></button>
       </section>
     </section>
 
@@ -247,17 +247,17 @@
         <button class="back-link" type="button" data-route="home"><span aria-hidden="true">←</span> Back to home</button>
         <div class="flow-card">
           <p class="eyebrow">Automatic filter setup</p>
-          <h1>Build your first filtered firehose.</h1>
-          <p>Start with Hacker News or paste public RSS and Atom feeds. Tell Paperboy what matters and see a ranked preview automatically.</p>
+          <h1>Start your automatic daily brief.</h1>
+          <p>Choose Hacker News or paste public RSS and Atom feeds. Tell Paperboy what matters once; it validates, saves, filters, and delivers the daily cut automatically.</p>
           <div class="guardrail">
             <strong>No human setup</strong>
-            <span>The live preview validates your public feeds, scans recent items, and ranks them against your filter. It does not connect to an inbox.</span>
+            <span>A successful setup validates your public feeds, saves the filter, and turns on daily delivery immediately. It does not connect to an inbox.</span>
           </div>
           <form id="magic-link-form" novalidate>
             <div class="field">
               <label for="signin-email">Email address</label>
               <input id="signin-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby="email-help email-error">
-              <span class="field-help" id="email-help">Used to save your request for the founding pilot. Your preview appears here first.</span>
+              <span class="field-help" id="email-help">Your daily brief is delivered here. No inbox access is required.</span>
               <span class="field-error" id="email-error" role="alert"></span>
             </div>
             <div class="field">
@@ -271,7 +271,7 @@
             <div class="field">
               <label for="source-urls">Public RSS or Atom feed URLs</label>
               <textarea id="source-urls" name="source_urls" rows="5" placeholder="One feed URL per line&#10;https://news.ycombinator.com/rss&#10;https://example.com/feed.xml" required aria-describedby="source-help"></textarea>
-              <span class="field-help" id="source-help">Direct public feed URLs work now. Up to six sources per preview.</span>
+              <span class="field-help" id="source-help">Direct public feed URLs work now. Add up to six sources.</span>
             </div>
             <div class="field">
               <label for="work-focus">What should make an item relevant?</label>
@@ -282,15 +282,27 @@
               <input id="ignore-focus" name="ignore_focus" type="text" placeholder="Funding gossip, beginner tutorials, hardware news">
             </div>
             <span class="form-error" id="intake-error" role="alert"></span>
-            <button class="button button-wide" type="submit" id="pilot-submit">Build my filter and preview it</button>
+            <button class="button button-wide" type="submit" id="subscription-submit">Start my daily brief</button>
           </form>
           <div class="magic-success" id="magic-success" hidden>
             <div class="success-mark" aria-hidden="true">✓</div>
-            <h2 id="pilot-success-title">Your filter ran.</h2>
-            <p id="pilot-success-copy">These are the strongest matches from the public feeds you submitted.</p>
-            <div class="preview-summary" id="preview-summary" aria-live="polite"></div>
-            <div class="live-preview-list" id="live-preview-list"></div>
-            <button class="text-button button-wide" type="button" id="change-email">Change the filter and run it again</button>
+            <h2 id="subscription-success-title">Your daily brief is active.</h2>
+            <p id="subscription-success-copy">Paperboy saved your sources and filter. It will refresh them and deliver the strongest matches to your email automatically.</p>
+            <div class="subscription-ledger" aria-label="Subscription status">
+              <div><span>Status</span><strong id="subscription-status">Active</strong></div>
+              <div><span>Delivery</span><strong id="subscription-delivery">Daily · automatic</strong></div>
+              <div><span>Payment</span><strong>No card collected</strong></div>
+            </div>
+            <div class="management-summary" id="management-summary" hidden></div>
+            <div id="preview-results" hidden>
+              <div class="preview-summary" id="preview-summary" aria-live="polite"></div>
+              <div class="live-preview-list" id="live-preview-list"></div>
+            </div>
+            <nav class="subscription-actions" id="subscription-actions" aria-label="Manage daily brief" hidden>
+              <button class="button button-outline" id="manage-subscription" type="button">Refresh subscription status</button>
+              <button class="text-button" id="unsubscribe-subscription" type="button">Unsubscribe</button>
+            </nav>
+            <button class="text-button button-wide" type="button" id="change-email">Change the filter</button>
           </div>
         </div>
       </div>
@@ -505,7 +517,7 @@
             <p class="price-label">Plan summary</p>
             <h2>Paperboy Daily Brief</h2>
             <p class="price"><span>$</span>49 <small>/ month</small></p>
-            <p class="hypothesis">The founding pilot is $49/month after the free sample. This product tour cannot create a charge.</p>
+            <p class="hypothesis">The planned founding price is $49/month. Payment is not available during launch, and this product tour cannot create a charge.</p>
             <dl>
               <div><dt>Repositories</dt><dd id="checkout-repo-count">0 selected</dd></div>
               <div><dt>Delivery</dt><dd id="checkout-delivery">Not set</dd></div>
@@ -650,7 +662,7 @@
     </div>
     <p>Build a public-source firehose. Read only what survives your filter.</p>
     <div>
-      <span>Automatic first brief · $49/month only if useful</span>
+      <span>Automatic daily delivery · no card during launch</span>
     </div>
   </footer>
 
@@ -669,7 +681,7 @@
   </dialog>
 
   <noscript>
-    <div class="noscript">Paperboy needs JavaScript to request a free sample and open the product tour. No Gmail, GitHub, or billing connection is made.</div>
+    <div class="noscript">Paperboy needs JavaScript to validate, save, and activate your daily brief. No Gmail, GitHub, or billing connection is made.</div>
   </noscript>
 </body>
 </html>

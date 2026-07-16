@@ -18,6 +18,7 @@ services:
       PAPERBOY_SMTP_PORT: ${PAPERBOY_SMTP_PORT:-587}
       PAPERBOY_SMTP_USER: ${PAPERBOY_SMTP_USER:-}
       PAPERBOY_SMTP_PASS: ${PAPERBOY_SMTP_PASS:-}
+      PAPERBOY_SMTP_STARTTLS: ${PAPERBOY_SMTP_STARTTLS:-true}
       PAPERBOY_EMAIL_FROM: ${PAPERBOY_EMAIL_FROM:-paperboy@localhost}
       PAPERBOY_EMAIL_TO: ${PAPERBOY_EMAIL_TO:-}
       PAPERBOY_FAST_MODEL: ${PAPERBOY_FAST_MODEL:-llama3.2:3b}
@@ -43,6 +44,7 @@ services:
     container_name: paperboy-scheduler
     restart: unless-stopped
     profiles: ["scheduler"]
+    network_mode: host
     environment:
       PAPERBOY_APP_ROOT: /app
       PAPERBOY_ROOT: /app/data
@@ -51,6 +53,15 @@ services:
       PAPERBOY_DISCORD_BOT_TOKEN: ${PAPERBOY_DISCORD_BOT_TOKEN:-}
       PAPERBOY_DISCORD_CHANNEL_ID: ${PAPERBOY_DISCORD_CHANNEL_ID:-}
       PAPERBOY_OLLAMA_URL: ${PAPERBOY_OLLAMA_URL:-http://host.docker.internal:11434}
+      PAPERBOY_SMTP_HOST: ${PAPERBOY_SMTP_HOST:-}
+      PAPERBOY_SMTP_PORT: ${PAPERBOY_SMTP_PORT:-587}
+      PAPERBOY_SMTP_USER: ${PAPERBOY_SMTP_USER:-}
+      PAPERBOY_SMTP_PASS: ${PAPERBOY_SMTP_PASS:-}
+      PAPERBOY_SMTP_STARTTLS: ${PAPERBOY_SMTP_STARTTLS:-true}
+      PAPERBOY_EMAIL_FROM: ${PAPERBOY_EMAIL_FROM:-paperboy@localhost}
+      PAPERBOY_EMAIL_TO: ${PAPERBOY_EMAIL_TO:-}
+      PAPERBOY_PUBLIC_URL: ${PAPERBOY_PUBLIC_URL:-https://paperboy.kaibuilds.com}
+      PAPERBOY_SCHEDULER_ONLY: ${PAPERBOY_SCHEDULER_ONLY:-paperboy.firehose_delivery}
       PAPERBOY_LOG_LEVEL: ${PAPERBOY_LOG_LEVEL:-INFO}
       PAPERBOY_LOG_FORMAT: ${PAPERBOY_LOG_FORMAT:-json}
     volumes:
@@ -60,8 +71,6 @@ services:
     depends_on:
       paperboy:
         condition: service_healthy
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
 volumes:
   paperboy-data:

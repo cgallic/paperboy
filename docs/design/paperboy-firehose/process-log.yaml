@@ -5,9 +5,9 @@ stages:
     audience: "Technical founders and hands-on product or engineering leads who follow fast-moving public technical sources."
     constraints:
       - "The hero must state the firehose-to-filter outcome within one headline and one supporting paragraph."
-      - "Every primary conversion label must use Build my filter, with exactly one solid primary treatment above the fold."
-      - "The primary flow must generate a real preview from at least one public RSS or Atom URL without a human step."
-      - "The page must never claim inbox access, automatic newsletter subscription, account creation, scheduled delivery, or billing."
+      - "Every primary conversion label must use Start my daily brief, with exactly one solid primary treatment above the fold."
+      - "The primary flow must validate at least one public RSS or Atom URL, save the filter, and activate daily delivery without a human step."
+      - "The page must never claim inbox access, automatic newsletter subscription, or billing."
       - "The implemented Design OS deterministic lint rules must report zero unwaived block failures before deployment."
       - "The 390px browser path must have no horizontal overflow."
     banned_adjective_check: true
@@ -43,11 +43,13 @@ stages:
       - "signal desk"
       - "source preset chips"
       - "live ranked preview cards"
+      - "private subscription management state"
       - "three-to-one route mark"
     invention_reasons:
       signal desk: "No existing component visualized the product's defining many-inputs-to-few-signals transformation."
       source preset chips: "The existing form had newsletter and repository fields but no one-click way to add a working public feed."
       live ranked preview cards: "The existing success state only confirmed lead capture and could not render the real preview response."
+      private subscription management state: "Automatic delivery requires a reachable state for status, schedule, and confirmed unsubscribe without a support handoff."
       three-to-one route mark: "The folded-page icon was generic and did not identify Paperboy's filtering behavior."
   self_lint:
     snapshot: "docs/design/paperboy-firehose/style-snapshot.json"

@@ -61,8 +61,13 @@ class PaperboyConfig(BaseSettings):
     smtp_port: int = 587
     smtp_user: str | None = None
     smtp_pass: str | None = None
+    smtp_starttls: bool = True
     email_from: str = "paperboy@localhost"
     email_to: str | None = None
+
+    # Hosted firehose
+    public_url: str = "https://paperboy.kaibuilds.com"
+    manage_secret: str | None = None
 
     # API
     dashboard_url: str = ""

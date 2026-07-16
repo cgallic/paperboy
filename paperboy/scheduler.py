@@ -13,9 +13,11 @@ Schedule (UTC):
   11:10  today-briefing
   11:15  prompt-digest
   12:00  research-digest
+  12:30  subscriber firehose delivery
 """
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -64,13 +66,18 @@ JOBS = [
     ("paperboy.scanners.today_briefing", "11:10"),
     ("paperboy.digest.prompt_digest", "11:15"),
     ("paperboy.digest.research_digest", "12:00"),
+    ("paperboy.firehose_delivery", "12:30"),
 ]
 
 
 def main() -> None:
     configure_logging()
-    logger.info("scheduler_startup", extra={"event": "scheduler_startup", "jobs": len(JOBS)})
-    for module, time_str in JOBS:
+    only_module = os.environ.get("PAPERBOY_SCHEDULER_ONLY", "").strip()
+    jobs = [job for job in JOBS if not only_module or job[0] == only_module]
+    if not jobs:
+        raise RuntimeError(f"PAPERBOY_SCHEDULER_ONLY does not match a configured job: {only_module}")
+    logger.info("scheduler_startup", extra={"event": "scheduler_startup", "jobs": len(jobs)})
+    for module, time_str in jobs:
         hour, minute = time_str.split(":")
         scheduler.add_job(
             _run,

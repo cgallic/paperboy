@@ -5,6 +5,7 @@ Serves:
   - /api/lead            — founding-pilot lead capture
   - /api/hit             — lightweight visit pixel
   - /api/daily-brief     — render the bundled sanitized sample
+  - /api/firehose/*      — preview, subscribe, manage, and unsubscribe
   - /api/config          — validated runtime config (safe subset)
 
 Static files from product/ are served at / so the landing page works.
@@ -15,11 +16,13 @@ import asyncio
 import json
 import sqlite3
 import time
+from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from paperboy.config import settings
@@ -32,11 +35,19 @@ from paperboy.firehose import (
 )
 from paperboy.health import run_all
 from paperboy.logging_config import configure_logging, get_logger
+from paperboy.subscriptions import (
+    SubscriptionValidationError,
+    create_subscription,
+    get_subscription,
+    management_urls,
+    unsubscribe,
+    validate_subscription_payload,
+)
 
 logger = get_logger("api")
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     configure_logging()
     init_schema()
     logger.info("api_startup")
@@ -47,7 +58,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Paperboy API",
     description="Backend for the Paperboy Daily Intelligence Brief",
-    version="0.2.0",
+    version="0.3.0",
     lifespan=lifespan,
 )
 
@@ -70,7 +81,10 @@ def _append_product_event(event_type: str, payload: dict) -> int:
 
 
 @app.middleware("http")
-async def log_requests(request: Request, call_next):
+async def log_requests(
+    request: Request,
+    call_next: Callable[[Request], Awaitable[Response]],
+) -> Response:
     t0 = time.time()
     response = await call_next(request)
     elapsed = (time.time() - t0) * 1000
@@ -183,7 +197,7 @@ async def runtime_config() -> JSONResponse:
                 "ollama": bool(settings.ollama_url),
                 "smtp": bool(settings.smtp_host),
             },
-            "version": "0.2.0",
+            "version": "0.3.0",
         }
     )
 
@@ -247,6 +261,107 @@ async def preview_firehose(request: Request) -> JSONResponse:
 
     result = await asyncio.to_thread(build_firehose_preview, sources, focus, ignore)
     return JSONResponse(result)
+
+
+@app.post("/api/firehose/subscribe")
+async def subscribe_firehose(request: Request) -> JSONResponse:
+    """Preview a firehose, then persist it for automatic daily delivery."""
+    content_length = request.headers.get("content-length")
+    if content_length:
+        try:
+            if int(content_length) > MAX_REQUEST_BYTES:
+                raise HTTPException(status_code=413, detail="request body is too large")
+        except ValueError:
+            raise HTTPException(status_code=400, detail="invalid content-length") from None
+    raw_body = await request.body()
+    if len(raw_body) > MAX_REQUEST_BYTES:
+        raise HTTPException(status_code=413, detail="request body is too large")
+    try:
+        payload = json.loads(raw_body)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=400, detail="request body must be valid JSON") from exc
+    try:
+        email, sources, focus, ignore, attribution = validate_subscription_payload(payload)
+    except SubscriptionValidationError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    preview = await asyncio.to_thread(build_firehose_preview, sources, focus, ignore)
+    if not any(source.get("status") == "ok" for source in preview["sources"]):
+        return JSONResponse(
+            {
+                "ok": False,
+                "status": "preview_failed",
+                "error": "no_sources_reachable",
+                "preview": preview,
+            },
+            status_code=422,
+        )
+    try:
+        _subscription, token = await asyncio.to_thread(
+            create_subscription,
+            email,
+            sources,
+            focus,
+            ignore,
+            attribution,
+        )
+    except (OSError, sqlite3.Error):
+        logger.exception("subscription_persistence_failed", extra={"event": "subscription_persistence_failed"})
+        return JSONResponse({"ok": False, "status": "error", "error": "persistence_failed"}, status_code=503)
+    manage_url, status_url, unsubscribe_url = management_urls(token)
+    logger.info("firehose_subscribed", extra={"event": "firehose_subscribed", "email": email})
+    return JSONResponse(
+        {
+            "ok": True,
+            "status": "subscribed",
+            "preview": preview,
+            "manage_url": manage_url,
+            "status_url": status_url,
+            "unsubscribe_url": unsubscribe_url,
+        }
+    )
+
+
+def _masked_email(email: str) -> str:
+    local, domain = email.rsplit("@", 1)
+    return f"{local[:1]}***@{domain}"
+
+
+def _next_delivery_at() -> str:
+    now = datetime.now(timezone.utc)
+    next_delivery = now.replace(hour=12, minute=30, second=0, microsecond=0)
+    if next_delivery <= now:
+        next_delivery += timedelta(days=1)
+    return next_delivery.isoformat().replace("+00:00", "Z")
+
+
+@app.get("/api/firehose/subscriptions/{token}")
+async def firehose_subscription_status(token: str) -> JSONResponse:
+    subscription = await asyncio.to_thread(get_subscription, token)
+    if subscription is None:
+        raise HTTPException(status_code=404, detail="subscription not found")
+    return JSONResponse(
+        {
+            "ok": True,
+            "status": "active" if subscription["active"] else "unsubscribed",
+            "email_masked": _masked_email(subscription["email"]),
+            "sources": subscription["sources"],
+            "focus": subscription["focus"],
+            "ignore": subscription["ignore"],
+            "created_at": subscription["created_at"],
+            "last_sent_at": subscription["last_sent_at"],
+            "next_delivery_at": _next_delivery_at() if subscription["active"] else None,
+        }
+    )
+
+
+@app.post("/api/firehose/subscriptions/{token}/unsubscribe")
+async def unsubscribe_firehose(token: str) -> JSONResponse:
+    subscription = await asyncio.to_thread(unsubscribe, token)
+    if subscription is None:
+        raise HTTPException(status_code=404, detail="subscription not found")
+    logger.info("firehose_unsubscribed", extra={"event": "firehose_unsubscribed", "email": subscription["email"]})
+    return JSONResponse({"ok": True, "status": "unsubscribed"})
 
 
 # ---------------------------------------------------------------------------
