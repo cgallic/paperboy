@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Local, no-secrets Paperboy Daily Brief product prototype.">
+  <meta name="theme-color" content="#f3eee3">
+  <title>paperboy — Your Daily Brief</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="local-banner" role="status">
+    <span class="status-dot" aria-hidden="true"></span>
+    <strong>Local product preview</strong>
+    <span>No auth, GitHub connection, email, or billing is live. Nothing leaves this browser.</span>
+  </div>
+
+  <header class="site-header" id="site-header">
+    <a class="brand" href="#home" data-route="home" aria-label="Paperboy home">
+      <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true">
+        <path d="M7 5.5h16l6 6v19H7z"></path>
+        <path d="M23 5.5v6h6M11 17h14M11 22h10"></path>
+        <circle cx="11" cy="27" r="1.7"></circle>
+        <path class="brand-route" d="M12.8 27h8.7"></path>
+      </svg>
+      <span>paperboy</span>
+    </a>
+
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="#how-it-works">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="https://github.com/cgallic/paperboy" target="_blank" rel="noreferrer">GitHub <span class="sr-only">(opens in a new tab)</span></a>
+      <button class="text-button" type="button" data-route="signin">Sign in</button>
+      <button class="button button-small" type="button" data-start>Start a brief</button>
+    </nav>
+
+    <button class="menu-button" type="button" aria-expanded="false" aria-controls="mobile-nav">
+      <span class="sr-only">Toggle navigation</span>
+      <span></span><span></span>
+    </button>
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation" hidden>
+      <a href="#how-it-works">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="https://github.com/cgallic/paperboy" target="_blank" rel="noreferrer">GitHub</a>
+      <button class="text-button" type="button" data-route="signin">Sign in</button>
+      <button class="button" type="button" data-start>Start a brief</button>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="screen screen-home" data-screen="home">
+      <section class="hero">
+        <div class="hero-copy reveal">
+          <p class="eyebrow"><span class="eyebrow-line"></span> Daily Intelligence Brief</p>
+          <h1>Know what changes your next move.</h1>
+          <p class="hero-lede">Paperboy turns the newsletters you forward, public news and research, tracked data, and selected GitHub repos into one evidence-linked morning edition: what changes a decision, what deserves inspection, and what can wait.</p>
+          <div class="hero-actions">
+            <button class="button button-large" type="button" data-start>Build a Daily Brief <span aria-hidden="true">→</span></button>
+            <a class="quiet-link" href="https://github.com/cgallic/paperboy" target="_blank" rel="noreferrer">View the open-source project <span aria-hidden="true">↗</span></a>
+          </div>
+          <ul class="trust-line" aria-label="Product boundaries">
+            <li>No Gmail OAuth</li>
+            <li>Read-only GitHub</li>
+            <li>Decision-ready morning email</li>
+          </ul>
+        </div>
+
+        <div class="hero-edition reveal reveal-delay" aria-label="Example Paperboy Daily Brief">
+          <div class="edition-shadow edition-shadow-one" aria-hidden="true"></div>
+          <div class="edition-shadow edition-shadow-two" aria-hidden="true"></div>
+          <article class="edition-paper">
+            <header class="edition-masthead">
+              <div>
+                <span class="edition-brand">paperboy</span>
+                <span class="edition-label">Example edition</span>
+              </div>
+              <time datetime="2026-07-16">Jul. 16</time>
+            </header>
+            <p class="edition-kicker">Daily Brief · 3 source lanes</p>
+            <h2>Your morning in four useful sections.</h2>
+            <div class="edition-divider"></div>
+            <div class="edition-item">
+              <div class="edition-meta"><span>Today in 60 seconds</span><span>3 items</span><code>Public signals</code></div>
+              <h3>Model releases, a pricing shift, and one API deadline</h3>
+              <p>Three evidence-linked changes, compressed into the context needed to start the day.</p>
+              <span class="inspect-link">Read the source ledger <span aria-hidden="true">→</span></span>
+            </div>
+            <div class="edition-item edition-item-secondary">
+              <div class="edition-meta"><span>Repo Radar</span><span>8/10</span><code>agent-router</code></div>
+              <h3>A provider SDK changed its tool-stream contract</h3>
+            </div>
+            <footer class="edition-footer">
+              <span>Source-linked</span>
+              <span>Repo-specific</span>
+              <span>Nothing runs</span>
+            </footer>
+          </article>
+        </div>
+      </section>
+
+      <section class="signal-strip" aria-label="Product principle">
+          <p><span>01</span> What changed across the sources you trust.</p>
+          <p><span>02</span> Which operating or product decision it touches.</p>
+          <p><span>03</span> What to inspect—and what deserves no time today.</p>
+      </section>
+
+      <section class="section example-section" id="example">
+        <div class="section-heading">
+          <p class="eyebrow">A labeled example, not a customer result</p>
+          <h2>Every section has a job. Every item earns the interruption.</h2>
+          <p>Paperboy caps each section, cites the evidence, explains the fit, and is allowed to conclude “watch” or “do nothing.”</p>
+        </div>
+
+        <article class="impact-card impact-card-featured">
+          <div class="impact-score" aria-label="Relevance score: 8 out of 10"><strong>8</strong><span>/10</span></div>
+          <div class="impact-body">
+            <div class="impact-meta">
+              <span>Repo Radar · research</span>
+              <code>demo-labs/api-evals</code>
+              <span>Example</span>
+            </div>
+            <h3>A research result may change how this repo scores smaller models</h3>
+            <div class="impact-grid">
+              <div>
+                <h4>Why it may matter</h4>
+                <p>The fixture repository already evaluates structured model output. A fixed critique rubric may improve judge agreement without changing the serving model.</p>
+              </div>
+              <div class="inspect-box">
+                <h4>Repo Radar · inspect next</h4>
+                <p>Compare rubric-guided and freeform critique on one held-out set.</p>
+              </div>
+            </div>
+            <a href="https://github.com/cgallic/paperboy/blob/main/examples/action-queue.demo.jsonl" target="_blank" rel="noreferrer">View the public fixture shape <span aria-hidden="true">↗</span></a>
+          </div>
+        </article>
+      </section>
+
+      <section class="section route-section" id="how-it-works">
+        <div class="section-heading section-heading-narrow">
+          <p class="eyebrow">How it works</p>
+          <h2>Choose the inputs. Receive one useful edition.</h2>
+        </div>
+        <ol class="delivery-route">
+          <li>
+            <span class="route-number">1</span>
+            <h3>Choose source lanes</h3>
+            <p>Forward newsletters, use the public catalog, and optionally select public repos.</p>
+          </li>
+          <li>
+            <span class="route-number">2</span>
+            <h3>Set your interests</h3>
+            <p>Name the themes, systems, and watchlist that deserve morning attention.</p>
+          </li>
+          <li>
+            <span class="route-number">3</span>
+            <h3>Rank and cap the edition</h3>
+            <p>News, research, data, and repo signals compete for limited space.</p>
+          </li>
+          <li>
+            <span class="route-number route-number-final">✓</span>
+            <h3>Get the morning email</h3>
+            <p>Four short sections arrive with evidence—and silence when nothing clears the bar.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="permission-section">
+        <div class="permission-copy">
+          <p class="eyebrow eyebrow-light">The permission line</p>
+          <h2>Explicit inputs,<br>not ambient access.</h2>
+          <p>Forward only the newsletters you choose. Public news and research come from a shared catalog. The optional GitHub App is read-only and limited to selected public repositories.</p>
+          <button class="button button-paper" type="button" data-route="setup" data-setup-step="sources">Preview the exact consent screen</button>
+        </div>
+        <div class="permission-ledger" aria-label="Planned GitHub permission ledger">
+          <div><span>Repository metadata</span><strong>Read</strong></div>
+          <div><span>Contents</span><strong>Read</strong></div>
+          <div><span>Pull requests</span><strong>Read</strong></div>
+          <div><span>Issues</span><strong>Read</strong></div>
+          <div class="permission-zero"><span>Write permissions</span><strong>None</strong></div>
+          <p>Local fixture only. This prototype does not contact GitHub or register an App.</p>
+        </div>
+      </section>
+
+      <section class="section pricing-section" id="pricing">
+        <div class="section-heading section-heading-narrow">
+          <p class="eyebrow">One paid wedge, one open-source path</p>
+          <h2>Pay for sharper decisions, not another summary.</h2>
+          <p>The commercial test is whether one morning edition prevents a missed change, weak vendor choice, or wasted technical chase. Pricing remains a hypothesis and is shown before sign-in.</p>
+        </div>
+        <div class="pricing-grid">
+          <article class="price-card price-card-primary">
+            <div>
+              <p class="price-label">For revenue-bearing AI, SaaS, and devtool operators</p>
+              <h3>Paperboy Operator</h3>
+              <p class="price"><span>$</span>49 <small>/ month</small></p>
+              <p class="hypothesis">$49 is the primary price hypothesis—not a live offer. Validate $29 / $49 / $79 only after a personalized sample proves decision value.</p>
+              <ul>
+                <li>One scheduled morning edition</li>
+                <li>Forwarded newsletters without inbox access</li>
+                <li>Public news, research, and data signals</li>
+                <li>Optional context from 1–5 public repos</li>
+                <li>Economic-decision lens for cost, dependency, vendor, and market changes</li>
+                <li>Capped sections, evidence, and feedback</li>
+              </ul>
+              <div class="validation-offer">
+                <strong>$199 concierge calibration · validation option</strong>
+                <span>A possible one-time setup test, not a service available or fulfilled from this preview. A $149 small-Team plan is later only after retention.</span>
+              </div>
+            </div>
+            <button class="button button-wide" type="button" data-start>Build a sample Daily Brief</button>
+          </article>
+          <article class="price-card price-card-oss">
+            <div>
+              <p class="price-label">Run it yourself</p>
+              <h3>Paperboy Open Source</h3>
+              <p class="price price-free">Free <small>MIT licensed</small></p>
+              <p>Bring Linux, Ollama, Discord, and your own operations. The current project remains separate from the hosted product.</p>
+            </div>
+            <a class="button button-outline button-wide" href="https://github.com/cgallic/paperboy" target="_blank" rel="noreferrer">Open the GitHub project <span aria-hidden="true">↗</span></a>
+          </article>
+        </div>
+      </section>
+
+      <section class="section faq-section">
+        <div class="section-heading section-heading-narrow">
+          <p class="eyebrow">Before you connect anything</p>
+          <h2>Reasonable questions, answered directly.</h2>
+        </div>
+        <div class="faq-list">
+          <details>
+            <summary>Does Paperboy need every repository?</summary>
+            <p>No. GitHub is an optional source lane. If you use it, select one to five public repositories. This local preview uses fictional fixtures only.</p>
+          </details>
+          <details>
+            <summary>Can Paperboy change my code?</summary>
+            <p>No. The planned GitHub access is read-only. The product does not write code, issues, pull requests, or run autonomous actions.</p>
+          </details>
+          <details>
+            <summary>Does Paperboy read my inbox?</summary>
+            <p>No. Paperboy gives you a forwarding alias. It sees only messages you intentionally forward to that address. Gmail OAuth is excluded.</p>
+          </details>
+          <details>
+            <summary>What arrives by email?</summary>
+            <p>A capped edition: Today in 60 Seconds, Repo Radar, Research Worth Reading, and Watchlist / Do Nothing. Every substantive item links to evidence.</p>
+          </details>
+          <details>
+            <summary>Is this the same as the open-source project?</summary>
+            <p>The hosted concept builds on the project's scoring and digest ideas. The free self-hosted SQLite/systemd/Discord project remains available and separate.</p>
+          </details>
+        </div>
+      </section>
+
+      <section class="final-cta">
+        <p class="eyebrow eyebrow-light">What matters, delivered.</p>
+        <h2>Turn the sources you already trust into one morning worth reading.</h2>
+        <button class="button button-paper button-large" type="button" data-start>Build a local Daily Brief <span aria-hidden="true">→</span></button>
+      </section>
+    </section>
+
+    <section class="screen flow-screen auth-screen" data-screen="signin" hidden>
+      <div class="flow-shell auth-shell">
+        <button class="back-link" type="button" data-route="home"><span aria-hidden="true">←</span> Back to home</button>
+        <div class="flow-card">
+          <p class="eyebrow">Local step 0</p>
+          <h1>Start your Daily Brief.</h1>
+          <p>Enter an email to preview the magic-link flow. No email is sent, and the address stays in this browser's local storage.</p>
+          <div class="guardrail">
+            <strong>Simulation boundary</strong>
+            <span>Signing in does not connect your inbox or GitHub account. This page has no backend.</span>
+          </div>
+          <form id="magic-link-form" novalidate>
+            <div class="field">
+              <label for="signin-email">Email address</label>
+              <input id="signin-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby="email-help email-error">
+              <span class="field-help" id="email-help">Used only to personalize this local preview.</span>
+              <span class="field-error" id="email-error" role="alert"></span>
+            </div>
+            <button class="button button-wide" type="submit">Email me a sign-in link</button>
+          </form>
+          <div class="magic-success" id="magic-success" hidden>
+            <div class="success-mark" aria-hidden="true">✓</div>
+            <h2>Check your email—simulated.</h2>
+            <p>No message was sent. Continue with the local magic link to test the product flow.</p>
+            <button class="button button-wide" type="button" id="simulate-magic-link">Open simulated magic link</button>
+            <button class="text-button button-wide" type="button" id="change-email">Use a different email</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen flow-screen setup-screen" data-screen="setup" hidden>
+      <div class="setup-header">
+        <a class="brand brand-compact" href="#home" data-route="home">
+          <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true"><path d="M7 5.5h16l6 6v19H7z"></path><path d="M23 5.5v6h6M11 17h14M11 22h10"></path><circle cx="11" cy="27" r="1.7"></circle><path class="brand-route" d="M12.8 27h8.7"></path></svg>
+          <span>paperboy</span>
+        </a>
+        <button class="text-button" type="button" data-route="home">Save and exit</button>
+      </div>
+      <div class="setup-layout">
+        <aside class="stepper" aria-label="Setup progress">
+          <p class="stepper-label">Local setup preview</p>
+          <ol>
+            <li class="active" data-step-marker="sources"><button type="button" data-go-step="sources"><span>1</span> Sources</button></li>
+            <li data-step-marker="focus"><button type="button" data-go-step="focus"><span>2</span> Interests</button></li>
+            <li data-step-marker="delivery"><button type="button" data-go-step="delivery"><span>3</span> Delivery</button></li>
+          </ol>
+          <div class="stepper-boundary">
+            <strong>Nothing live</strong>
+            <p>Fixture repos, local state, sample email, and demo checkout only.</p>
+          </div>
+        </aside>
+
+        <div class="setup-main">
+          <div class="setup-panel" data-step-panel="sources">
+            <p class="eyebrow">Setup 1 of 3</p>
+            <h1>Choose what belongs in your morning edition.</h1>
+            <p class="setup-lede">Each source lane is explicit. This local preview stores choices in your browser and contacts no email, news, research, data, or GitHub provider.</p>
+
+            <div class="source-lanes">
+              <label class="source-lane">
+                <input id="source-forwarding" type="checkbox" checked>
+                <span class="source-lane-check" aria-hidden="true">✓</span>
+                <span><strong>Forwarded newsletters</strong><small>Send only chosen messages to <code>local-preview@in.paperboy.example</code>. This demo address receives nothing.</small></span>
+              </label>
+              <label class="source-lane">
+                <input id="source-public" type="checkbox" checked>
+                <span class="source-lane-check" aria-hidden="true">✓</span>
+                <span><strong>Public news, research, and data</strong><small>Shared fixture catalog for releases, papers, technical news, and tracked metrics.</small></span>
+              </label>
+              <div class="source-lane source-lane-github">
+                <span class="source-lane-check" aria-hidden="true">+</span>
+                <span><strong>Selected public GitHub repos</strong><small>Optional Repo Radar context using fictional fixtures below.</small></span>
+              </div>
+            </div>
+
+            <section class="consent-ledger" aria-labelledby="permission-title">
+              <div class="consent-heading">
+                <div class="github-glyph" aria-hidden="true">GH</div>
+                <div>
+                  <h2 id="permission-title">Exact planned permission explanation</h2>
+                  <p>Fine-grained GitHub App · selected public repositories</p>
+                </div>
+                <span class="demo-badge">Local fixture</span>
+              </div>
+              <div class="scope-grid">
+                <div><span>Metadata</span><strong>Read</strong><small>Repository identity and mapping</small></div>
+                <div><span>Contents</span><strong>Read</strong><small>Bounded commit and dependency context</small></div>
+                <div><span>Pull requests</span><strong>Read</strong><small>Opened, merged, and review activity</small></div>
+                <div><span>Issues</span><strong>Read</strong><small>Opened, closed, and comment activity</small></div>
+              </div>
+              <div class="zero-scope"><span>Write permissions</span><strong>None</strong></div>
+              <p class="consent-footnote">No Actions, administration, members, organization, workflow, issue, pull request, or contents write permission. The live implementation must render provider-verified scopes.</p>
+            </section>
+
+            <button class="button" type="button" id="load-fixture-repos">Add fictional GitHub fixtures</button>
+
+            <section class="repo-picker" id="repo-picker" aria-labelledby="repo-picker-title" hidden>
+              <div class="repo-picker-header">
+                <div>
+                  <h2 id="repo-picker-title">Choose 1–5 public repositories</h2>
+                  <p>Fictional demo-labs repositories; none are queried.</p>
+                </div>
+                <strong id="repo-count">0 of 5 selected</strong>
+              </div>
+              <div class="repo-controls">
+                <div class="field field-compact">
+                  <label for="repo-search">Search fixture repositories</label>
+                  <input id="repo-search" type="search" placeholder="Search names or languages">
+                </div>
+                <label class="toggle">
+                  <input id="selected-only" type="checkbox">
+                  <span>Selected only</span>
+                </label>
+              </div>
+              <div class="repo-list" id="repo-list"></div>
+              <p class="selection-message" id="repo-message" aria-live="polite"></p>
+            </section>
+
+            <div class="setup-actions">
+              <span></span>
+              <button class="button" type="button" id="continue-to-focus">Use these sources <span aria-hidden="true">→</span></button>
+            </div>
+          </div>
+
+          <div class="setup-panel" data-step-panel="focus" hidden>
+            <p class="eyebrow">Setup 2 of 3</p>
+            <h1>What deserves your attention right now?</h1>
+            <p class="setup-lede">Give Paperboy an editorial lens for the newsletters, public signals, data, and optional repos you selected.</p>
+            <div class="selected-repo-summary" id="focus-repo-summary"></div>
+            <form id="focus-form">
+              <div class="field">
+                <label for="system-description">Interests and active work</label>
+                <textarea id="system-description" rows="4" placeholder="Describe what you track, build, or decide." required></textarea>
+                <span class="field-help">Example: Agent evaluation, model pricing, API changes, and developer tooling for small AI products.</span>
+              </div>
+              <div class="field">
+                <label for="current-friction">What decisions or risks are on your watchlist?</label>
+                <textarea id="current-friction" rows="3" placeholder="Name decisions, deadlines, or risks that should raise relevance." required></textarea>
+              </div>
+              <fieldset class="theme-fieldset">
+                <legend>Editorial interests</legend>
+                <p>Choose themes that should compete for space in the edition.</p>
+                <div class="chip-grid">
+                  <label><input type="checkbox" name="themes" value="Agent evaluation"><span>Agent evaluation</span></label>
+                  <label><input type="checkbox" name="themes" value="Tool use"><span>Tool use</span></label>
+                  <label><input type="checkbox" name="themes" value="RAG and memory"><span>RAG and memory</span></label>
+                  <label><input type="checkbox" name="themes" value="Local inference"><span>Local inference</span></label>
+                  <label><input type="checkbox" name="themes" value="Developer tooling"><span>Developer tooling</span></label>
+                  <label><input type="checkbox" name="themes" value="Schema-constrained output"><span>Schema-constrained output</span></label>
+                </div>
+              </fieldset>
+              <div class="field">
+                <label for="score-low">What should Paperboy skip? <span>Optional</span></label>
+                <input id="score-low" type="text" placeholder="e.g. funding gossip, generic trend lists, hardware-only papers">
+              </div>
+              <p class="form-error" id="focus-error" role="alert"></p>
+              <div class="setup-actions">
+                <button class="button button-outline" type="button" data-go-step="sources"><span aria-hidden="true">←</span> Sources</button>
+                <button class="button" type="submit">Save interests and continue <span aria-hidden="true">→</span></button>
+              </div>
+            </form>
+          </div>
+
+          <div class="setup-panel" data-step-panel="delivery" hidden>
+            <p class="eyebrow">Setup 3 of 3</p>
+            <h1>When should your Daily Brief arrive?</h1>
+            <p class="setup-lede">The values below update a local sample. No schedule is created and no email is sent.</p>
+            <div class="delivery-layout">
+              <form id="delivery-form">
+                <div class="field">
+                  <label for="delivery-email">Delivery email</label>
+                  <input id="delivery-email" type="email" autocomplete="email" required>
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="delivery-time">Delivery time</label>
+                    <input id="delivery-time" type="time" value="07:30" required>
+                  </div>
+                  <div class="field">
+                    <label for="delivery-zone">Time zone</label>
+                    <select id="delivery-zone">
+                      <option value="America/New_York">Eastern time</option>
+                      <option value="America/Chicago">Central time</option>
+                      <option value="America/Denver">Mountain time</option>
+                      <option value="America/Los_Angeles">Pacific time</option>
+                      <option value="America/La_Paz">La Paz</option>
+                      <option value="UTC">UTC</option>
+                    </select>
+                  </div>
+                </div>
+                <fieldset class="days-fieldset">
+                  <legend>Delivery days</legend>
+                  <div class="day-grid">
+                    <label><input type="checkbox" name="days" value="Mon" checked><span>M</span></label>
+                    <label><input type="checkbox" name="days" value="Tue" checked><span>T</span></label>
+                    <label><input type="checkbox" name="days" value="Wed" checked><span>W</span></label>
+                    <label><input type="checkbox" name="days" value="Thu" checked><span>T</span></label>
+                    <label><input type="checkbox" name="days" value="Fri" checked><span>F</span></label>
+                    <label><input type="checkbox" name="days" value="Sat"><span>S</span></label>
+                    <label><input type="checkbox" name="days" value="Sun"><span>S</span></label>
+                  </div>
+                </fieldset>
+                <p class="form-error" id="delivery-error" role="alert"></p>
+                <div class="setup-actions">
+                  <button class="button button-outline" type="button" data-go-step="focus"><span aria-hidden="true">←</span> Focus</button>
+                  <button class="button" type="submit">Continue to checkout preview <span aria-hidden="true">→</span></button>
+                </div>
+              </form>
+              <aside class="mini-email" aria-labelledby="mini-preview-title">
+                <p class="mini-label">Local sample · not sent</p>
+                <h2 id="mini-preview-title">Your first brief will look like this.</h2>
+                <div id="mini-email-content"></div>
+                <button class="quiet-link button-as-link" type="button" data-route="brief">Open responsive email preview <span aria-hidden="true">→</span></button>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen flow-screen checkout-screen" data-screen="checkout" hidden>
+      <div class="flow-shell checkout-shell">
+        <button class="back-link" type="button" data-route="setup" data-setup-step="delivery"><span aria-hidden="true">←</span> Back to delivery</button>
+        <div class="checkout-grid">
+          <div class="flow-card">
+            <p class="eyebrow">Checkout handoff preview</p>
+            <h1>No charge can be created here.</h1>
+            <p>This static product surface has no Stripe account, backend, price ID, or payment form. The production handoff would use hosted checkout and repeat the plan terms before any charge.</p>
+            <div class="guardrail guardrail-strong">
+              <strong>Demo boundary</strong>
+              <span>“Preview successful setup” changes local UI state only. It does not create a customer, subscription, invoice, or schedule.</span>
+            </div>
+            <button class="button button-wide" type="button" id="simulate-checkout">Preview successful setup</button>
+            <button class="text-button button-wide" type="button" data-route="setup" data-setup-step="delivery">Return to setup</button>
+          </div>
+          <aside class="order-summary">
+            <p class="price-label">Plan summary</p>
+            <h2>Paperboy Operator</h2>
+            <p class="price"><span>$</span>49 <small>/ month</small></p>
+            <p class="hypothesis">$49 price hypothesis. The $29 / $49 / $79 test happens only after a personalized sample. No plan can be purchased here.</p>
+            <dl>
+              <div><dt>Repositories</dt><dd id="checkout-repo-count">0 selected</dd></div>
+              <div><dt>Delivery</dt><dd id="checkout-delivery">Not set</dd></div>
+              <div><dt>Billing today</dt><dd>$0.00 — demo</dd></div>
+            </dl>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen flow-screen account-screen" data-screen="account" hidden>
+      <div class="account-shell">
+        <header class="account-header">
+          <a class="brand brand-compact" href="#home" data-route="home">
+            <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true"><path d="M7 5.5h16l6 6v19H7z"></path><path d="M23 5.5v6h6M11 17h14M11 22h10"></path><circle cx="11" cy="27" r="1.7"></circle><path class="brand-route" d="M12.8 27h8.7"></path></svg>
+            <span>paperboy</span>
+          </a>
+          <div>
+            <button class="text-button" type="button" data-route="brief">Email preview</button>
+            <button class="text-button" type="button" data-route="home">Exit preview</button>
+          </div>
+        </header>
+
+        <div class="account-title">
+          <div>
+            <p class="eyebrow">Local account state preview</p>
+            <h1>Your Daily Brief setup</h1>
+          </div>
+          <span class="status-pill status-local">Local only</span>
+        </div>
+
+        <div class="account-notice">
+          <strong>Nothing is connected or subscribed.</strong>
+          <span>This page renders fixture and localStorage state so account, privacy, and billing states can be reviewed safely.</span>
+        </div>
+
+        <div class="account-grid">
+          <section class="account-card account-card-plan">
+            <div class="account-card-heading">
+              <div>
+                <p class="card-kicker">Subscription preview</p>
+                <h2>Paperboy Operator</h2>
+              </div>
+              <span class="status-pill" id="billing-pill">Active preview</span>
+            </div>
+            <p class="billing-message" id="billing-message">Your subscription is active—in this preview only.</p>
+            <div class="state-preview">
+              <label for="billing-state">Preview billing state</label>
+              <select id="billing-state">
+                <option value="active">Active</option>
+                <option value="incomplete">Checkout incomplete</option>
+                <option value="processing">Payment processing</option>
+                <option value="past_due">Past due</option>
+                <option value="cancel_scheduled">Cancellation scheduled</option>
+                <option value="canceled">Canceled</option>
+                <option value="unavailable">Billing unavailable</option>
+              </select>
+            </div>
+            <button class="button button-outline button-wide" type="button" id="billing-action">Manage billing preview</button>
+          </section>
+
+          <section class="account-card">
+            <div class="account-card-heading">
+              <div><p class="card-kicker">Repositories</p><h2 id="account-repo-heading">0 of 5 selected</h2></div>
+                <button class="text-button" type="button" data-route="setup" data-setup-step="sources">Change</button>
+            </div>
+            <div class="account-repo-list" id="account-repo-list"></div>
+          </section>
+
+          <section class="account-card">
+            <div class="account-card-heading">
+              <div><p class="card-kicker">Delivery</p><h2>Schedule preview</h2></div>
+              <button class="text-button" type="button" data-route="setup" data-setup-step="delivery">Edit</button>
+            </div>
+            <dl class="account-details" id="account-delivery-details"></dl>
+          </section>
+
+          <section class="account-card">
+            <div class="account-card-heading">
+              <div><p class="card-kicker">GitHub connection</p><h2>Fixture connection</h2></div>
+              <span class="status-pill status-muted">Not live</span>
+            </div>
+            <p>Planned scope: selected public repositories, read-only metadata, contents, pull requests, and issues. No provider token exists in this preview.</p>
+            <button class="button button-outline button-wide" type="button" id="preview-disconnect">Preview disconnect effect</button>
+          </section>
+
+          <section class="account-card account-card-wide">
+            <div class="account-card-heading">
+              <div><p class="card-kicker">Privacy and retention</p><h2>Local data inventory</h2></div>
+            </div>
+            <div class="privacy-grid">
+              <div><strong>Browser storage</strong><p>Email, fixture selections, focus, schedule, and preview states.</p></div>
+              <div><strong>Network transmission</strong><p>None from product JavaScript. External links navigate only when clicked.</p></div>
+              <div><strong>Provider processing</strong><p>None. No model, GitHub, email, auth, or billing provider is called.</p></div>
+              <div><strong>Retention</strong><p>Until local demo data is cleared or browser storage is removed.</p></div>
+            </div>
+            <button class="button button-danger" type="button" id="clear-local-data">Clear local demo data</button>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen flow-screen brief-screen" data-screen="brief" hidden>
+      <div class="brief-page-shell">
+        <div class="brief-toolbar">
+          <button class="back-link" type="button" data-route="setup" data-setup-step="delivery"><span aria-hidden="true">←</span> Back to setup</button>
+          <div>
+            <span class="demo-badge">Responsive email preview · not sent</span>
+            <button class="text-button" type="button" data-route="account">Account states</button>
+          </div>
+        </div>
+        <div class="email-viewport">
+          <article class="email-brief" id="email-brief" aria-labelledby="email-brief-title">
+            <div class="email-preheader">Your capped morning edition from explicitly selected sources</div>
+            <header class="email-header">
+              <div class="email-brand-row">
+                <span class="email-brand">paperboy</span>
+                <span>Daily Brief</span>
+              </div>
+              <h1 id="email-brief-title">Changes worth checking for your repos.</h1>
+              <p id="email-summary">Local sample · 3 items · 2 fixture repositories</p>
+            </header>
+            <div class="email-body" id="email-impact-list"></div>
+            <footer class="email-footer">
+              <p>This is a local sample. No email was sent and no source was fetched.</p>
+              <nav aria-label="Email preference preview">
+                <button type="button" data-route="setup" data-setup-step="sources">Change sources</button>
+                <button type="button" data-route="setup" data-setup-step="delivery">Change delivery</button>
+                <button type="button" data-route="account">Privacy and billing</button>
+              </nav>
+            </footer>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="site-footer">
+    <div class="brand brand-footer">
+      <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true"><path d="M7 5.5h16l6 6v19H7z"></path><path d="M23 5.5v6h6M11 17h14M11 22h10"></path><circle cx="11" cy="27" r="1.7"></circle><path class="brand-route" d="M12.8 27h8.7"></path></svg>
+      <span>paperboy</span>
+    </div>
+    <p>Local, no-secrets product surface for the Paperboy Daily Brief.</p>
+    <div>
+      <a href="https://github.com/cgallic/paperboy" target="_blank" rel="noreferrer">GitHub</a>
+      <button class="text-button" type="button" data-route="account">State previews</button>
+    </div>
+  </footer>
+
+  <div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+  <dialog id="confirm-dialog" aria-labelledby="confirm-title">
+    <form method="dialog">
+      <p class="eyebrow">Local state preview</p>
+      <h2 id="confirm-title">Confirm change</h2>
+      <p id="confirm-copy"></p>
+      <div class="dialog-actions">
+        <button class="button button-outline" value="cancel">Keep current state</button>
+        <button class="button button-danger" value="confirm" id="confirm-action">Confirm</button>
+      </div>
+    </form>
+  </dialog>
+
+  <noscript>
+    <div class="noscript">This local product preview needs JavaScript for the simulated setup flow. No network calls or live services are used.</div>
+  </noscript>
+</body>
+</html>

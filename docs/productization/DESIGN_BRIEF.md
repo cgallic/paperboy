@@ -1,720 +1,626 @@
-# Paperboy productization design brief
+# Paperboy Daily Intelligence Brief — product design brief
 
-Status: decision-grade MVP direction
-Date: 2026-07-16
-Authority: cgallic/paperboy at commit 526ae15, especially README.md,
-docs/ARCHITECTURE.md, docs/personalizing.md, docs/action-queue.md, and
-dashboard/action-queue.html
+Status: locked local implementation direction
+Updated: 2026-07-16 after product and commercial pivots
+Authority: cgallic/paperboy plus the operator's current product decision
 
-## 1. Locked product decision
+## 1. Product decision
 
-Keep the name **paperboy**, lowercase in the wordmark and “Paperboy” in prose.
+Keep the name **paperboy**. Present it lowercase in the wordmark and as
+“Paperboy” in prose.
 
 Tagline:
 
 > **What matters, delivered.**
 
-Paid wedge:
+Product:
 
-> **Repo Impact Brief** — a scheduled email for solo and AI builders that
-> explains which external developments may affect 1–5 selected public GitHub
-> repositories, why the fit is credible, and what to inspect next.
+> **Paperboy Daily Intelligence Brief** turns intentionally forwarded
+> newsletters, public news/research/data, and selected public GitHub
+> repositories into one evidence-linked morning edition for technical
+> founders and operators.
 
-MVP boundary:
+The brief is not a generic summary and Repo Impact is not the whole product.
+Repo-specific impact is one section called **Repo Radar**. The complete
+edition has four capped sections:
 
-- Hosted scheduled brief and tenant configuration
-- Email identity and one email delivery surface
-- One to five explicitly selected public repositories
-- Read-only GitHub access; no code, issue, or pull-request writes
-- Existing Paperboy scoring, explanation, evidence, and digest-formatting ideas
-- Free open-source/self-hosted Paperboy remains available
-- No web dashboard, autonomous actions, affiliate mechanics, Gmail OAuth, or
-  multi-tenant exposure of the current SQLite/systemd runtime
-- Forwarded-email intake is architecture-compatible but not an MVP promise
+1. **Today in 60 Seconds** — the small set of outside changes most likely to
+   affect an operating or product decision.
+2. **Repo Radar** — external changes that may alter a selected repository's
+   next move.
+3. **Research Worth Reading** — transferable techniques with enough evidence
+   to justify attention.
+4. **Watchlist / Do Nothing** — explicit decisions to monitor or ignore so
+   the brief also prevents wasted work.
 
-Use **$12/month** only as a PMF pricing hypothesis. Do not publish annual
-savings, a trial, “cancel anytime,” or refunds until policy and billing
-behavior support those statements.
+Email remains the product. The MVP has no dashboard or autonomous-action
+surface.
 
-The smallest coherent screen set is:
+## 2. Commercial decision
 
-1. Landing with pricing
-2. Email sign-in
-3. GitHub consent and public-repository picker
-4. Focus, schedule, and first-brief preview onboarding
-5. Hosted checkout handoff
-6. Confirmation/account page with repository, schedule, privacy, and billing
-   controls
-7. The email brief itself
+Primary offer:
 
-Dashboard, queue, and web digest-detail designs below are **post-MVP reference
-only**. They map the existing dashboard so later work can extend the product
-without smuggling a dashboard into this build.
+> **Paperboy Operator — $49/month**
 
-## 2. Product truth
+Audience: revenue-bearing AI, SaaS, and devtool founders/operators for whom a
+missed dependency, vendor, cost, policy, research, or market change can alter
+a real product or operating decision.
 
-Verified in the repository:
+The price is a hypothesis, not a validated or live offer. After a personalized
+sample demonstrates value, test **$29 / $49 / $79** willingness to pay.
 
-- Paperboy scores news and research against a user's stated systems/interests.
-- Its default morning digest limit is up to 12 items.
-- Research scores include relevance, applicable systems, improvement idea,
-  novelty, prototype flag, reason, source URL, and timestamp.
-- Action items include title, source, score, reason, suggested action, status,
-  and evidence.
-- The existing action queue is review-first and sends nothing by itself.
-- The open-source predecessor is self-hostable and currently uses local
-  Ollama, SQLite, systemd, and Discord.
+Optional validation:
 
-The hosted product may reuse the logic and information model. It must not imply
-that its runtime is local, that Discord is supported in the MVP, or that
-approval executes work.
+- **$199 one-time concierge calibration** may be tested while learning how
+  much setup customers need. It is a validation option, not promised
+  fulfillment in the prototype.
+- A **$149 small-Team** plan comes only after individual retention is proven.
+- The free MIT self-hosted Paperboy project remains the acquisition path.
+- Affiliate availability must never affect ranking. Keep affiliate links and
+  mechanics out of the MVP UI.
 
-## 3. Audience, job, and conversion thesis
+The value claim is decision quality, not a fabricated time-saved number:
 
-Primary audience: solo technical founders and AI builders maintaining several
-public repositories while trying to follow research, model, tooling, and
-platform changes.
+> Know what changed, which decision it touches, what deserves inspection, and
+> what can wait.
+
+## 3. MVP boundary
+
+In scope for the product surface:
+
+- Email magic-link identity
+- Explicit forwarded-email/newsletter source lane using a private alias
+- Shared public news, research, release, and tracked-data source lane
+- Optional read-only GitHub App for 1–5 selected public repositories
+- Interests, active work, watchlist/risks, exclusions, and schedule
+- Personalized sample before payment
+- One responsive morning email with capped, evidence-linked items
+- Useful, not useful, acted, and wrong-repo feedback
+- Checkout handoff and account/privacy/billing states
+- Free self-hosted GitHub route
+
+Not in the MVP:
+
+- Gmail OAuth or ambient inbox access
+- Private repositories
+- Dashboard, blackboard, archive, or team feed
+- Autonomous PRs, code changes, issue creation, purchases, or agent execution
+- Affiliate-ranked recommendations
+- Slack, Discord, or mobile delivery
+- Team plan, SSO, RBAC, procurement, or analytics
+- Live connector, auth, email, model, billing, or backend behavior in the
+  local no-secrets implementation
+
+The existing SQLite/systemd/Discord runtime remains the free self-hosted
+edition. Do not expose or multi-tenant it.
+
+## 4. Audience and job
+
+Primary audience:
+
+- Founder/operator actively making product, cost, vendor, model, dependency,
+  and go-to-market decisions for an AI, SaaS, or developer-tool business
+- Maintains public repositories or can describe active systems and risks
+- Follows several newsletters, releases, data points, news sources, and papers
+- Needs judgment across sources, not another place to browse them
 
 Core job:
 
-> When I start the day, tell me which changes could affect the repositories I
-> am actively building, show the evidence, and give me a concrete place to
-> inspect next.
+> When the technical and market firehose changes, tell me what changes a
+> decision in the business or product I am operating, show the evidence, and
+> make it safe to ignore the rest.
 
 The interface must answer:
 
-- “Is this more than a generic newsletter?”
-- “Why does it need GitHub?”
-- “Can it see every repository?”
-- “Can it change my code?”
-- “What gets emailed and when?”
+- “Is this intelligence or just summaries?”
+- “What exactly reaches Paperboy?”
+- “Does forwarding grant inbox access?”
+- “Does GitHub access include every repository or any write authority?”
+- “Why did an item make the brief?”
+- “Can it say do nothing?”
+- “What will arrive, when, and how much does it cost?”
 - “Can I inspect or self-host the underlying project?”
-- “What happens when I disconnect or cancel?”
+- “What happens when I disconnect, cancel, or delete?”
 
-Conversion hierarchy:
+## 5. Brand and visual thesis
 
-1. Lead with the cost of missing repo-relevant changes.
-2. Show a real, clearly labeled example brief.
-3. Explain selected-repository context and read-only permission before OAuth.
-4. Prove trust with exact scopes, evidence links, and the public repository.
-5. Present one hosted plan and the free self-hosted alternative.
-6. Reach a personalized preview during onboarding.
+### Editorial dispatch desk
 
-One filled primary action per viewport. No testimonials, user/revenue counts,
-fake activity, countdowns, unsupported volume claims, or scarcity.
+Paperboy feels like a precise morning edition assembled inside a technical
+newsroom: warm paper, dark ink, signal-blue editorial marks, ruled columns,
+and compact source metadata.
 
-## 4. Visual thesis: editorial dispatch desk
+It must not look like:
 
-Paperboy should feel like a precise morning edition assembled inside a
-technical newsroom: warm paper, dark ink, blue editorial marks, ruled columns,
-and compact source metadata. It should not become a generic blue SaaS
-dashboard or a nostalgic newspaper costume.
+- a generic blue SaaS dashboard;
+- a nostalgic newspaper costume;
+- an AI-gradient content app;
+- a blackboard, affiliate factory, or autonomous agent console.
 
-The memorable motif is a **blue delivery route**: one thin line with stops for
-repos, relevance, evidence, and email. It appears in “How it works,” becomes
-the onboarding progress indicator, and resolves into a delivered check. It
-never loops or decorates dense content.
+The memorable motif is a **blue delivery route** connecting sources,
+interests, evidence, and email. It appears in How It Works and onboarding,
+then resolves into a delivered check. It never loops or decorates dense
+content.
 
 Logo:
 
 - Lowercase “paperboy” wordmark
-- Folded page corner crossed by the blue route as the mark
-- No child mascot, newsboy cap, blackboard, or affiliate/factory imagery
+- Folded page corner crossed by the blue route
+- No child mascot, newsboy cap, blackboard, or factory imagery
 
-### Tokens and typography
+### Tokens
 
 | Token | Value | Use |
 |---|---:|---|
-| paper | #F3EEE3 | Page background |
-| paper-raised | #FBF8F1 | Cards, fields, email body |
-| ink | #15171A | Primary text and dark buttons |
+| paper | #F3EEE3 | Main background |
+| paper-raised | #FBF8F1 | Cards, forms, email body |
+| ink | #15171A | Primary text and dark actions |
 | ink-soft | #555C63 | Secondary text |
 | rule | #D4CCBD | Dividers and borders |
-| signal | #2864DC | Primary action, links, route |
-| signal-dark | #17489F | Hover/pressed primary |
+| signal | #2864DC | Primary action, links, delivery route |
+| signal-dark | #17489F | Hover/pressed action |
 | approve | #237A4B | Success |
-| caution | #9B5B08 | Warning |
+| caution | #9B5B08 | Attention |
 | reject | #B33A3A | Error/destructive |
-| press | #11161C | Deferred dark review surface |
-| press-panel | #192129 | Deferred dark card |
+| press | #11161C | Dark editorial contrast |
+| press-panel | #192129 | Dark inset surface |
 
-- Display: Newsreader Variable, 500–650, for marketing and brief headlines.
-- UI/body: IBM Plex Sans, 400–600.
-- Evidence/data: IBM Plex Mono, 400–600, for repos, sources, scores, and time.
-- Hero: 72/72 desktop, 46/48 mobile.
-- Page title: 44/48 desktop, 34/38 mobile.
-- Body: 16/25 desktop, 16/24 mobile.
-- Four-pixel spacing base; primary intervals 8, 12, 16, 24, 32, 48, 72, 96.
-- Ten-pixel card corners, eight-pixel fields/buttons, one-pixel rules.
-- Optional paper grain at no more than three percent opacity; never under
-  forms or dense reading text.
+Typography:
 
-## 5. Information architecture
+- Editorial display: Newsreader Variable, with Sitka/Palatino/Georgia fallback
+- Interface: IBM Plex Sans, with Aptos/Segoe UI fallback
+- Evidence/data: IBM Plex Mono, with Cascadia/Consolas fallback
+- Hero: 72/72 desktop, 46/48 mobile
+- Page title: 44/48 desktop, 34/38 mobile
+- Body: 16/25
+- Metadata: 10–12/16 in mono
+
+Shape and spacing:
+
+- Four-pixel base; use 8, 12, 16, 24, 32, 48, 72, 96
+- Ten-pixel cards, eight-pixel controls, one-pixel rules
+- App maximum width 1240 pixels; email maximum width 640 pixels
+- Optional paper grain at no more than three percent opacity
+
+## 6. Information architecture
 
 Public:
 
-- Home: outcome, example brief, how it works, privacy/control, pricing, FAQ
-- Open-source project
+- Landing
+  - Economic/decision outcome
+  - Labeled sample edition
+  - Four-step route
+  - Permission boundary
+  - Operator pricing
+  - Free self-hosted alternative
+  - FAQ
 - Sign in
+- GitHub project
 
-MVP account:
+Onboarding:
 
-- Setup status
-- Repositories
-- Focus
-- Delivery schedule
-- Privacy/connection
-- Billing
+1. Sources
+   - Forwarded newsletters
+   - Public news/research/data
+   - Optional selected public GitHub repos
+2. Interests
+   - Active work
+   - Editorial themes
+   - Decision/risk watchlist
+   - What to skip
+3. Delivery
+   - Verified email in production
+   - Days, time, time zone
+   - Personalized sample preview
+4. Hosted checkout handoff
 
-MVP has no dashboard navigation. The account page is a compact configuration
-and status surface, not a content destination. Email is the product.
+Account/status:
 
-Post-MVP only:
+- Commercial and billing state
+- Selected source lanes and repositories
+- Interests
+- Delivery
+- Connection permissions
+- Privacy, retention, export/deletion
 
-- Today
-- Digest archive/detail
-- Review queue
-- Rich source controls
+The account screen is a compact setup/status surface. It is not a content
+dashboard. The brief stays in email.
 
-## 6. Exact MVP copy and screen specification
+## 7. Conversion hierarchy and exact landing copy
 
-### 6.1 Landing and pricing
+Sequence:
+
+1. Decision outcome
+2. Labeled example
+3. Source-to-email route
+4. Permission clarity
+5. Price and self-hosted choice
+6. Objection-handling FAQ
+7. Final CTA
+
+One filled primary action per viewport. No fake ratings, testimonials, logos,
+customer counts, revenue, “people viewing,” time saved, scarcity, or
+countdowns.
 
 Header:
 
-- “paperboy”
-- “How it works”
-- “Pricing”
-- “GitHub”
-- “Sign in”
-- Primary: “Start a Repo Impact Brief”
+- paperboy
+- How it works
+- Pricing
+- GitHub
+- Sign in
+- **Build a Daily Brief**
 
 Hero:
 
-> REPO IMPACT BRIEF
-> **Wake up to the changes that matter to your code.**
-> Paperboy follows technical news and research, checks the fit against 1–5
-> public repositories you select, and emails you a short brief with the reason
-> and evidence.
-> **Start a Repo Impact Brief — $12/month**
+> DAILY INTELLIGENCE BRIEF
+> **Know what changes your next move.**
+> Paperboy turns the newsletters you forward, public news and research,
+> tracked data, and selected GitHub repos into one evidence-linked morning
+> edition: what changes a decision, what deserves inspection, and what can
+> wait.
+> **Build a Daily Brief**
 > View the open-source project
 
-Support line:
+Boundary line:
 
-> Read-only GitHub access. Selected public repositories only. One scheduled
-> email.
+> No Gmail OAuth · Read-only GitHub · Decision-ready morning email
 
-Example module:
+Example label:
 
-> EXAMPLE REPO IMPACT BRIEF
-> **Rubric-grounded self-critique for smaller models**
-> RESEARCH PAPER · 8/10 · applies to api-evals
-> **Why it may matter**
-> A fixed scoring rubric could improve agreement in this repository's current
-> evaluation step.
-> **Inspect next**
-> Compare rubric-guided and freeform critique on one held-out set.
-> View source evidence
-
-The example must be labeled and derived from the repository's public fixture
-shape. Never present it as a customer result.
+> EXAMPLE EDITION · FICTIONAL FIXTURE DATA
 
 How it works:
 
-> **1. Choose 1–5 public repositories**
-> Paperboy reads only the repositories you select.
+> **1. Choose source lanes**
+> Forward newsletters, use the public catalog, and optionally select public
+> repos.
 >
-> **2. Set the relevance lens**
-> Describe what you are building, its stack, and its current friction.
+> **2. Set your interests**
+> Name the themes, systems, decisions, and risks that deserve attention.
 >
-> **3. Get the Repo Impact Brief**
-> Paperboy explains the strongest matches and sends one scheduled email.
+> **3. Rank and cap the edition**
+> News, research, data, and repo signals compete for limited space.
+>
+> **4. Get the morning email**
+> Four short sections arrive with evidence—and silence when nothing clears the
+> bar.
 
-Permission block:
+Permission copy:
 
-> **Read context, not control.**
-> MVP access is read-only and limited to selected public repositories.
-> Paperboy cannot push code, open pull requests, change issues, or see
-> unselected private repositories.
+> **Explicit inputs, not ambient access.**
+> Forward only the newsletters you choose. Public intelligence comes from a
+> shared catalog. The optional GitHub App is read-only and limited to selected
+> public repositories.
 
 Pricing:
 
-> **Paperboy Personal**
-> **$12 / month**
-> Pricing hypothesis for hosted Paperboy.
+> **Paperboy Operator**
+> **$49 / month**
+> Primary price hypothesis—not a live offer.
 >
-> - One scheduled Repo Impact Brief
-> - Context from 1–5 selected public repositories
-> - Repo-specific relevance, reasons, and evidence
-> - Email delivery
-> - Hosted scheduling and updates
+> - One scheduled morning intelligence edition
+> - Forwarded newsletters without inbox access
+> - Public news, research, release, and data signals
+> - Optional context from 1–5 public repositories
+> - Economic-decision lens for cost, dependency, vendor, and market changes
+> - Capped sections, source evidence, and feedback
 >
-> **Start a Repo Impact Brief — $12/month**
+> **Build a personalized sample**
+
+Validation note:
+
+> Test $29 / $49 / $79 only after a personalized sample demonstrates value.
+> A $199 one-time concierge calibration is a validation option, not available
+> from this preview. A $149 small-Team plan comes only after retention.
 
 Self-hosted:
 
 > **Prefer to run it yourself?**
-> The original Paperboy remains free and open source. Its local setup and
-> current delivery flow are documented on GitHub.
-> **Open the self-hosted project**
+> The original Paperboy remains free and open source. Bring Linux, Ollama,
+> Discord, and your own operations.
+> **Open the GitHub project**
 
-FAQ:
+## 8. Source selection and consent
 
-- **Does Paperboy need every repository?**
-  No. Select one to five public repositories during setup and change them
-  later.
-- **Can Paperboy change my code?**
-  No. The MVP uses read-only GitHub access and does not write code, issues, or
-  pull requests.
-- **Does Paperboy read my inbox?**
-  No. Email is used for sign-in and delivery. The MVP does not request Gmail
-  OAuth.
-- **What arrives by email?**
-  One scheduled brief with the strongest repo-relevant items, why each may
-  matter, what to inspect next, and source links.
-- **Is this the open-source project?**
-  The hosted subscription builds on the project's scoring and digest ideas.
-  The free self-hosted repository remains available.
+### Forwarded newsletters
 
-### 6.2 Email sign-in
+Copy:
 
-Email is identity only and must stay separate from GitHub ingestion consent.
+> **Forwarded newsletters**
+> Send only chosen messages to your private Paperboy forwarding alias. This
+> does not connect or read your inbox.
 
-> **Start your Repo Impact Brief**
-> Enter your email and we will send a secure sign-in link.
-> Email address
+The local implementation shows:
+
+> local-preview@in.paperboy.example
+> Demo address; receives nothing.
+
+The production product must verify the inbound provider signature, accept only
+the workspace alias, strip active content and quoted history, ignore launch
+attachments, and disclose retention. None of that is claimed live in the
+prototype.
+
+### Public intelligence
+
+Copy:
+
+> **Public news, research, and data**
+> Shared catalog for releases, papers, technical news, and tracked metrics.
+
+Custom arbitrary URLs are not part of the first product surface.
+
+### GitHub
+
+Copy:
+
+> **Selected public GitHub repos**
+> Optional Repo Radar context. Select 1–5 public repositories.
+
+Planned permission ledger:
+
+| Permission | Level | Reason |
+|---|---|---|
+| Metadata | Read | Repository identity and mapping |
+| Contents | Read | Bounded commit/dependency context |
+| Pull requests | Read | Opened, merged, and review activity |
+| Issues | Read | Opened, closed, and comment activity |
+| All writes | None | Product cannot modify customer accounts |
+
+No Actions, workflows, administration, members, organization write, content
+write, issue write, or pull-request write permissions.
+
+The production UI must render provider-verified scopes. The local surface uses
+clearly fictional demo-labs repositories and makes no GitHub request.
+
+## 9. Sign-in, interests, delivery, and checkout copy
+
+Sign-in:
+
+> **Start your Daily Brief.**
+> Enter an email and we will send a secure sign-in link.
 > **Email me a sign-in link**
->
 > Signing in does not connect your inbox or GitHub account.
 
-Success:
+Local success:
 
-> **Check your email**
-> We sent a sign-in link to {email}.
-> Use a different email
+> **Check your email—simulated.**
+> No message was sent. Continue with the local magic link to test the flow.
 
-Expired:
+Interests:
 
-> **That sign-in link has expired.**
-> Request a new link to continue.
-> **Send a new link**
-
-Only display a numeric expiry after auth configuration verifies it.
-
-### 6.3 GitHub consent and repository picker
-
-> SETUP 1 OF 3
-> **Choose the public repositories Paperboy may read.**
->
-> Paperboy uses repository metadata, selected file content, and recent changes
-> to understand what you are building. Access is read-only. It cannot push
-> code, open pull requests, or change issues.
->
-> **Connect GitHub**
-> See the exact GitHub permissions
-
-Repository picker:
-
-> **Choose 1–5 public repositories**
-> Search public repositories
-> Selected only
-> {n} of 5 selected
-> **Use {n} repositories**
-
-Disable the sixth checkbox with:
-
-> The MVP supports up to five repositories. Remove one to choose another.
-
-Use a fine-grained GitHub App or equivalent selected-repository grant. The UI
-must render the exact verified scope, not a hand-written approximation.
-
-Error/revoked:
-
-> **GitHub access needs attention.**
-> Paperboy can no longer refresh the selected repositories. Reconnect to
-> resume future briefs. No write operation was attempted.
-> **Reconnect GitHub**
-
-### 6.4 Focus, schedule, and preview
-
-The blue route is a three-step progress indicator. Preserve entered data when
-moving backward.
-
-Step 2:
-
-> SETUP 2 OF 3
-> **What are these repositories trying to do?**
-> Give Paperboy enough context to separate useful changes from merely
-> interesting ones.
-
-For each repo:
-
-- Repository name, read-only
-- What it does — “Describe the user, stack, and current job.”
-- Current friction — “What is slow, unreliable, or unclear?”
-- Active themes — addable tags
-- Score low — optional exclusions
-
-Helper:
-
-> Specific systems and current friction produce sharper reasons.
-
-CTA: “Save focus and continue”
-
-Step 3:
-
-> SETUP 3 OF 3
-> **When should your Repo Impact Brief arrive?**
+> **What deserves your attention right now?**
+> Give Paperboy an editorial lens for the newsletters, public signals, data,
+> and optional repos you selected.
 
 Fields:
 
-- Delivery email
-- Time
-- Detected but editable time zone
-- Days of week
+- Interests and active work
+- Decisions or risks on the watchlist
+- Editorial themes
+- What Paperboy should skip
 
-Preview:
+Delivery:
 
-> **Your first brief will look like this**
+> **When should your Daily Brief arrive?**
+> Choose the delivery email, days, local time, and time zone.
 
-Use labeled demo data until a real run completes.
+Sample:
 
-CTA:
+> **Your first brief will look like this.**
+> Local fixture data · not sent
 
-> **Continue to payment — $12/month**
+Checkout handoff:
 
-Support:
+> **No charge can be created here.**
+> This static surface has no Stripe account, backend, price ID, or payment
+> form. “Preview successful setup” changes browser state only.
 
-> You will review payment details before the subscription is created.
+Summary:
 
-No Gmail OAuth, source marketplace, RSS editor, or forwarded-email setup in
-the MVP. Forwarded-email intake may be added later without granting inbox
-access.
+> Paperboy Operator · $49/month price hypothesis
+> Sources, interests, and schedule shown before payment
+> Billing today: $0.00 — demo
 
-### 6.5 Checkout, confirmation, and account
+## 10. Email as the product
 
-Use hosted checkout. The pre-checkout page repeats:
+Subject pattern:
 
-> Paperboy Personal · $12/month
-> 1–5 selected public repositories · one scheduled email
-
-Do not hide the price behind account creation or add an account-creation wall
-inside checkout.
-
-Confirmation:
-
-> **Your Repo Impact Brief is scheduled.**
-> Paperboy will use {n} selected repositories and send to {email} on {days} at
-> {time} {time zone}.
-> **Review setup**
-
-Only show this after payment and schedule creation both succeed. Otherwise:
-
-> **Payment succeeded, but scheduling needs attention.**
-> No brief has been promised yet. Review delivery settings to finish setup.
-> **Finish setup**
-
-The compact account page shows:
-
-- Subscription status
-- Next verified scheduled run
-- Selected repositories
-- Focus summary
-- Delivery email/time/time zone/days
-- GitHub connection status and exact permissions
-- Billing actions
-- Privacy, retention, deletion, disconnect, and account controls
-
-Disconnect confirmation:
-
-> **Disconnect GitHub?**
-> New repository ingestion will stop and scheduled briefs will pause. Billing
-> and deletion are separate controls.
-> Keep connected · Disconnect GitHub
-
-Billing states:
-
-| State | Message | Primary action |
-|---|---|---|
-| Checkout incomplete | “Finish payment to activate scheduled delivery.” | Finish payment |
-| Active | “Your subscription is active.” | Manage billing |
-| Processing | “Payment is processing. We will update this page when it settles.” | Refresh |
-| Past due | “Payment needs attention. Delivery is paused until billing recovers.” | Update payment |
-| Cancel scheduled | “Your subscription ends on {verified date}.” | Keep Paperboy |
-| Canceled | “Hosted delivery is off. Data follows the retention policy below.” | Restart |
-| Unavailable | “Billing details are unavailable. No new charge was started here.” | Try again |
-
-Cancellation must use the provider's verified effective date. Canceling,
-disconnecting GitHub, deleting derived context, and deleting the account are
-four distinct actions.
-
-### 6.6 Email brief: the MVP product surface
-
-Subject:
-
-> Paperboy · {n} changes worth checking for your repos
+> Paperboy · {n} decisions and changes worth your attention
 
 Preheader:
 
-> Repo Impact Brief for {repo list or “your selected repositories”}
+> Your capped morning edition from explicitly selected sources
 
 Header:
 
-> PAPERBOY · REPO IMPACT BRIEF
+> PAPERBOY · DAILY INTELLIGENCE BRIEF
 > **{localized long date}**
-> {n} items across {m} selected repositories
+> {n} capped items across {selected source lanes}
 
-Each item:
+Section caps for the first product test:
 
-> {SOURCE TYPE} · {score}/10 · {repository}
+- Today in 60 Seconds: at most 2
+- Repo Radar: at most 1
+- Research Worth Reading: at most 1
+- Watchlist / Do Nothing: at most 1
+- Total maximum: 5 items
+
+Each substantive item contains:
+
+> {SOURCE TYPE} · {score}/10 · {decision/repo/watchlist target}
 > **{headline}**
-> **Why it may matter**
+> **Why it matters**
 > {grounded reason}
-> **Inspect next**
-> {concrete, non-autonomous next check}
+> **Inspect next / Decision**
+> {bounded next check or explicit do-nothing judgment}
 > View source evidence
+> Useful · Not useful · Acted · Wrong repo
 
-Footer:
+Use calibrated language for inference. “May affect” and “worth checking” are
+preferred to unsupported certainty.
+
+Email footer:
 
 > You received this because Paperboy is scheduled for {days} at {time zone}.
-> Change repositories · Change delivery · Pause Paperboy · Manage billing
+> Change sources · Change interests · Change delivery · Privacy and billing
 
-Use “may” for inferred impact. Every item includes a source link. Do not put
-Approve, Run, Create issue, Open PR, or affiliate links in the MVP email.
+No Approve, Run, Create issue, Open PR, Buy, or affiliate link appears in the
+first email.
 
-## 7. Text wireframes
+## 11. Account, privacy, and billing states
 
-Landing:
+The local account page previews state; it does not assert a live subscription
+or connector.
 
-~~~text
-┌ paperboy ─── How it works ─ Pricing ─ GitHub ─ Sign in ─ [Start] ┐
-│ REPO IMPACT BRIEF                                                │
-│ Wake up to the changes that matter to your code.                 │
-│ [Start — $12/month]  View the open-source project                │
-│ Read-only · 1–5 public repos · one scheduled email               │
-├──────────────── example Repo Impact Brief ───────────────────────┤
-│ score · source · repo · headline                                 │
-│ Why it may matter                                                │
-│ Inspect next                                        [Evidence]   │
-├ repos ●──────── relevance ●──────── evidence ●──────── email ✓ ──┤
-│ exact permission explanation                    GitHub proof     │
-├ Paperboy Personal · $12/month                         [Start]     │
-│ Free self-hosted alternative · Open on GitHub                     │
-└ FAQ ──────────────────────────────────────────────────────────────┘
-~~~
+Billing:
 
-Onboarding:
-
-~~~text
-┌ paperboy                                          Save and exit  ┐
-│ Repositories ●──────── Focus ○──────── Delivery ○                │
-│ SETUP 1 OF 3                                                     │
-│ Choose the public repositories Paperboy may read.                │
-│ [exact read-only explanation]                [Connect GitHub]    │
-│ Search public repositories                     Selected only     │
-│ □ org/api-evals       □ org/agent-core       □ org/toolkit       │
-│ 3 of 5 selected                         [Use 3 repositories]     │
-└───────────────────────────────────────────────────────────────────┘
-~~~
-
-Email:
-
-~~~text
-┌ PAPERBOY · REPO IMPACT BRIEF · JULY 16                           ┐
-│ 4 items across 3 selected repositories                           │
-├ RESEARCH · 8/10 · api-evals ─────────────────────────────────────┤
-│ Headline                                                         │
-│ Why it may matter                                                │
-│ Inspect next                                      [View evidence]│
-├ NEWS · 7/10 · agent-core ────────────────────────────────────────┤
-│ Headline                                                         │
-│ Why it may matter                                                │
-│ Inspect next                                      [View evidence]│
-├ Change repositories · Change delivery · Pause · Billing          │
-└───────────────────────────────────────────────────────────────────┘
-~~~
-
-Account:
-
-~~~text
-┌ paperboy                                      account@example.com┐
-│ Paperboy Personal · Active                    [Manage billing]    │
-│ Next run: verified date/time                                      │
-├ Repositories (3/5)                               [Change]         │
-├ Focus                                               [Edit]       │
-├ Delivery · email · days · time zone                 [Edit]       │
-├ GitHub · connected · read-only                 [Disconnect]      │
-├ Privacy · retention · delete controls               [Open]       │
-└───────────────────────────────────────────────────────────────────┘
-~~~
-
-## 8. Existing dashboard component map
-
-The current static dashboard is valuable as an information hierarchy, not an
-MVP route. Reuse its primitives in the email template, landing example, and
-future dashboard.
-
-| Existing element | Productized component | MVP destination/change |
+| State | Message | Action |
 |---|---|---|
-| header/subtitle | BriefHeader | Email date, selected-repo count |
-| meta | BriefSummary | Real item/repo counts, no fake activity |
-| toolbar | StatusFilter | Deferred dashboard only |
-| note | GuardrailNotice | Permission and “no autonomous action” copy |
-| grid | SignalList | Single-column email/preview, never dense tiles |
-| card | ImpactItem | Source, repo, score, reason, next inspection, evidence |
-| card-top | ImpactItemHeader | Preserve title/score separation |
-| title | ImpactTitle | Newsreader in email, Plex Sans in dense lists |
-| score | RelevanceScore | Accessible “8 out of 10” label |
-| source code line | SourceMeta | Source type, public repo, timestamp |
-| why | WhyItMayMatter | Keep visible and use calibrated “may” |
-| action callout | InspectNext | Non-autonomous inspection step |
-| actions | DecisionBar | Deferred; excluded from MVP email |
-| approve/dismiss | ReviewControls | Deferred; no autonomous action |
-| status-pill | StatusBadge | Account/setup/billing states |
-| empty | EmptyState | First run, no impact, source failure |
-| footer | BriefFooter | Delivery/settings/billing links |
-| inline QUEUE | ExampleBriefFixture | Landing/demo only, visibly labeled |
-| esc function | SafeText renderer | Preserve escaping; no trusted source HTML |
-| render/filter | Tenant data adapter | Deferred web view, tenant scoped |
+| Checkout incomplete | Finish payment to activate delivery. | Finish payment |
+| Active | Subscription is active. | Manage billing |
+| Processing | Payment is processing; update when provider settles. | Refresh |
+| Past due | Payment needs attention; apply verified recovery policy. | Update |
+| Cancel scheduled | Show only provider-verified period end. | Keep Paperboy |
+| Canceled | Delivery is off; deletion is separate. | Restart |
+| Unavailable | Billing unavailable; no new charge started. | Try again |
 
-New MVP components:
+Privacy surface must distinguish:
 
-- MarketingHeader, DeliveryRoute, ExampleBrief, PricingCard
-- MagicLinkForm, ConsentScopeCard, PublicRepositoryPicker
-- SetupStepper, RepoFocusEditor, SchedulePicker, BriefPreview
-- CheckoutSummary, SetupConfirmation, AccountStatusCard
-- ConnectionCard, BillingStatusCard, PrivacyControls
-- EmailBrief, ImpactItem, EvidenceLink
-- Skeleton, InlineError, ErrorSummary, ConfirmScopeDialog
+- Email identity
+- Forwarding alias
+- Public catalog
+- GitHub selected repositories and exact scopes
+- Inference/provider processing disclosure
+- Retention
+- Export
+- Disconnect source
+- Delete derived source data
+- Cancel billing
+- Delete account
 
-## 9. Interaction, responsive, and accessibility rules
+These are separate controls. Disconnecting does not cancel; canceling does not
+delete; deletion does not infer an external provider revocation.
 
-- One filled primary action per viewport.
-- Buttons press down one pixel and scale to 0.98 for 100 milliseconds.
-- Delivery route draws once; it never loops.
-- Repository count updates immediately and is announced in an aria-live polite
-  region.
-- Source/repository removal names its scope and effect before confirmation.
-- Use layout-matched warm skeletons; spinner only inside a labeled button.
-- Do not animate score, price, or counts like live demand.
+## 12. Interaction rules
+
+- One primary filled action per viewport.
+- Buttons press one pixel and scale to .98 for 100 milliseconds.
+- The delivery route animates once and respects reduced motion.
+- Source lanes are independent and explicit.
+- Repository count updates immediately and announces changes with aria-live.
+- Enforce the five-repository cap at selection time.
+- Preserve setup state when navigating backward.
+- Validate email, interests, watchlist, and at least one delivery day.
+- A personalized sample appears before the checkout handoff.
+- Feedback changes local state immediately and is reversible.
+- Source removal names the effect before confirmation.
+- Loading uses layout-matched warm skeletons if asynchronous behavior is added.
+- Never animate price, score, or counts like live demand.
+
+## 13. Responsive and accessibility requirements
+
+- Design from 320 pixels upward.
+- Breakpoints: 640, 768, 1024, 1280.
+- Mobile padding: 16 pixels; desktop: 24–32.
+- Every interactive target is at least 44 by 44 pixels.
+- Maintain eight pixels between adjacent targets.
+- Repository picker becomes single-column on mobile.
+- Email remains readable at 320 pixels and with images disabled.
+- Meet WCAG 2.2 AA contrast.
+- Provide skip link, landmarks, real headings, labels, error summaries, and
+  programmatic status.
+- Pair color with icon/text.
+- Scores expose “8 out of 10.”
+- Visible focus is a three-pixel signal ring with a paper offset.
+- Core actions work by keyboard.
+- Escape closes dialogs only if focus returns to the trigger.
 - Respect prefers-reduced-motion.
-- Design from 320 pixels; breakpoints 640, 768, 1024, 1280.
-- Mobile padding 16 pixels; desktop 32 pixels.
-- Every target at least 44 by 44 pixels with 8 pixels between targets.
-- Repository picker is full-screen on mobile with sticky selected-count footer.
-- Email width no more than 640 pixels and readable with images disabled.
-- Meet WCAG 2.2 AA; color always paired with icon/text.
-- Focus: three-pixel signal ring with two-pixel paper offset.
-- Scores expose “8 out of 10”; headings and landmarks are semantic.
-- Validate on blur and submit, preserve paste, link field errors to a summary.
-- Escape closes modal/drawer only if focus returns to its trigger.
-- Critical email meaning must not depend on CSS background images or webfonts.
+- Critical email meaning cannot depend on webfonts, background images, hover,
+  or JavaScript.
 
-## 10. Empty, loading, error, and revocation states
+## 14. Empty, error, and revocation states
 
-| Context | Exact copy | Action |
+| Context | Copy |
+|---|---|
+| No source | Choose forwarding, public intelligence, or a fixture repository. |
+| Sixth repo | This product supports up to five selected repositories. |
+| No repo | Repo Radar will stay empty; other source lanes can still produce the brief. |
+| First run | Your first Daily Brief is being prepared. |
+| Quiet day | Nothing cleared the relevance bar. No filler was added. |
+| GitHub failed | GitHub did not finish connecting; no repository was selected. |
+| Repo refresh failed | Could not refresh {repo}; show last successful context. |
+| Brief failed | Today's brief could not be completed; no email was sent. |
+| Delivery failed | The edition exists, but email delivery failed. |
+| Auth expired | The session expired before the change was saved. |
+| Billing unavailable | Billing unavailable; no new charge was started. |
+
+Revoking GitHub stops future repo ingestion and clears Repo Radar once retained
+context expires. It does not affect forwarded/public lanes. Gmail OAuth is not
+present to revoke.
+
+## 15. Existing dashboard component map
+
+The static action-queue dashboard is an information-pattern source, not an MVP
+route.
+
+| Existing element | Daily Brief component | Change |
 |---|---|---|
-| No repo selected | “Choose at least one public repository.” | Choose repositories |
-| Sixth repo | “The MVP supports up to five repositories.” | Remove one |
-| First run pending | “Your first Repo Impact Brief is being prepared.” | Review setup |
-| Nothing meets bar | “Nothing cleared your relevance bar today. Your sources still ran.” | Edit focus |
-| No prior delivery | “Your delivery history starts after the first scheduled brief.” | View schedule |
-| GitHub failed | “GitHub did not finish connecting. No repository was selected.” | Try again |
-| Repo refresh failed | “Paperboy could not refresh {repo}. Last successful context: {time}.” | Retry |
-| Brief generation failed | “Today's brief could not be completed. No email was sent.” | Retry |
-| Email failed | “The brief was created but email delivery failed.” | Retry delivery |
-| Auth expired | “Your session expired before this change was saved.” | Sign in |
-| Billing unavailable | “Billing details are unavailable. No new charge was started.” | Try again |
+| Header/meta | BriefHeader/BriefSummary | Date, cap, source lanes |
+| Note | GuardrailNotice | Explain simulated/no-action boundary |
+| Grid | SectionedSignalList | Four editorial sections, single reading column |
+| Card | IntelligenceItem | Source, target, score, reason, decision, evidence |
+| Score | RelevanceScore | Accessible numeric label |
+| Source line | SourceLedger | Source kind, repo/decision target, fixture label |
+| Why | WhyItMatters | First-class visible reasoning |
+| Suggested action | InspectNext/Decision | Bounded check or do-nothing judgment |
+| Approve/dismiss | FeedbackControls | Useful, not useful, acted, wrong repo |
+| Status | StatusBadge | Setup, connector, delivery, billing |
+| Empty | QuietEditionState | No filler when nothing clears bar |
+| Footer | BriefPreferenceFooter | Source/interests/delivery/privacy links |
+| Fixture array | ExampleEditionFixture | Clearly labeled, local only |
+| Escaping | SafeText renderer | Never trust source HTML |
 
-Privacy/revocation:
+## 16. Local no-secrets acceptance
 
-- Email sign-in does not grant inbox access; no Gmail OAuth.
-- GitHub consent is separate from identity and limited to selected public repos.
-- Removing a repo stops future ingestion for it.
-- Revoking GitHub stops all new repo ingestion and pauses future briefs.
-- The account must show connected identity, verified scope, selected repos,
-  last sync, retention, processing/provider summary, and deletion controls.
-- If retention/provider behavior is unknown in staging, show “Policy not
-  configured,” not reassurance.
-- Disconnect, delete derived context, cancel billing, and delete account remain
-  separate.
+Required screen set:
 
-## 11. Post-MVP reference states — do not build in MVP
+1. Landing and Operator pricing
+2. Simulated magic link
+3. Source lanes and exact GitHub permission explanation
+4. Fictional 1–5 public-repository picker
+5. Interests/watchlist
+6. Schedule and personalized sample
+7. Disabled checkout handoff
+8. Account/privacy/billing state previews
+9. Responsive Daily Intelligence Brief
 
-If evidence shows users need a web reading/review surface, introduce:
+Local safety:
 
-- Today: run/delivery state, impact items, and source health
-- Digest detail/archive: email-equivalent item groups and evidence drawers
-- Review queue: pending, approved, dismissed; approval records a decision only
-- Source controls: public repos, news, research, focus, and delivery
-
-Post-MVP card copy:
-
-> {SOURCE} · {score}/10 · {repo}
-> **{headline}**
-> **Why it may matter**
-> {reason}
-> **Inspect next**
-> {step}
-> View evidence · Approve · Dismiss
-
-Guardrail:
-
-> Approval records your decision. It does not change code or start work unless
-> a separately configured worker explicitly supports that action.
-
-This reference satisfies future dashboard/digest/source-control planning
-without changing the PMF-validated email-first scope.
-
-## 12. Acceptance checklist and build order
-
-Landing:
-
-- Paid wedge reads as Repo Impact Brief, not generic newsletter.
-- $12 hypothesis is visible before sign-in.
-- Demo is labeled; GitHub/open-source proof is reachable.
-- No unsupported proof, urgency, affiliate, or autonomous-action claim.
-
-Sign-in/consent:
-
-- Email identity and GitHub data access are separate.
-- Read-only/public/1–5 boundaries appear before authorization.
-- Exact verified GitHub scope is visible and reversible.
-
-Onboarding:
-
-- Setup requires no YAML, environment variables, Gmail OAuth, or dashboard.
-- Repositories, focus, schedule, delivery, and price are reviewable.
-- Demo preview is distinguished from live output.
-
-Email/account:
-
-- Each item answers source, repo, score, why it may matter, inspect next, and
-  evidence.
-- Account shows verified schedule, repo selection, connection, privacy, and
-  billing state.
-- Canceling does not imply data deletion; disconnecting does not imply cancel.
-
-Build order:
-
-1. Tokens, typography, buttons, fields, notices, badges
-2. EmailBrief and ImpactItem using the existing public fixture shape
-3. Landing with the real example
-4. Email magic-link sign-in
-5. GitHub consent and 1–5 public-repository picker
-6. Three-step onboarding shell and preview
-7. Hosted checkout handoff
-8. Confirmation/account/privacy/billing states
+- No environment variables or secrets
+- No backend
+- No fetch, XMLHttpRequest, WebSocket, sendBeacon, form action, remote UI
+  framework, or remote asset requirement
+- State persisted only under a named localStorage key
+- External evidence/GitHub links navigate only after click
+- Checkout can create no customer, charge, invoice, or subscription
+- Fixtures are labeled fictional or public demo data
 
 Golden path:
 
-> Landing → price understood → email sign-in → read-only GitHub scope
-> understood → 1–5 public repos selected → focus saved → schedule chosen →
-> payment handoff → confirmation → first Repo Impact Brief email.
+> Landing → email simulation → choose source lanes → optionally select fixture
+> repos → describe interests/watchlist → set schedule → inspect the four-part
+> email → view disabled $49 checkout handoff → preview account/privacy/billing
+> states → clear local data.
 
-First usability test:
+First usability questions:
 
-1. Can a solo builder explain the Repo Impact Brief before scrolling to price?
-2. Can they accurately state what GitHub access permits?
-3. Do they understand that email, not a dashboard or autonomous agent, is the
+1. Can a technical founder explain the difference between this brief and a
+   generic newsletter?
+2. Can they name the three source lanes and their permission boundaries?
+3. Does Watchlist / Do Nothing feel like saved attention rather than missing
+   content?
+4. Does the personalized sample establish enough economic decision value to
+   test $29 / $49 / $79?
+5. Do they understand that email—not a dashboard or autonomous agent—is the
    MVP product?
