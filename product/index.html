@@ -58,7 +58,7 @@
         <div class="hero-copy">
           <p class="eyebrow"><span class="eyebrow-line"></span> Your newsletters and GitHub, summarized</p>
           <h1>Stop reading 20 newsletters every morning.</h1>
-          <p class="hero-lede">Forward the newsletters you trust, choose the public GitHub repos you follow, and get one daily brief with what changed and why it matters.</p>
+          <p class="hero-lede">Share the newsletters you trust, choose the public GitHub repos you follow, and get one daily brief with what changed and why it matters.</p>
           <div class="hero-actions">
             <button class="button button-large" type="button" data-start>Get my free sample brief <span aria-hidden="true">→</span></button>
             <a class="quiet-link" href="#example">See a sample brief <span aria-hidden="true">↓</span></a>
@@ -154,7 +154,7 @@
           <li>
             <span class="route-number">2</span>
             <h3>Send the sources you read</h3>
-            <p>Forward a few newsletters or links and name the public repos you follow.</p>
+            <p>Paste a few newsletter names or links and add the public repo URLs you follow.</p>
           </li>
           <li>
             <span class="route-number">3</span>
@@ -173,7 +173,7 @@
         <div class="permission-copy">
           <p class="eyebrow eyebrow-light">You stay in control</p>
           <h2>You choose what Paperboy reads.</h2>
-          <p>Paperboy never connects to Gmail. Forward only the messages you choose. Public GitHub context is read-only, and Paperboy cannot change your code.</p>
+          <p>Paperboy never connects to Gmail. For the sample, paste only the newsletter names or links you choose. Public GitHub context is read-only, and Paperboy cannot change your code.</p>
           <button class="button button-paper" type="button" data-start>Get my free sample brief</button>
         </div>
         <div class="permission-ledger" aria-label="Planned GitHub permission ledger">
@@ -201,7 +201,7 @@
               <p class="hypothesis">No card is collected until you have seen your sample and choose to continue.</p>
               <ul>
                 <li>One personalized morning brief</li>
-                <li>Forwarded newsletters without Gmail access</li>
+                <li>Chosen newsletters without Gmail access</li>
                 <li>Up to five selected public GitHub repos</li>
                 <li>Links to every original source</li>
                 <li>Cancel monthly</li>
@@ -220,7 +220,7 @@
         <div class="faq-list">
           <details>
             <summary>Does Paperboy read my inbox?</summary>
-            <p>No. Paperboy never connects to Gmail. You forward only the newsletters you choose.</p>
+            <p>No. Paperboy never connects to Gmail. For the sample, you paste only the newsletter names or links you choose.</p>
           </details>
           <details>
             <summary>Can Paperboy change my code?</summary>
@@ -253,11 +253,11 @@
         <button class="back-link" type="button" data-route="home"><span aria-hidden="true">←</span> Back to home</button>
         <div class="flow-card">
           <p class="eyebrow">Free personalized sample</p>
-          <h1>Where should we send your sample?</h1>
-          <p>Enter your email. We’ll reply to collect a few sources and build your brief. No card, Gmail connection, or subscription.</p>
+          <h1>Tell us what should go in your sample.</h1>
+          <p>Add the newsletters you read, any public GitHub repos you follow, and what you’re working on. No card, Gmail connection, or subscription.</p>
           <div class="guardrail">
             <strong>What happens next</strong>
-            <span>We email you once to collect your chosen sources. The product tour that follows uses fictional data.</span>
+            <span>We build and email the personalized sample from what you submit here. The optional product tour uses fictional data.</span>
           </div>
           <form id="magic-link-form" novalidate>
             <div class="field">
@@ -266,12 +266,27 @@
               <span class="field-help" id="email-help">Used only to build and deliver your Paperboy sample.</span>
               <span class="field-error" id="email-error" role="alert"></span>
             </div>
+            <div class="field">
+              <label for="newsletter-sources">Newsletter names or URLs</label>
+              <textarea id="newsletter-sources" name="newsletter_sources" rows="4" placeholder="One per line, for example: Ben's Bites&#10;https://example.com/newsletter" required aria-describedby="newsletter-help"></textarea>
+              <span class="field-help" id="newsletter-help">One per line. We do not connect to your inbox.</span>
+            </div>
+            <div class="field">
+              <label for="github-repos">Public GitHub repo URLs <span>optional</span></label>
+              <textarea id="github-repos" name="github_repo_urls" rows="3" placeholder="https://github.com/owner/repo" aria-describedby="github-help"></textarea>
+              <span class="field-help" id="github-help">Up to five public github.com repositories, one per line.</span>
+            </div>
+            <div class="field">
+              <label for="work-focus">What are you working on?</label>
+              <textarea id="work-focus" name="work_focus" rows="3" placeholder="The decisions, launches, risks, or technical changes that should make an item relevant." required></textarea>
+            </div>
+            <span class="form-error" id="intake-error" role="alert"></span>
             <button class="button button-wide" type="submit" id="pilot-submit">Get my free sample brief</button>
           </form>
           <div class="magic-success" id="magic-success" hidden>
             <div class="success-mark" aria-hidden="true">✓</div>
-            <h2 id="pilot-success-title">You’re on the sample list.</h2>
-            <p id="pilot-success-copy">We’ll email you to collect a few sources. No account, card, or subscription was created.</p>
+            <h2 id="pilot-success-title">Your sample request is saved.</h2>
+            <p id="pilot-success-copy">We saved your sources. We’ll build and email your personalized sample. No account, card, or subscription was created.</p>
             <button class="button button-wide" type="button" id="simulate-magic-link">Explore the product preview</button>
             <button class="text-button button-wide" type="button" id="change-email">Use a different email</button>
           </div>

@@ -8,7 +8,8 @@ It demonstrates:
 - a cold-traffic Daily Brief landing with a free personalized sample;
 - explicit source selection for forwarded newsletters, public
   news/research/data, and optional read-only public GitHub repositories;
-- a live same-origin founding-pilot lead request on KaiBuilds;
+- a live same-origin concierge intake on KaiBuilds that records the email,
+  newsletter names or URLs, optional public GitHub repos, and work focus;
 - local-only fixture repository, interests, schedule, checkout,
   account, privacy, and billing state previews;
 - a responsive email edition with Today in 60 Seconds, Repo Radar, Research
@@ -49,16 +50,18 @@ git diff --check
 ## Golden path
 
 1. Open the landing page and select **Get my free sample brief**.
-2. Enter a valid email. On KaiBuilds, confirm the sample request succeeds.
-3. Open the fictional product tour.
-4. Keep or change the forwarding/public source lanes.
-5. Load fictional GitHub fixtures, search, and select up to five.
-6. Add interests, active themes, and a watchlist decision.
-7. Choose delivery days, time, and time zone.
-8. Open the responsive email preview.
-9. Continue to the disabled checkout handoff.
-10. Preview successful setup and inspect account/privacy/billing states.
-11. Clear all local demo data.
+2. Enter a valid email, at least one newsletter name or URL, optional public
+   GitHub repo URLs, and the work focus that should rank the sample.
+3. On KaiBuilds, confirm the complete intake persists in Admin under `paperboy`.
+4. Open the fictional product tour.
+5. Keep or change the forwarding/public source lanes.
+6. Load fictional GitHub fixtures, search, and select up to five.
+7. Add interests, active themes, and a watchlist decision.
+8. Choose delivery days, time, and time zone.
+9. Open the responsive email preview.
+10. Continue to the disabled checkout handoff.
+11. Preview successful setup and inspect account/privacy/billing states.
+12. Clear all local demo data.
 
 ## Acceptance checklist
 
@@ -80,7 +83,8 @@ git diff --check
 - [ ] Feedback changes only local state.
 - [ ] Checkout cannot create a charge.
 - [ ] KaiBuilds lead capture uses only same-origin `/api/lead` and carries the
-  explicit `paperboy` slug and campaign attribution.
+  explicit `paperboy` slug, campaign attribution, newsletter sources, optional
+  public repo URLs, and work focus.
 - [ ] Account state previews cannot call auth, billing, email, or GitHub.
 - [ ] Desktop and mobile golden paths complete without horizontal overflow.
 - [ ] Keyboard focus, labels, field errors, reduced motion, and touch targets

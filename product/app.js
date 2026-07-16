@@ -216,6 +216,12 @@
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
+  function sourceLines(value) {
+    return value.split(/\r?\n/).map(function (line) {
+      return line.trim();
+    }).filter(Boolean);
+  }
+
   function isKaiBuildsHost() {
     return /(^|\.)kaibuilds\.com$/i.test(window.location.hostname);
   }
@@ -615,8 +621,12 @@
     var form = event.currentTarget;
     var input = document.getElementById("signin-email");
     var error = document.getElementById("email-error");
+    var intakeError = document.getElementById("intake-error");
     var submit = document.getElementById("pilot-submit");
     var email = input.value.trim();
+    var newsletterSources = sourceLines(document.getElementById("newsletter-sources").value);
+    var githubRepoUrls = sourceLines(document.getElementById("github-repos").value);
+    var workFocus = document.getElementById("work-focus").value.trim();
     if (!isValidEmail(input.value.trim())) {
       error.textContent = "Enter a valid email address.";
       input.setAttribute("aria-invalid", "true");
@@ -625,6 +635,24 @@
     }
     error.textContent = "";
     input.removeAttribute("aria-invalid");
+    intakeError.textContent = "";
+    if (!newsletterSources.length) {
+      intakeError.textContent = "Add at least one newsletter name or URL.";
+      document.getElementById("newsletter-sources").focus();
+      return;
+    }
+    if (!workFocus) {
+      intakeError.textContent = "Tell us what you are working on so the sample can be ranked for you.";
+      document.getElementById("work-focus").focus();
+      return;
+    }
+    if (githubRepoUrls.length > MAX_REPOS || githubRepoUrls.some(function (url) {
+      return !/^https:\/\/github\.com\/[^/\s]+\/[^/\s]+\/?$/i.test(url);
+    })) {
+      intakeError.textContent = "Use up to five public GitHub repo URLs in https://github.com/owner/repo format.";
+      document.getElementById("github-repos").focus();
+      return;
+    }
     submit.disabled = true;
     submit.textContent = isKaiBuildsHost() ? "Requesting sample…" : "Opening preview…";
     state.email = email;
@@ -639,19 +667,22 @@
           body: JSON.stringify(Object.assign({
             slug: "paperboy",
             email: email,
-            message: "Paperboy free personalized sample request",
+            message: "Paperboy personalized sample intake",
             offer: "Free personalized Paperboy sample",
             price: "$49/month after sample",
             source: "paperboy_sample_request",
-            page: window.location.href
+            page: window.location.href,
+            newsletter_sources: newsletterSources,
+            github_repo_urls: githubRepoUrls,
+            work_focus: workFocus
           }, attributionFields()))
         });
         var result = await response.json();
         if (!response.ok || !result || result.ok !== true) {
           throw new Error("Lead capture did not confirm persistence");
         }
-        document.getElementById("pilot-success-title").textContent = "You’re on the sample list.";
-        document.getElementById("pilot-success-copy").textContent = "We’ll email you to collect a few sources. No account, card, or subscription was created.";
+        document.getElementById("pilot-success-title").textContent = "Your sample request is saved.";
+        document.getElementById("pilot-success-copy").textContent = "We saved your sources. We’ll build and email your personalized sample. No account, card, or subscription was created.";
       } catch (captureError) {
         error.textContent = "We couldn’t save that request. Please try again.";
         submit.disabled = false;

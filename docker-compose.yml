@@ -1,0 +1,65 @@
+services:
+  paperboy:
+    build: .
+    image: paperboy:latest
+    container_name: paperboy
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${PAPERBOY_HOST_PORT:-9122}:8000"
+    environment:
+      PAPERBOY_ROOT: /app/data
+      PAPERBOY_DB: /app/data/events.db
+      PAPERBOY_DISCORD_WEBHOOK: ${PAPERBOY_DISCORD_WEBHOOK:-}
+      PAPERBOY_DISCORD_BOT_TOKEN: ${PAPERBOY_DISCORD_BOT_TOKEN:-}
+      PAPERBOY_DISCORD_CHANNEL_ID: ${PAPERBOY_DISCORD_CHANNEL_ID:-}
+      PAPERBOY_OLLAMA_URL: ${PAPERBOY_OLLAMA_URL:-http://host.docker.internal:11434}
+      PAPERBOY_SMTP_HOST: ${PAPERBOY_SMTP_HOST:-}
+      PAPERBOY_SMTP_PORT: ${PAPERBOY_SMTP_PORT:-587}
+      PAPERBOY_SMTP_USER: ${PAPERBOY_SMTP_USER:-}
+      PAPERBOY_SMTP_PASS: ${PAPERBOY_SMTP_PASS:-}
+      PAPERBOY_EMAIL_FROM: ${PAPERBOY_EMAIL_FROM:-paperboy@localhost}
+      PAPERBOY_EMAIL_TO: ${PAPERBOY_EMAIL_TO:-}
+      PAPERBOY_FAST_MODEL: ${PAPERBOY_FAST_MODEL:-llama3.2:3b}
+      PAPERBOY_RESEARCH_MODEL: ${PAPERBOY_RESEARCH_MODEL:-qwen2.5:7b}
+      PAPERBOY_LOG_LEVEL: ${PAPERBOY_LOG_LEVEL:-INFO}
+      PAPERBOY_LOG_FORMAT: ${PAPERBOY_LOG_FORMAT:-json}
+    volumes:
+      - paperboy-data:/app/data
+      - ./config:/app/config:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Optional: scheduler runs the digest pipeline on cadence
+  paperboy-scheduler:
+    build: .
+    image: paperboy:latest
+    container_name: paperboy-scheduler
+    restart: unless-stopped
+    profiles: ["scheduler"]
+    environment:
+      PAPERBOY_ROOT: /app/data
+      PAPERBOY_DB: /app/data/events.db
+      PAPERBOY_DISCORD_WEBHOOK: ${PAPERBOY_DISCORD_WEBHOOK:-}
+      PAPERBOY_DISCORD_BOT_TOKEN: ${PAPERBOY_DISCORD_BOT_TOKEN:-}
+      PAPERBOY_DISCORD_CHANNEL_ID: ${PAPERBOY_DISCORD_CHANNEL_ID:-}
+      PAPERBOY_OLLAMA_URL: ${PAPERBOY_OLLAMA_URL:-http://host.docker.internal:11434}
+      PAPERBOY_LOG_LEVEL: ${PAPERBOY_LOG_LEVEL:-INFO}
+      PAPERBOY_LOG_FORMAT: ${PAPERBOY_LOG_FORMAT:-json}
+    volumes:
+      - paperboy-data:/app/data
+      - ./config:/app/config:ro
+    command: ["python", "-m", "paperboy.scheduler"]
+    depends_on:
+      paperboy:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  paperboy-data:

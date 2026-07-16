@@ -83,6 +83,12 @@ def main() -> None:
         page.get_by_role("button", name="Get my free sample brief").first.click()
         page.get_by_label("Email address").fill("paperboy-smoke@example.invalid")
         page.locator("#pilot-submit").click()
+        assert page.locator("#intake-error").inner_text() == "Add at least one newsletter name or URL."
+        assert len(lead_payloads) == 0
+        page.get_by_label("Newsletter names or URLs").fill("QA Newsletter\nhttps://example.invalid/qa-newsletter")
+        page.get_by_label("Public GitHub repo URLs").fill("https://github.com/cgallic/paperboy")
+        page.get_by_label("What are you working on?").fill("QA validation of the Paperboy concierge intake")
+        page.locator("#pilot-submit").click()
         page.wait_for_timeout(500)
         if not page.locator("#magic-success").is_visible():
             raise AssertionError(
@@ -95,7 +101,7 @@ def main() -> None:
                     }
                 )
             )
-        page.get_by_role("heading", name="You’re on the sample list.").wait_for()
+        page.get_by_role("heading", name="Your sample request is saved.").wait_for()
 
         assert len(lead_payloads) == 1
         payload = lead_payloads[0]
@@ -104,6 +110,9 @@ def main() -> None:
         assert payload["offer"] == "Free personalized Paperboy sample"
         assert payload["price"] == "$49/month after sample"
         assert payload["source"] == "paperboy_sample_request"
+        assert payload["newsletter_sources"] == ["QA Newsletter", "https://example.invalid/qa-newsletter"]
+        assert payload["github_repo_urls"] == ["https://github.com/cgallic/paperboy"]
+        assert payload["work_focus"] == "QA validation of the Paperboy concierge intake"
         assert payload["utm_source"] == "smoke"
         assert payload["utm_campaign"] == "paperboy_launch"
 

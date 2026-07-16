@@ -12,7 +12,7 @@ function requireText(source, text, label) {
 }
 
 [
-  ["Forward the newsletters you trust", "forwarding source lane"],
+  ["Share the newsletters you trust", "newsletter source lane"],
   ["public GitHub repos you follow", "GitHub source lane"],
   ["You choose what Paperboy reads", "access boundary"],
   ["Your first personalized brief is free", "entry offer"],
@@ -41,8 +41,17 @@ function requireText(source, text, label) {
   ["result.ok !== true", "confirmed lead persistence"],
   ["/api/hit?slug=paperboy", "KaiBuilds visit capture"],
   ['slug: "paperboy"', "Paperboy capture slug"],
+  ["newsletter_sources: newsletterSources", "newsletter intake persistence"],
+  ["github_repo_urls: githubRepoUrls", "GitHub intake persistence"],
+  ["work_focus: workFocus", "work-focus intake persistence"],
   ["attributionFields", "campaign attribution capture"]
 ].forEach(([text, label]) => requireText(js, text, label));
+
+[
+  ["newsletter-sources", "newsletter intake field"],
+  ["github-repos", "GitHub intake field"],
+  ["work-focus", "work-focus intake field"]
+].forEach(([text, label]) => requireText(html, text, label));
 
 [
   "Know what changes your next move.",
@@ -54,6 +63,10 @@ function requireText(source, text, label) {
 ].forEach((text) => {
   if (html.includes(text)) failures.push("Stale internal copy found: " + text);
 });
+
+if (html.includes("We’ll email you to collect a few sources")) {
+  failures.push("Stale follow-up-only intake copy found.");
+}
 
 const primaryCtaMatches = html.match(/Get my free sample brief/g) || [];
 if (primaryCtaMatches.length < 4) failures.push("Primary free-sample CTA is not repeated consistently.");

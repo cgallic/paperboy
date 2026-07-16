@@ -15,11 +15,32 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install package with all extras
+        run: pip install -e ".[all]"
       - name: Compile package
         run: python -m compileall -q paperboy
       - name: Run tests
-        run: python -m unittest discover -s tests -v
+        run: python -m pytest tests/ -v
       - name: Preserve current action-queue smoke
         run: python -m paperboy.digest.action_queue --dry-run > /tmp/action-queue.json
       - name: Render local Daily Intelligence Brief sample
         run: python -m paperboy.daily_brief.cli --input examples/daily-brief.sample.json --out-dir /tmp/paperboy-daily-brief
+      - name: API health smoke test
+        run: |
+          python -m uvicorn paperboy.api.main:app --host 127.0.0.1 --port 8000 &
+          sleep 2
+          curl -fsS http://127.0.0.1:8000/api/health | grep -q status
+          kill %1
+      - name: Lint with ruff
+        run: >-
+          ruff check
+          paperboy/api
+          paperboy/email
+          paperboy/config.py
+          paperboy/health.py
+          paperboy/logging_config.py
+          paperboy/scheduler.py
+          tests/test_api.py
+          tests/test_config.py
+          tests/test_email.py
+          tests/test_health.py

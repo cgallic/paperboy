@@ -40,8 +40,11 @@ def main() -> None:
         if args.submit_test_lead:
             page.get_by_role("button", name="Get my free sample brief").first.click()
             page.get_by_label("Email address").fill("paperboy-deploy-smoke@example.invalid")
+            page.get_by_label("Newsletter names or URLs").fill("QA deploy smoke newsletter")
+            page.get_by_label("Public GitHub repo URLs").fill("https://github.com/cgallic/paperboy")
+            page.get_by_label("What are you working on?").fill("QA deploy verification")
             page.locator("#pilot-submit").click()
-            page.get_by_role("heading", name="You’re on the sample list.").wait_for()
+            page.get_by_role("heading", name="Your sample request is saved.").wait_for()
 
         mobile = browser.new_page(viewport={"width": 390, "height": 844})
         mobile.goto("https://paperboy.kaibuilds.com/", wait_until="networkidle")
