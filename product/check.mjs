@@ -5,6 +5,8 @@ const root = resolve(import.meta.dirname);
 const html = readFileSync(resolve(root, "index.html"), "utf8");
 const css = readFileSync(resolve(root, "styles.css"), "utf8");
 const js = readFileSync(resolve(root, "app.js"), "utf8");
+const privacy = readFileSync(resolve(root, "privacy", "index.html"), "utf8");
+const terms = readFileSync(resolve(root, "terms", "index.html"), "utf8");
 const failures = [];
 
 function requireText(source, text, label) {
@@ -15,10 +17,10 @@ function requireText(source, text, label) {
   ["Build your firehose. Read only what matters.", "filtered-firehose promise"],
   ["Hacker News", "Hacker News source"],
   ["Any public RSS or Atom feed", "open feed boundary"],
-  ["Start the daily brief without a card.", "automatic launch offer"],
-  ["$</span>0", "no-payment launch price"],
-  ["Planned founding price: $49/month", "$49 price hypothesis"],
-  ["No charge can be created here", "disabled checkout boundary"]
+  ["Try your filtered firehose for seven days.", "trial offer"],
+  ["$</span>49", "$49 founding price"],
+  ["Card required for the seven-day trial", "card-required trial disclosure"],
+  ["Stripe-hosted checkout", "hosted checkout boundary"]
 ].forEach(([text, label]) => requireText(html, text, label));
 
 [
@@ -33,17 +35,23 @@ function requireText(source, text, label) {
 [
   ["https://paperboy.kaibuilds.com/", "canonical KaiBuilds URL"],
   ["Build your firehose. Read only what matters.", "cold-traffic promise"],
-  ["Start the daily brief without a card.", "no-card launch offer"],
+  ["Try your filtered firehose for seven days.", "card-required trial offer"],
   ["Start my daily brief", "single subscription CTA"]
 ].forEach(([text, label]) => requireText(html, text, label));
 
 [
   ['fetch("/api/firehose/subscribe"', "same-origin automatic subscription"],
-  ['subscribeResult.status !== "subscribed"', "confirmed active subscription response"],
+  ['["pending_verification", "pending"].indexOf(subscribeResult.status)', "pending verification response"],
+  ['/api/firehose/subscriptions/" + encoded + "/confirm', "explicit confirmation endpoint"],
+  ['fetch("/api/billing/checkout"', "hosted checkout handoff"],
+  ['fetch("/api/billing/portal"', "hosted billing management"],
+  ['parsed.hostname === "checkout.stripe.com"', "Stripe checkout URL allowlist"],
+  ['fetch("/api/analytics/event"', "consented first-party analytics"],
+  ["timezone: timezone", "browser timezone submission"],
+  ["consent: true", "email consent submission"],
   ["activeStatusUrl", "tokenized in-page management status"],
   ["activeUnsubscribeUrl", "tokenized unsubscribe action"],
   ["result.status !== \"unsubscribed\"", "confirmed unsubscribe response"],
-  ["/api/hit?slug=paperboy", "KaiBuilds visit capture"],
   ["sources: sourceUrls", "public feed intake persistence"],
   ["focus: workFocus", "work-focus intake persistence"],
   ["ignore: ignoreFocus", "ignore-list intake persistence"],
@@ -88,12 +96,23 @@ if (/<form[^>]+action=/i.test(html)) {
   failures.push("A form action could submit data outside the local preview.");
 }
 
-if ((js.match(/fetch\(/g) || []).length !== 3 || !js.includes('fetch("/api/firehose/subscribe"') || !js.includes("refreshManagedSubscription(activeStatusUrl)") || !js.includes("fetch(activeUnsubscribeUrl")) {
-  failures.push("Only same-origin subscription, status, and unsubscribe fetches are allowed.");
+if ((js.match(/fetch\(/g) || []).length !== 7 || !js.includes('fetch("/api/firehose/subscribe"') || !js.includes("refreshManagedSubscription(activeStatusUrl)") || !js.includes("fetch(activeUnsubscribeUrl")) {
+  failures.push("Expected same-origin lifecycle fetches are missing or an unexpected fetch was added.");
 }
 
-if (js.includes('/api/firehose/preview') || js.includes('/api/lead')) {
-  failures.push("Stale preview or lead-capture endpoint found in the automatic setup flow.");
+if (js.includes('/api/firehose/preview')) {
+  failures.push("Stale preview-only endpoint found in the automatic setup flow.");
+}
+
+[
+  [privacy, "What Paperboy collects", "privacy data disclosure"],
+  [privacy, "does not connect to Gmail", "privacy inbox boundary"],
+  [terms, "card-required seven-day trial followed by $49 per month", "terms billing disclosure"],
+  [terms, "as-available basis", "terms availability boundary"]
+].forEach(([source, text, label]) => requireText(source, text, label));
+
+if (!html.includes('href="/privacy/"') || !html.includes('href="/terms/"')) {
+  failures.push("Privacy and terms footer links are missing.");
 }
 
 [["XMLHttpRequest", "XMLHttpRequest"], ["WebSocket", "WebSocket"], ["sendBeacon", "sendBeacon"]].forEach(([needle, label]) => {
@@ -117,5 +136,6 @@ if (failures.length) {
 console.log("Paperboy product static checks passed.");
 console.log("- " + ids.length + " unique HTML ids");
 console.log("- no remote UI assets or form actions");
-console.log("- only same-origin subscription, status, unsubscribe, and visit capture");
+console.log("- only expected same-origin lifecycle and consented analytics requests");
+console.log("- pending verification, Stripe-hosted checkout, and legal boundaries present");
 console.log("- required Daily Brief sections and demo boundaries present");

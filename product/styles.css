@@ -3451,3 +3451,146 @@ dialog h2 {
     box-shadow: none;
   }
 }
+
+.consent-check {
+  display: grid;
+  align-items: start;
+  gap: 10px;
+  grid-template-columns: 20px 1fr;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.consent-check input {
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--signal-dark);
+}
+
+.confirmation-panel {
+  padding: 28px;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  background: var(--paper-raised);
+}
+
+.confirmation-panel h2 {
+  margin: 8px 0;
+  font-family: var(--display);
+  font-size: clamp(30px, 5vw, 48px);
+  line-height: 1;
+}
+
+.billing-fallback {
+  padding: 12px 14px;
+  border-left: 3px solid var(--caution);
+  background: rgba(155, 91, 8, .08);
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.footer-links a,
+.footer-links .text-button {
+  min-height: 32px;
+  padding: 2px 0;
+  color: inherit;
+  font-size: 12px;
+}
+
+#analytics-note {
+  max-width: 420px;
+  color: var(--ink-soft);
+  font-size: 11px;
+  text-align: right;
+}
+
+.legal-page {
+  min-height: 100vh;
+}
+
+.legal-header,
+.legal-footer {
+  display: flex;
+  width: min(900px, calc(100% - 40px));
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 0;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--rule);
+}
+
+.legal-shell {
+  width: min(760px, calc(100% - 40px));
+  padding: 72px 0 96px;
+  margin: 0 auto;
+}
+
+.legal-shell h1 {
+  max-width: 700px;
+  margin: 10px 0 14px;
+  font-family: var(--display);
+  font-size: clamp(44px, 8vw, 72px);
+  font-weight: 500;
+  letter-spacing: -.045em;
+  line-height: .95;
+}
+
+.legal-updated {
+  margin: 0 0 56px;
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.legal-shell section {
+  padding: 24px 0;
+  border-top: 1px solid var(--rule);
+}
+
+.legal-shell h2 {
+  margin: 0 0 8px;
+  font-family: var(--display);
+  font-size: 28px;
+  font-weight: 550;
+  letter-spacing: -.025em;
+}
+
+.legal-shell section p {
+  max-width: 68ch;
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.legal-footer {
+  justify-content: flex-start;
+  gap: 24px;
+  border-top: 1px solid var(--rule);
+  border-bottom: 0;
+  font-size: 13px;
+}
+
+@media (max-width: 720px) {
+  .footer-links,
+  .site-footer > div:last-child {
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  #analytics-note {
+    text-align: left;
+  }
+
+  .legal-shell {
+    padding-top: 48px;
+  }
+}

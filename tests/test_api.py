@@ -56,6 +56,32 @@ class APITests(unittest.TestCase):
         response = self.client.get("/api/hit?slug=paperboy")
         self.assertIn(response.status_code, (200, 204))
 
+    def test_consent_analytics_accepts_only_pii_free_allowlisted_fields(self) -> None:
+        accepted = self.client.post(
+            "/api/analytics/event",
+            json={
+                "event": "begin_checkout",
+                "anonymous_id": "pb_1234567890abcdef",
+                "properties": {"currency": "USD", "value": 49},
+            },
+        )
+        self.assertEqual(accepted.status_code, 204)
+        rejected = self.client.post(
+            "/api/analytics/event",
+            json={
+                "event": "begin_checkout",
+                "anonymous_id": "pb_1234567890abcdef",
+                "properties": {"email": "reader@example.com"},
+            },
+        )
+        self.assertEqual(rejected.status_code, 422)
+
+    def test_security_headers_are_present(self) -> None:
+        response = self.client.get("/api/config")
+        self.assertEqual(response.headers["x-frame-options"], "DENY")
+        self.assertEqual(response.headers["referrer-policy"], "no-referrer")
+        self.assertIn("frame-ancestors 'none'", response.headers["content-security-policy"])
+
     def test_lead_rejects_invalid_email(self) -> None:
         response = self.client.post("/api/lead", json={"email": "not-an-email"})
         self.assertEqual(response.status_code, 400)

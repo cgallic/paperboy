@@ -13,7 +13,7 @@ Schedule (UTC):
   11:10  today-briefing
   11:15  prompt-digest
   12:00  research-digest
-  12:30  subscriber firehose delivery
+  every 5 minutes  confirmation queue + due 08:00-local firehose delivery
 """
 from __future__ import annotations
 
@@ -22,8 +22,9 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 
-from apscheduler.schedulers.blocking import BlockingScheduler
-from apscheduler.triggers.cron import CronTrigger
+from apscheduler.schedulers.blocking import BlockingScheduler  # type: ignore[import-untyped]
+from apscheduler.triggers.cron import CronTrigger  # type: ignore[import-untyped]
+from apscheduler.triggers.interval import IntervalTrigger  # type: ignore[import-untyped]
 
 from paperboy.logging_config import configure_logging, get_logger
 
@@ -66,7 +67,11 @@ JOBS = [
     ("paperboy.scanners.today_briefing", "11:10"),
     ("paperboy.digest.prompt_digest", "11:15"),
     ("paperboy.digest.research_digest", "12:00"),
-    ("paperboy.firehose_delivery", "12:30"),
+]
+
+INTERVAL_JOBS = [
+    ("paperboy.confirmation_delivery", 5),
+    ("paperboy.firehose_delivery", 5),
 ]
 
 
@@ -74,9 +79,18 @@ def main() -> None:
     configure_logging()
     only_module = os.environ.get("PAPERBOY_SCHEDULER_ONLY", "").strip()
     jobs = [job for job in JOBS if not only_module or job[0] == only_module]
-    if not jobs:
+    interval_jobs = [job for job in INTERVAL_JOBS if not only_module or job[0] == only_module]
+    # Backwards compatibility: the deployed compose profile historically set
+    # scheduler-only to firehose_delivery. Confirmation is a required companion
+    # safety job and must not be accidentally disabled by that old setting.
+    if only_module == "paperboy.firehose_delivery":
+        interval_jobs = list(INTERVAL_JOBS)
+    if not jobs and not interval_jobs:
         raise RuntimeError(f"PAPERBOY_SCHEDULER_ONLY does not match a configured job: {only_module}")
-    logger.info("scheduler_startup", extra={"event": "scheduler_startup", "jobs": len(jobs)})
+    logger.info(
+        "scheduler_startup",
+        extra={"event": "scheduler_startup", "jobs": len(jobs) + len(interval_jobs)},
+    )
     for module, time_str in jobs:
         hour, minute = time_str.split(":")
         scheduler.add_job(
@@ -85,6 +99,15 @@ def main() -> None:
             args=(module,),
             id=module,
             replace_existing=True,
+        )
+    for module, minutes in interval_jobs:
+        scheduler.add_job(
+            _run,
+            trigger=IntervalTrigger(minutes=minutes),
+            args=(module,),
+            id=module,
+            replace_existing=True,
+            next_run_time=datetime.now(timezone.utc),
         )
     try:
         scheduler.start()

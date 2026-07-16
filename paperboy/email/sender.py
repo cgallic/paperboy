@@ -10,6 +10,8 @@ import smtplib
 import ssl
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.utils import make_msgid
+from urllib.parse import urlsplit
 
 from paperboy.config import settings
 from paperboy.daily_brief.brief import render_html, render_text, subject_for
@@ -58,6 +60,8 @@ def send_edition(
     msg["Subject"] = subject
     msg["From"] = from_address
     msg["To"] = to_addr
+    if settings.email_reply_to:
+        msg["Reply-To"] = settings.email_reply_to
     msg["X-Paperboy-Edition"] = edition.config.policy_version
     msg["X-Paperboy-Hash"] = edition.candidate_hash
     msg.attach(MIMEText(text, "plain", "utf-8"))
@@ -89,8 +93,10 @@ def send_raw(
     to: str | None = None,
     from_addr: str | None = None,
     dry_run: bool = False,
+    unsubscribe_url: str | None = None,
+    message_id: str | None = None,
 ) -> dict:
-    """Send a raw multipart email."""
+    """Send a raw multipart email with optional RFC 8058 unsubscribe headers."""
     to_addr = to or settings.email_to
     from_address = from_addr or settings.email_from
     if not to_addr:
@@ -100,13 +106,21 @@ def send_raw(
     msg["Subject"] = subject
     msg["From"] = from_address
     msg["To"] = to_addr
+    outbound_message_id = message_id or make_msgid(domain="paperboy.kaibuilds.com")
+    msg["Message-ID"] = outbound_message_id
+    if unsubscribe_url:
+        parsed = urlsplit(unsubscribe_url)
+        if parsed.scheme != "https" or not parsed.hostname or parsed.username:
+            return {"ok": False, "detail": "invalid unsubscribe URL", "message_id": None}
+        msg["List-Unsubscribe"] = f"<{unsubscribe_url}>"
+        msg["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
     msg.attach(MIMEText(body_text, "plain", "utf-8"))
     if body_html:
         msg.attach(MIMEText(body_html, "html", "utf-8"))
 
     if dry_run:
         logger.info("email_dry_run", extra={"event": "email_dry_run", "to": to_addr, "subject": subject})
-        return {"ok": True, "detail": "dry_run", "message_id": None}
+        return {"ok": True, "detail": "dry_run", "message_id": outbound_message_id}
 
     try:
         with _create_smtp_connection() as conn:
@@ -114,7 +128,7 @@ def send_raw(
                 conn.login(settings.smtp_user, settings.smtp_pass)
             conn.sendmail(from_address, [to_addr], msg.as_string())
         logger.info("email_sent", extra={"event": "email_sent", "to": to_addr, "subject": subject})
-        return {"ok": True, "detail": "sent", "message_id": None}
+        return {"ok": True, "detail": "sent", "message_id": outbound_message_id}
     except Exception as exc:
         logger.error("email_failed", extra={"event": "email_failed", "error": str(exc)})
         return {"ok": False, "detail": f"{type(exc).__name__}: {exc}", "message_id": None}

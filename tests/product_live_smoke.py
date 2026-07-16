@@ -38,6 +38,8 @@ def main() -> None:
         assert page.locator('link[rel="canonical"]').get_attribute("href") == "https://paperboy.kaibuilds.com/"
         assert page.locator(".trust-line").get_by_text("No Gmail access", exact=True).is_visible()
         assert page.get_by_role("button", name="Start my daily brief").first.is_visible()
+        assert page.get_by_role("link", name="Privacy").is_visible()
+        assert page.get_by_role("link", name="Terms").is_visible()
         page.wait_for_timeout(500)
         page.screenshot(path=str(ROOT / "paperboy-live-smoke.png"))
 
@@ -47,17 +49,25 @@ def main() -> None:
             page.get_by_label("Public RSS or Atom feed URLs").fill("https://news.ycombinator.com/rss")
             page.get_by_label("What should make an item relevant?").fill("AI infrastructure and API pricing")
             page.get_by_label("What should Paperboy ignore?").fill("funding gossip")
+            page.get_by_label("I agree to receive the Paperboy brief and service emails.").check()
             page.locator("#subscription-submit").click()
-            page.get_by_role("heading", name="Your daily brief is active.").wait_for(timeout=45_000)
-            page.get_by_role("button", name="Unsubscribe", exact=True).click()
-            page.locator("#confirm-dialog").get_by_role("button", name="Unsubscribe").click()
-            page.get_by_role("heading", name="This daily brief is unsubscribed.").wait_for(timeout=10_000)
+            page.get_by_role("heading", name="Check your email.").wait_for(timeout=45_000)
+            assert page.get_by_text("Awaiting confirmation", exact=True).is_visible()
+            assert page.locator("#start-checkout").is_hidden()
 
         mobile = browser.new_page(viewport={"width": 390, "height": 844})
         mobile.goto("https://paperboy.kaibuilds.com/", wait_until="networkidle")
         mobile.get_by_role("button", name="Toggle navigation").click()
         assert mobile.locator("#mobile-nav").get_by_role("button", name="Start my daily brief", exact=True).is_visible()
         assert mobile.evaluate("document.documentElement.scrollWidth <= document.documentElement.clientWidth")
+
+        legal = browser.new_page(viewport={"width": 900, "height": 800})
+        privacy = legal.goto("https://paperboy.kaibuilds.com/privacy/", wait_until="networkidle")
+        assert privacy is not None and privacy.ok
+        assert legal.get_by_role("heading", name="What Paperboy collects").is_visible()
+        terms = legal.goto("https://paperboy.kaibuilds.com/terms/", wait_until="networkidle")
+        assert terms is not None and terms.ok
+        assert legal.get_by_role("heading", name="Trial and billing").is_visible()
         browser.close()
 
     if console_errors:
@@ -67,7 +77,7 @@ def main() -> None:
     print("- public TLS page, canonical, product boundary, and CTA passed")
     print("- mobile navigation and overflow checks passed")
     print(
-        "- deploy smoke subscription activated and unsubscribed"
+        "- deploy smoke subscription left pending email verification; no delivery or checkout started"
         if args.submit_test_subscription
         else "- no subscription created"
     )

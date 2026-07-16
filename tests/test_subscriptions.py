@@ -14,8 +14,12 @@ from paperboy.db import connect, init_schema
 from paperboy.firehose_delivery import run_daily_deliveries
 from paperboy.subscriptions import (
     SubscriptionValidationError,
+    confirm_subscription,
+    confirmation_token,
     create_subscription,
     get_subscription,
+    get_subscription_by_email,
+    set_billing_state,
     unsubscribe,
     validate_subscription_payload,
 )
@@ -68,10 +72,18 @@ class SubscriptionTestCase(unittest.TestCase):
             {"utm_source": "smoke"},
         )
 
+    def activate(self, email: str = "reader@example.com") -> tuple[dict, str]:
+        subscription, token = self.create(email)
+        confirmed = confirm_subscription(confirmation_token(subscription))
+        assert confirmed is not None
+        entitled = set_billing_state(int(confirmed["id"]), "trialing")
+        assert entitled is not None
+        return entitled, token
+
 
 class SubscriptionStorageTests(SubscriptionTestCase):
     def test_validation_reuses_preview_contract_and_accepts_attribution(self) -> None:
-        email, sources, focus, ignore, attribution = validate_subscription_payload(
+        email, sources, focus, ignore, attribution, timezone_name = validate_subscription_payload(
             {
                 "email": " Reader@Example.com ",
                 "sources": ["https://example.com/feed"],
@@ -79,6 +91,8 @@ class SubscriptionStorageTests(SubscriptionTestCase):
                 "ignore": ["gossip"],
                 "source": "landing_page",
                 "utm_campaign": "founding",
+                "consent": True,
+                "timezone": "America/New_York",
             }
         )
         self.assertEqual(email, "reader@example.com")
@@ -86,9 +100,15 @@ class SubscriptionStorageTests(SubscriptionTestCase):
         self.assertEqual(focus, "AI agents")
         self.assertEqual(ignore, ["gossip"])
         self.assertEqual(attribution, {"source": "landing_page", "utm_campaign": "founding"})
+        self.assertEqual(timezone_name, "America/New_York")
         with self.assertRaises(SubscriptionValidationError):
             validate_subscription_payload(
-                {"email": "bad", "sources": ["https://example.com/feed"], "focus": "agents"}
+                {
+                    "email": "bad",
+                    "sources": ["https://example.com/feed"],
+                    "focus": "agents",
+                    "consent": True,
+                }
             )
 
     def test_token_is_hashed_and_unsubscribe_is_idempotent(self) -> None:
@@ -102,7 +122,7 @@ class SubscriptionStorageTests(SubscriptionTestCase):
             conn.close()
         self.assertNotEqual(token_hash, token)
         self.assertNotIn(token, token_nonce)
-        self.assertTrue(get_subscription(token)["active"])
+        self.assertFalse(get_subscription(token)["active"])
         self.assertFalse(unsubscribe(token)["active"])
         self.assertFalse(unsubscribe(token)["active"])
         self.assertIsNone(get_subscription(token + "x"))
@@ -146,27 +166,35 @@ class SubscriptionEndpointTests(SubscriptionTestCase):
                     "focus": "AI agent reliability",
                     "ignore": ["funding gossip"],
                     "utm_source": "unit",
+                    "consent": True,
+                    "timezone": "UTC",
                 },
             )
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        self.assertEqual(data["status"], "subscribed")
+        self.assertEqual(data["status"], "pending_verification")
         self.assertEqual(data["preview"]["items"][0]["score"], 88)
-        self.assertTrue(data["manage_url"].startswith("/?manage="))
-        self.assertTrue(data["status_url"].startswith("/api/firehose/subscriptions/"))
-        self.assertTrue(data["unsubscribe_url"].endswith("/unsubscribe"))
+        self.assertTrue(data["confirmation_queued"])
         preview.assert_called_once()
 
-        status = self.client.get(data["status_url"])
+        subscription = get_subscription_by_email("reader@example.com")
+        assert subscription is not None
+        confirmed = self.client.post(
+            f"/api/firehose/subscriptions/{confirmation_token(subscription)}/confirm"
+        )
+        self.assertEqual(confirmed.status_code, 200)
+        confirmed_data = confirmed.json()
+        self.assertEqual(confirmed_data["status"], "active")
+        status = self.client.get(confirmed_data["status_url"])
         self.assertEqual(status.status_code, 200)
         self.assertEqual(status.json()["email_masked"], "r***@example.com")
         self.assertEqual(status.json()["status"], "active")
-        self.assertIsNotNone(status.json()["next_delivery_at"])
+        self.assertIsNone(status.json()["next_delivery_at"])
         self.assertNotIn("email", status.json())
 
-        stopped = self.client.post(data["unsubscribe_url"])
+        stopped = self.client.post(confirmed_data["unsubscribe_url"])
         self.assertEqual(stopped.json(), {"ok": True, "status": "unsubscribed"})
-        self.assertEqual(self.client.get(data["status_url"]).json()["status"], "unsubscribed")
+        self.assertEqual(self.client.get(confirmed_data["status_url"]).json()["status"], "unsubscribed")
 
     def test_unreachable_preview_is_not_persisted(self) -> None:
         failed_preview = {
@@ -182,6 +210,7 @@ class SubscriptionEndpointTests(SubscriptionTestCase):
                     "email": "reader@example.com",
                     "sources": ["https://bad.example/feed"],
                     "focus": "AI agents",
+                    "consent": True,
                 },
             )
         self.assertEqual(response.status_code, 422)
@@ -196,7 +225,7 @@ class SubscriptionEndpointTests(SubscriptionTestCase):
 
 class FirehoseDeliveryTests(SubscriptionTestCase):
     def test_daily_delivery_sends_once_and_records_outcome(self) -> None:
-        self.create()
+        self.activate()
         sent: list[tuple] = []
 
         def sender(*args, **kwargs) -> dict:
@@ -218,7 +247,7 @@ class FirehoseDeliveryTests(SubscriptionTestCase):
         self.assertEqual(len(sent), 1)
         self.assertEqual(sent[0][1]["to"], "reader@example.com")
         self.assertIn("https://paperboy.kaibuilds.com/?manage=", sent[0][0][1])
-        self.assertIn("#unsubscribe", sent[0][0][1])
+        self.assertIn("/unsubscribe", sent[0][0][1])
         conn = connect()
         try:
             status, item_count = conn.execute(
@@ -229,7 +258,7 @@ class FirehoseDeliveryTests(SubscriptionTestCase):
         self.assertEqual((status, item_count), ("sent", 1))
 
     def test_failed_send_is_recorded_and_not_duplicated_that_day(self) -> None:
-        self.create()
+        self.activate()
 
         def failed_sender(*_args, **_kwargs) -> dict:
             return {"ok": False, "detail": "smtp unavailable", "message_id": None}

@@ -19,7 +19,7 @@
 - **Budget authority:** Usually direct for a $49/month tool; hypothesis, not buyer-validated
 - **Trigger event:** Missing an API, pricing, dependency, or market change that affects active work
 - **Current solution:** Newsletters, RSS, GitHub notifications, bookmarks, and manual LLM summaries
-- **Pain severity:** Unknown; validate with free-sample requests and interviews
+- **Pain severity:** Unknown; validate with preview-to-trial conversion and interviews
 
 ### Secondary ICP
 
@@ -59,21 +59,21 @@
 
 ### User Segments
 
-- **Launch subscriber:** Chooses presets or supplies public RSS/Atom feed URLs, a relevance focus, and an optional ignore list, then activates the daily edition.
-- **Future paid buyer:** Keeps reading enough daily editions to justify the planned $49/month founding price.
+- **Trial subscriber:** Chooses public RSS/Atom feeds and a relevance filter, confirms the email, and starts a card-required seven-day trial.
+- **Paid subscriber:** Keeps reading after the trial at the $49/month founding price.
 
 ## Value Prop
 
 - **Core transformation:** From scanning a self-built information firehose to reading only the few items connected to current work.
-- **Key actions:** Choose or paste public feeds; describe current interests; name what to ignore; activate the daily brief; inspect source-linked matches; self-manage or unsubscribe.
-- **Activation moment:** The automatic first edition contains at least one relevant item and the private management screen confirms daily delivery is active.
+- **Key actions:** Choose or paste public feeds; describe current interests; name what to ignore; preview matches; confirm the email; start hosted checkout; self-manage or unsubscribe.
+- **Activation moment:** Stripe confirms trialing or active billing and the management screen confirms daily delivery is active.
 - **Aha moment:** The reader opens an original source or changes a concrete next step because of the brief.
 
 ## Business Model
 
-- **Monetization:** Free automatic daily delivery during launch; paid conversion is the next validation step
-- **Pricing:** Planned founding price of $49/month; not yet collected
-- **Stage:** Pre-PMF validation; automatic setup, persistence, scheduled delivery, and self-service unsubscribe are live, while billing is not
+- **Monetization:** Card-required seven-day trial followed by a recurring subscription
+- **Pricing:** $49/month after the trial until canceled
+- **Stage:** Pre-PMF validation; the product measures preview, verification, checkout, paid activation, and retention as separate stages
 
 ## Current Marketing
 

@@ -2,6 +2,9 @@
   "use strict";
 
   var STORAGE_KEY = "paperboy.product-demo.v2";
+  var ANALYTICS_CONSENT_KEY = "paperboy.analytics.consent.v1";
+  var CHECKOUT_MANAGEMENT_KEY = "paperboy.checkout.management.v1";
+  var ANALYTICS_ID_KEY = "paperboy.analytics.anonymous.v1";
   var MAX_REPOS = 5;
   var MAX_SUBSCRIPTION_SOURCES = 6;
 
@@ -117,6 +120,8 @@
   var activeManageUrl = "";
   var activeStatusUrl = "";
   var activeUnsubscribeUrl = "";
+  var activeManagementToken = "";
+  var confirmationToken = "";
 
   var screens = Array.prototype.slice.call(document.querySelectorAll("[data-screen]"));
   var siteHeader = document.getElementById("site-header");
@@ -150,6 +155,64 @@
   function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     window.__paperboyDemo = { state: state, storageKey: STORAGE_KEY };
+  }
+
+  function analyticsAllowed() {
+    return localStorage.getItem(ANALYTICS_CONSENT_KEY) === "granted";
+  }
+
+  function updateAnalyticsConsentUi() {
+    var note = document.getElementById("analytics-note");
+    if (!note) return;
+    var choice = localStorage.getItem(ANALYTICS_CONSENT_KEY);
+    note.textContent = choice === "granted"
+      ? "Optional first-party product analytics is allowed. No advertising tracker is loaded."
+      : choice === "declined"
+        ? "Optional analytics is off. No advertising tracker is loaded."
+        : "Optional analytics stays off unless you allow it. No advertising tracker is loaded.";
+  }
+
+  function trackProductEvent(name, properties) {
+    var allowed = ["page_view", "signup_started", "subscription_requested", "email_verified", "begin_checkout", "purchase"];
+    if (!analyticsAllowed() || allowed.indexOf(name) < 0) return;
+    window.dataLayer = window.dataLayer || [];
+    var event = { event: name, product: "paperboy" };
+    var safe = properties || {};
+    ["source_count", "billing_status", "currency", "value", "transaction_id"].forEach(function (key) {
+      if (safe[key] !== undefined && safe[key] !== null) event[key] = safe[key];
+    });
+    window.dataLayer.push(event);
+    var anonymousId = localStorage.getItem(ANALYTICS_ID_KEY);
+    if (!anonymousId) {
+      anonymousId = window.crypto && typeof window.crypto.randomUUID === "function"
+        ? window.crypto.randomUUID()
+        : "pb-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2);
+      localStorage.setItem(ANALYTICS_ID_KEY, anonymousId);
+    }
+    fetch("/api/analytics/event", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        event: name,
+        anonymous_id: anonymousId,
+        properties: Object.keys(event).reduce(function (result, key) {
+          if (key !== "event" && key !== "product") result[key] = event[key];
+          return result;
+        }, {})
+      })
+    }).catch(function () {
+      // Analytics never blocks the product flow.
+    });
+  }
+
+  function trackPageViewOnce() {
+    var key = "paperboy.analytics.page_view";
+    if (!analyticsAllowed() || sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    trackProductEvent("page_view");
+    var pixel = new Image();
+    pixel.alt = "";
+    pixel.src = "/api/hit?slug=paperboy&r=" + Date.now();
   }
 
   function routeTo(screen, options) {
@@ -230,7 +293,7 @@
     if (result && typeof result.detail === "string") return result.detail;
     if (result && result.detail && typeof result.detail.message === "string") return result.detail.message;
     if (result && typeof result.message === "string") return result.message;
-    return "Paperboy could not activate the daily brief. Check the feeds and try again.";
+    return "Paperboy could not save the daily brief request. Check the feeds and try again.";
   }
 
   function renderLivePreview(result) {
@@ -306,13 +369,41 @@
     }
   }
 
+  function checkoutUrl(value) {
+    if (typeof value !== "string" || !value.trim()) return "";
+    try {
+      var parsed = new URL(value, window.location.origin);
+      return parsed.protocol === "https:" && parsed.hostname === "checkout.stripe.com" ? parsed.href : "";
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function managementTokenFromResult(result) {
+    var candidates = [result && result.manage_url, result && result.status_url];
+    for (var i = 0; i < candidates.length; i += 1) {
+      if (typeof candidates[i] !== "string") continue;
+      try {
+        var parsed = new URL(candidates[i], window.location.origin);
+        var queryToken = parsed.searchParams.get("manage");
+        if (queryToken) return queryToken;
+        var match = parsed.pathname.match(/\/api\/firehose\/subscriptions\/([^/]+)$/);
+        if (match) return decodeURIComponent(match[1]);
+      } catch (error) {
+        continue;
+      }
+    }
+    return "";
+  }
+
   function renderSubscriptionActions(result) {
     activeManageUrl = actionUrl(result && result.manage_url);
     activeStatusUrl = actionUrl(result && result.status_url);
     activeUnsubscribeUrl = actionUrl(result && result.unsubscribe_url);
+    activeManagementToken = managementTokenFromResult(result) || activeManagementToken;
     document.getElementById("manage-subscription").hidden = !activeStatusUrl && !activeManageUrl;
     document.getElementById("unsubscribe-subscription").hidden = !activeUnsubscribeUrl;
-    document.getElementById("subscription-actions").hidden = !activeStatusUrl && !activeManageUrl && !activeUnsubscribeUrl;
+    document.getElementById("subscription-actions").hidden = !activeStatusUrl && !activeManageUrl && !activeUnsubscribeUrl && !activeManagementToken;
   }
 
   function showSubscriptionPreview(result) {
@@ -333,21 +424,49 @@
     return result.subscription && typeof result.subscription === "object" ? result.subscription : result;
   }
 
+  function trackLifecycleOnce(key, eventName, properties) {
+    var storageKey = "paperboy.lifecycle." + key;
+    if (sessionStorage.getItem(storageKey)) return;
+    sessionStorage.setItem(storageKey, "1");
+    trackProductEvent(eventName, properties);
+  }
+
   function renderManagedSubscription(result) {
     var details = subscriptionDetails(result);
     if (!details) return;
-    var status = String(details.status || result.status || "active").toLowerCase();
+    var status = String(details.status || result.status || "pending_verification").toLowerCase();
+    var billingStatus = String(details.billing_status || result.billing_status || "unpaid").toLowerCase();
     var delivery = details.delivery || details.schedule || "Daily · automatic";
-    var isActive = status === "active" || status === "subscribed";
-    document.getElementById("subscription-status").textContent = isActive ? "Active" : status.replace(/_/g, " ");
-    document.getElementById("subscription-delivery").textContent = typeof delivery === "string" ? delivery : "Daily · automatic";
+    var isVerified = status === "active" || status === "confirmed";
+    var isUnsubscribed = status === "unsubscribed";
+    var isDelivering = isVerified && (billingStatus === "trialing" || billingStatus === "active");
+    var checkoutRequired = isVerified && !isUnsubscribed && !isDelivering;
+    var canCheckout = checkoutRequired && (billingStatus === "unpaid" || billingStatus === "canceled");
+    var paymentLabels = {
+      unpaid: "Checkout required",
+      trialing: "7-day trial",
+      active: "$49/month",
+      past_due: "Payment past due",
+      canceled: "Canceled"
+    };
+    var statusLabel = isUnsubscribed ? "Unsubscribed" : isVerified ? "Email verified" : "Awaiting confirmation";
+    var deliveryLabel = isDelivering
+      ? (typeof delivery === "string" ? delivery : "Daily · automatic")
+      : isUnsubscribed || billingStatus === "canceled" ? "Stopped"
+        : billingStatus === "past_due" ? "Paused"
+          : checkoutRequired ? "Checkout required" : "Not started";
+    document.getElementById("subscription-status").textContent = statusLabel;
+    document.getElementById("subscription-delivery").textContent = deliveryLabel;
+    document.getElementById("subscription-payment").textContent = isVerified
+      ? (paymentLabels[billingStatus] || "Checkout required")
+      : "Not started";
     if (result.manage_url || result.status_url || result.unsubscribe_url) renderSubscriptionActions(result);
 
     var summary = document.getElementById("management-summary");
     summary.replaceChildren();
     if (details.email_masked) {
       var email = document.createElement("p");
-      email.textContent = "Delivering to " + details.email_masked;
+      email.textContent = "Email: " + details.email_masked;
       summary.appendChild(email);
     }
     if (details.focus) {
@@ -360,24 +479,51 @@
       sources.textContent = details.sources.length + (details.sources.length === 1 ? " public source" : " public sources") + " connected";
       summary.appendChild(sources);
     }
-    if (details.next_delivery_at && isActive) {
+    if (details.timezone) {
+      var timezone = document.createElement("p");
+      timezone.textContent = "Time zone: " + details.timezone;
+      summary.appendChild(timezone);
+    }
+    if (details.next_delivery_at && isDelivering) {
       var next = document.createElement("p");
       next.textContent = "Next delivery: " + details.next_delivery_at;
       summary.appendChild(next);
     }
     summary.hidden = !summary.childElementCount;
 
-    document.getElementById("subscription-success-title").textContent = isActive
-      ? "Your daily brief is active."
-      : "This daily brief is unsubscribed.";
-    document.getElementById("subscription-success-copy").textContent = isActive
-      ? "Paperboy saved this filter and will deliver the strongest matches automatically."
-      : "Automatic delivery is off. You can create a new filter whenever you are ready.";
-    document.getElementById("unsubscribe-subscription").hidden = !isActive || !activeUnsubscribeUrl;
-  }
-
-  function isKaiBuildsHost() {
-    return /(^|\.)kaibuilds\.com$/i.test(window.location.hostname);
+    document.getElementById("subscription-success-title").textContent = isUnsubscribed
+      ? "This daily brief is unsubscribed."
+      : billingStatus === "past_due" ? "Payment needs attention."
+        : billingStatus === "canceled" ? "Your paid delivery is canceled."
+      : isDelivering ? "Your daily brief is active."
+        : isVerified ? "Email verified. Finish checkout to start delivery."
+          : "Check your email.";
+    document.getElementById("subscription-success-copy").textContent = isUnsubscribed
+      ? "Automatic delivery is off. You can create a new filter whenever you are ready."
+      : billingStatus === "past_due" ? "Delivery is paused until payment is updated. No new charge was attempted from this page."
+        : billingStatus === "canceled" ? "Delivery is off. Your filter remains saved, and you can start a new hosted checkout when ready."
+      : isDelivering ? "Paperboy will refresh the sources and deliver the strongest matches automatically."
+        : isVerified ? "Your filter is saved. Start the hosted seven-day trial checkout; then it is $49 per month until canceled."
+          : "Paperboy saved the filter and sent a confirmation link. Nothing will be delivered until you confirm the address.";
+    document.getElementById("unsubscribe-subscription").hidden = isUnsubscribed || !activeUnsubscribeUrl;
+    document.getElementById("start-checkout").hidden = !canCheckout || !activeManagementToken || result.checkout_available === false;
+    document.getElementById("manage-billing").hidden = !activeManagementToken || result.portal_available !== true;
+    if (result.checkout_available === false && checkoutRequired) {
+      var fallback = document.getElementById("billing-fallback");
+      fallback.textContent = "Checkout is temporarily unavailable. Your email is verified, no card was charged, and delivery has not started.";
+      fallback.hidden = false;
+    }
+    if (isVerified) {
+      trackLifecycleOnce("email_verified", "email_verified");
+    }
+    if ((billingStatus === "active" || billingStatus === "trialing") && (details.transaction_id || result.transaction_id)) {
+      trackLifecycleOnce("purchase", "purchase", {
+        billing_status: billingStatus,
+        currency: details.currency || result.currency || "USD",
+        value: Number(details.value || result.value || 49),
+        transaction_id: details.transaction_id || result.transaction_id
+      });
+    }
   }
 
   function attributionFields() {
@@ -388,13 +534,6 @@
       if (value) fields[key] = value;
     });
     return fields;
-  }
-
-  function recordKaiBuildsVisit() {
-    if (!isKaiBuildsHost()) return;
-    var pixel = new Image();
-    pixel.alt = "";
-    pixel.src = "/api/hit?slug=paperboy&r=" + Date.now();
   }
 
   function getSelectedRepoObjects() {
@@ -531,21 +670,26 @@
     try {
       var detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
       var select = document.getElementById("delivery-zone");
-      if (select && Array.prototype.some.call(select.options, function (option) { return option.value === detected; })) {
-        if (!localStorage.getItem(STORAGE_KEY)) state.delivery.timezone = detected;
+      if (!localStorage.getItem(STORAGE_KEY) && detected) state.delivery.timezone = detected;
+      if (select && !Array.prototype.some.call(select.options, function (option) { return option.value === state.delivery.timezone; })) {
+        state.delivery.timezone = "UTC";
       }
     } catch (error) {
       state.delivery.timezone = state.delivery.timezone || "UTC";
     }
+    var intakeTimezone = document.getElementById("intake-timezone");
+    if (intakeTimezone) intakeTimezone.value = state.delivery.timezone || "UTC";
   }
 
   function renderDelivery() {
     var email = document.getElementById("delivery-email");
     var time = document.getElementById("delivery-time");
     var timezone = document.getElementById("delivery-zone");
+    var intakeTimezone = document.getElementById("intake-timezone");
     if (email && document.activeElement !== email) email.value = state.delivery.email || state.email;
     if (time && document.activeElement !== time) time.value = state.delivery.time;
     if (timezone) timezone.value = state.delivery.timezone;
+    if (intakeTimezone && document.activeElement !== intakeTimezone) intakeTimezone.value = state.delivery.timezone || "UTC";
     document.querySelectorAll('input[name="days"]').forEach(function (input) {
       input.checked = state.delivery.days.indexOf(input.value) >= 0;
     });
@@ -745,6 +889,7 @@
     var start = event.target.closest("[data-start]");
     if (start) {
       event.preventDefault();
+      trackProductEvent("signup_started");
       routeTo("signin");
       return;
     }
@@ -781,6 +926,8 @@
     var sourceUrls = sourceLines(document.getElementById("source-urls").value);
     var workFocus = document.getElementById("work-focus").value.trim();
     var ignoreFocus = document.getElementById("ignore-focus").value.trim();
+    var timezone = document.getElementById("intake-timezone").value.trim();
+    var consent = document.getElementById("email-consent").checked;
     if (!isValidEmail(input.value.trim())) {
       error.textContent = "Enter a valid email address.";
       input.setAttribute("aria-invalid", "true");
@@ -805,10 +952,21 @@
       document.getElementById("work-focus").focus();
       return;
     }
+    if (!timezone) {
+      intakeError.textContent = "Confirm the time zone for the daily edition.";
+      document.getElementById("intake-timezone").focus();
+      return;
+    }
+    if (!consent) {
+      intakeError.textContent = "Agree to receive the brief before continuing.";
+      document.getElementById("email-consent").focus();
+      return;
+    }
     submit.disabled = true;
-    submit.textContent = "Validating and activating…";
+    submit.textContent = "Validating and sending confirmation…";
     state.email = email;
     state.delivery.email = state.email;
+    state.delivery.timezone = timezone;
     saveState();
 
     var subscribeResult;
@@ -820,27 +978,33 @@
           email: email,
           sources: sourceUrls,
           focus: workFocus,
-          ignore: ignoreFocus ? ignoreFocus.split(",").map(function (term) { return term.trim(); }).filter(Boolean) : []
+          ignore: ignoreFocus ? ignoreFocus.split(",").map(function (term) { return term.trim(); }).filter(Boolean) : [],
+          timezone: timezone,
+          consent: true,
+          analytics_consent: analyticsAllowed()
         }, {
           source: "paperboy_automatic_subscription",
           page: window.location.href
         }, attributionFields()))
       });
       subscribeResult = await subscribeResponse.json();
-      if (!subscribeResponse.ok || !subscribeResult || subscribeResult.ok !== true || subscribeResult.status !== "subscribed") {
+      if (!subscribeResponse.ok || !subscribeResult || subscribeResult.ok !== true || ["pending_verification", "pending"].indexOf(subscribeResult.status) < 0) {
         throw new Error(subscriptionErrorMessage(subscribeResponse, subscribeResult));
       }
     } catch (subscriptionError) {
-      intakeError.textContent = subscriptionError && subscriptionError.message ? subscriptionError.message : "Paperboy could not activate the daily brief. Try again.";
+      intakeError.textContent = subscriptionError && subscriptionError.message ? subscriptionError.message : "Paperboy could not save the daily brief request. Try again.";
       submit.disabled = false;
       submit.textContent = "Start my daily brief";
       return;
     }
 
-    document.getElementById("subscription-success-title").textContent = "Your daily brief is active.";
-    document.getElementById("subscription-success-copy").textContent = "Paperboy saved your sources and filter. It will refresh them and deliver the strongest matches to your email automatically. No card was collected.";
-    document.getElementById("subscription-status").textContent = "Active";
-    document.getElementById("subscription-delivery").textContent = "Daily · automatic";
+    trackProductEvent("subscription_requested", { source_count: sourceUrls.length });
+    document.getElementById("subscription-success-title").textContent = "Check your email.";
+    document.getElementById("subscription-success-copy").textContent = "Paperboy saved your filter and sent a confirmation link. Nothing will be delivered until you confirm the address and finish checkout.";
+    document.getElementById("subscription-status").textContent = "Awaiting confirmation";
+    document.getElementById("subscription-delivery").textContent = "Not started";
+    document.getElementById("subscription-payment").textContent = "Not started";
+    document.getElementById("start-checkout").hidden = true;
     document.getElementById("management-summary").hidden = true;
     showSubscriptionPreview(subscribeResult);
     renderSubscriptionActions(subscribeResult);
@@ -850,6 +1014,7 @@
 
   document.getElementById("change-email").addEventListener("click", function () {
     document.getElementById("magic-success").hidden = true;
+    document.getElementById("confirmation-panel").hidden = true;
     document.getElementById("magic-link-form").hidden = false;
     var submit = document.getElementById("subscription-submit");
     submit.disabled = false;
@@ -860,7 +1025,7 @@
   async function refreshManagedSubscription(url) {
     var response = await fetch(url, { headers: { "Accept": "application/json" } });
     var result = await response.json();
-    if (!response.ok || !result || result.ok !== true || ["active", "unsubscribed"].indexOf(result.status) < 0) {
+    if (!response.ok || !result || result.ok !== true || ["pending_verification", "active", "confirmed", "unsubscribed"].indexOf(result.status) < 0) {
       throw new Error(subscriptionErrorMessage(response, result));
     }
     renderManagedSubscription(result);
@@ -886,6 +1051,63 @@
     } finally {
       button.disabled = false;
       button.textContent = "Refresh subscription status";
+    }
+  });
+
+  document.getElementById("start-checkout").addEventListener("click", async function (event) {
+    var button = event.currentTarget;
+    var fallback = document.getElementById("billing-fallback");
+    if (!activeManagementToken) {
+      fallback.textContent = "Open the private management link from your email before starting checkout.";
+      fallback.hidden = false;
+      return;
+    }
+    button.disabled = true;
+    button.textContent = "Opening secure checkout…";
+    fallback.hidden = true;
+    trackProductEvent("begin_checkout", { currency: "USD", value: 49 });
+    try {
+      var response = await fetch("/api/billing/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: activeManagementToken })
+      });
+      var result = await response.json();
+      var target = checkoutUrl(result && result.checkout_url);
+      if (!response.ok || !result || result.ok !== true || !target) {
+        throw new Error(result && (result.detail || result.error));
+      }
+      sessionStorage.setItem(CHECKOUT_MANAGEMENT_KEY, activeManagementToken);
+      window.location.assign(target);
+    } catch (error) {
+      fallback.textContent = "Checkout is temporarily unavailable. Your email is verified, no card was charged, and delivery has not started.";
+      fallback.hidden = false;
+      button.disabled = false;
+      button.textContent = "Try founding checkout again";
+    }
+  });
+
+  document.getElementById("manage-billing").addEventListener("click", async function (event) {
+    var button = event.currentTarget;
+    var fallback = document.getElementById("billing-fallback");
+    button.disabled = true;
+    fallback.hidden = true;
+    try {
+      var response = await fetch("/api/billing/portal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: activeManagementToken })
+      });
+      var result = await response.json();
+      var target = typeof result.portal_url === "string" ? new URL(result.portal_url) : null;
+      if (!response.ok || !result.ok || !target || target.protocol !== "https:" || target.hostname !== "billing.stripe.com") {
+        throw new Error("billing portal unavailable");
+      }
+      window.location.assign(target.href);
+    } catch (error) {
+      fallback.textContent = "Billing management is temporarily unavailable. No account change was made.";
+      fallback.hidden = false;
+      button.disabled = false;
     }
   });
 
@@ -918,6 +1140,42 @@
         }
       }
     );
+  });
+
+  document.getElementById("confirm-subscription").addEventListener("click", async function (event) {
+    var button = event.currentTarget;
+    var errorNode = document.getElementById("confirmation-error");
+    if (!confirmationToken) return;
+    button.disabled = true;
+    button.textContent = "Confirming…";
+    errorNode.textContent = "";
+    try {
+      var encoded = encodeURIComponent(confirmationToken);
+      var response = await fetch("/api/firehose/subscriptions/" + encoded + "/confirm", {
+        method: "POST",
+        headers: { "Accept": "application/json" }
+      });
+      var result = await response.json();
+      if (!response.ok || !result || result.ok !== true || ["active", "confirmed"].indexOf(result.status) < 0) {
+        throw new Error(subscriptionErrorMessage(response, result));
+      }
+      confirmationToken = "";
+      history.replaceState(null, "", window.location.pathname + "#signin");
+      document.getElementById("confirmation-panel").hidden = true;
+      document.getElementById("magic-success").hidden = false;
+      renderSubscriptionActions(result);
+      renderManagedSubscription(result);
+      document.getElementById("billing-fallback").hidden = true;
+      if (result.checkout_available === false) {
+        document.getElementById("start-checkout").hidden = true;
+        document.getElementById("billing-fallback").textContent = "Checkout is temporarily unavailable. Your email is verified, no card was charged, and delivery has not started.";
+        document.getElementById("billing-fallback").hidden = false;
+      }
+    } catch (error) {
+      errorNode.textContent = error && error.message ? error.message : "Paperboy could not verify this link. It may be invalid or expired.";
+      button.disabled = false;
+      button.textContent = "Confirm my email";
+    }
   });
 
   document.querySelectorAll("[data-feed-preset]").forEach(function (button) {
@@ -1068,9 +1326,37 @@
     pendingDialogAction = null;
   });
 
-  async function openManagedSubscription(token) {
+  document.getElementById("allow-analytics").addEventListener("click", function () {
+    localStorage.setItem(ANALYTICS_CONSENT_KEY, "granted");
+    updateAnalyticsConsentUi();
+    trackPageViewOnce();
+    toast("Optional first-party product analytics allowed.");
+  });
+
+  document.getElementById("decline-analytics").addEventListener("click", function () {
+    localStorage.setItem(ANALYTICS_CONSENT_KEY, "declined");
+    localStorage.removeItem(ANALYTICS_ID_KEY);
+    updateAnalyticsConsentUi();
+    toast("Optional product analytics remains off.");
+  });
+
+  function openConfirmationScreen(token) {
+    confirmationToken = token;
     routeTo("signin");
     document.getElementById("magic-link-form").hidden = true;
+    document.getElementById("magic-success").hidden = true;
+    document.getElementById("confirmation-panel").hidden = false;
+    document.getElementById("confirmation-error").textContent = "";
+    var button = document.getElementById("confirm-subscription");
+    button.disabled = false;
+    button.textContent = "Confirm my email";
+  }
+
+  async function openManagedSubscription(token) {
+    routeTo("signin");
+    confirmationToken = "";
+    document.getElementById("magic-link-form").hidden = true;
+    document.getElementById("confirmation-panel").hidden = true;
     document.getElementById("magic-success").hidden = false;
     document.getElementById("subscription-success-title").textContent = "Loading your daily brief…";
     document.getElementById("subscription-success-copy").textContent = "Paperboy is checking the current subscription status.";
@@ -1097,7 +1383,18 @@
 
   function initialRoute() {
     detectTimezone();
-    var manageToken = new URLSearchParams(location.search).get("manage");
+    updateAnalyticsConsentUi();
+    trackPageViewOnce();
+    var params = new URLSearchParams(location.search);
+    var confirmToken = params.get("confirm");
+    var manageToken = params.get("manage");
+    if (confirmToken) {
+      openConfirmationScreen(confirmToken);
+      return;
+    }
+    if (params.get("billing") === "success" && !manageToken) {
+      manageToken = sessionStorage.getItem(CHECKOUT_MANAGEMENT_KEY) || "";
+    }
     if (manageToken) {
       openManagedSubscription(manageToken);
       return;
@@ -1112,7 +1409,6 @@
     }
   }
 
-  recordKaiBuildsVisit();
   saveState();
   initialRoute();
 })();

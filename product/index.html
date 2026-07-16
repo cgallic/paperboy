@@ -21,7 +21,7 @@
   <div class="local-banner" role="status">
     <span class="status-dot" aria-hidden="true"></span>
     <strong>Automatic daily delivery</strong>
-    <span>Add your feeds once. Paperboy filters and delivers what survives every day.</span>
+    <span>Add your feeds once. Confirm your email and start the trial, then Paperboy delivers what survives every day.</span>
   </div>
 
   <header class="site-header" id="site-header">
@@ -68,7 +68,7 @@
           <ul class="trust-line" aria-label="Product boundaries">
             <li>Any public RSS or Atom feed</li>
             <li>No Gmail access</li>
-            <li>No card during launch</li>
+            <li>Confirm before delivery starts</li>
           </ul>
         </div>
 
@@ -93,7 +93,7 @@
             <p><strong>Why it matters:</strong> It overlaps the margin decision in your filter.</p>
             <footer><span>1 of 4 signals</span><span>Open source ↗</span></footer>
           </article>
-            <p class="desk-boundary">Example layout. Setup validates your feeds and generates the first live cut before activating daily delivery.</p>
+            <p class="desk-boundary">Example layout. Setup validates your feeds and generates the first live cut before email verification and checkout.</p>
         </div>
       </section>
 
@@ -153,12 +153,12 @@
           <li>
             <span class="route-number">3</span>
             <h3>Let Paperboy set it up</h3>
-            <p>Paperboy validates the feeds, scans recent items, ranks the best matches, and saves the filter automatically.</p>
+            <p>Paperboy validates the feeds, scans recent items, ranks the best matches, saves the filter, and emails a secure confirmation link.</p>
           </li>
           <li>
             <span class="route-number route-number-final">✓</span>
             <h3>Wake up to the daily cut</h3>
-            <p>Your active filter refreshes the sources and sends the strongest matches to your email every day.</p>
+            <p>After you confirm the address and start the trial, your active filter refreshes the sources and sends the strongest matches every day.</p>
           </li>
         </ol>
       </section>
@@ -182,17 +182,17 @@
 
       <section class="section pricing-section" id="pricing">
         <div class="section-heading section-heading-narrow">
-          <p class="eyebrow">Launch access</p>
-          <h2>Start the daily brief without a card.</h2>
-          <p>Paste your public feeds and activate automatic daily delivery. Paperboy is not collecting payment during launch.</p>
+          <p class="eyebrow">Founding offer</p>
+          <h2>Try your filtered firehose for seven days.</h2>
+          <p>Preview the filter free. After email verification, start a card-required seven-day trial to activate daily delivery. Then pay $49 per month until canceled.</p>
         </div>
         <div class="pricing-grid">
           <article class="price-card price-card-primary">
             <div>
-              <p class="price-label">Available during launch</p>
+              <p class="price-label">Seven-day trial</p>
               <h3>Paperboy Filtered Firehose</h3>
-              <p class="price"><span>$</span>0 <small>today</small></p>
-              <p class="hypothesis">Planned founding price: $49/month. No card or payment is collected yet.</p>
+              <p class="price"><span>$</span>49 <small>/ month</small></p>
+              <p class="hypothesis">Card required for the seven-day trial. Billing starts after the trial unless you cancel.</p>
               <ul>
                 <li>Your chosen public RSS and Atom feeds</li>
                 <li>A relevance filter built around your work</li>
@@ -226,11 +226,11 @@
           </details>
           <details>
             <summary>Is the first brief automated?</summary>
-            <p>Yes. Paperboy validates the feeds, scans recent items, removes duplicates, ranks them against your filter, and activates daily delivery.</p>
+            <p>Yes. Paperboy validates the feeds, scans recent items, removes duplicates, and ranks them against your filter. Delivery starts only after email confirmation and hosted trial checkout.</p>
           </details>
           <details>
             <summary>Do I need to wait for someone to set it up?</summary>
-            <p>No. A successful setup saves the filter and activates daily delivery immediately. If Paperboy cannot validate or save it, the page shows the error and does not claim the subscription is active.</p>
+            <p>No. Paperboy validates and saves the filter automatically, then asks you to confirm the email address. No operator needs to approve it.</p>
           </details>
         </div>
       </section>
@@ -248,10 +248,10 @@
         <div class="flow-card">
           <p class="eyebrow">Automatic filter setup</p>
           <h1>Start your automatic daily brief.</h1>
-          <p>Choose Hacker News or paste public RSS and Atom feeds. Tell Paperboy what matters once; it validates, saves, filters, and delivers the daily cut automatically.</p>
+          <p>Choose Hacker News or paste public RSS and Atom feeds. Tell Paperboy what matters once; it validates the filter and emails you a secure activation link.</p>
           <div class="guardrail">
             <strong>No human setup</strong>
-            <span>A successful setup validates your public feeds, saves the filter, and turns on daily delivery immediately. It does not connect to an inbox.</span>
+            <span>Paperboy validates and saves your public feeds automatically. Confirm your email, then start the hosted trial checkout to turn on delivery. It does not connect to an inbox.</span>
           </div>
           <form id="magic-link-form" novalidate>
             <div class="field">
@@ -281,17 +281,33 @@
               <label for="ignore-focus">What should Paperboy ignore? <span>optional</span></label>
               <input id="ignore-focus" name="ignore_focus" type="text" placeholder="Funding gossip, beginner tutorials, hardware news">
             </div>
+            <div class="field">
+              <label for="intake-timezone">Your time zone</label>
+              <input id="intake-timezone" name="timezone" type="text" autocomplete="off" required aria-describedby="timezone-help">
+              <span class="field-help" id="timezone-help">Detected from this browser. Edit it if you want the daily edition scheduled elsewhere.</span>
+            </div>
+            <label class="consent-check" for="email-consent">
+              <input id="email-consent" name="email_consent" type="checkbox" required>
+              <span>I agree to receive the Paperboy brief and service emails. I can unsubscribe at any time. See the <a href="/privacy/">privacy notice</a>.</span>
+            </label>
             <span class="form-error" id="intake-error" role="alert"></span>
             <button class="button button-wide" type="submit" id="subscription-submit">Start my daily brief</button>
           </form>
+          <div class="confirmation-panel" id="confirmation-panel" hidden>
+            <p class="eyebrow">Confirm your email</p>
+            <h2>Verify your email to continue.</h2>
+            <p>This link verifies the address. Delivery starts only after Stripe confirms the trial is active.</p>
+            <span class="form-error" id="confirmation-error" role="alert"></span>
+            <button class="button button-wide" id="confirm-subscription" type="button">Confirm my email</button>
+          </div>
           <div class="magic-success" id="magic-success" hidden>
             <div class="success-mark" aria-hidden="true">✓</div>
-            <h2 id="subscription-success-title">Your daily brief is active.</h2>
-            <p id="subscription-success-copy">Paperboy saved your sources and filter. It will refresh them and deliver the strongest matches to your email automatically.</p>
+            <h2 id="subscription-success-title">Check your email.</h2>
+            <p id="subscription-success-copy">Paperboy saved your filter and sent a confirmation link. Nothing will be delivered until you confirm the address and finish checkout.</p>
             <div class="subscription-ledger" aria-label="Subscription status">
-              <div><span>Status</span><strong id="subscription-status">Active</strong></div>
-              <div><span>Delivery</span><strong id="subscription-delivery">Daily · automatic</strong></div>
-              <div><span>Payment</span><strong>No card collected</strong></div>
+              <div><span>Status</span><strong id="subscription-status">Awaiting confirmation</strong></div>
+              <div><span>Delivery</span><strong id="subscription-delivery">Not started</strong></div>
+              <div><span>Payment</span><strong id="subscription-payment">Checkout required</strong></div>
             </div>
             <div class="management-summary" id="management-summary" hidden></div>
             <div id="preview-results" hidden>
@@ -300,8 +316,11 @@
             </div>
             <nav class="subscription-actions" id="subscription-actions" aria-label="Manage daily brief" hidden>
               <button class="button button-outline" id="manage-subscription" type="button">Refresh subscription status</button>
+              <button class="button" id="start-checkout" type="button" hidden>Continue to founding checkout</button>
+              <button class="button button-outline" id="manage-billing" type="button" hidden>Manage billing</button>
               <button class="text-button" id="unsubscribe-subscription" type="button">Unsubscribe</button>
             </nav>
+            <p class="billing-fallback" id="billing-fallback" role="status" hidden></p>
             <button class="text-button button-wide" type="button" id="change-email">Change the filter</button>
           </div>
         </div>
@@ -504,8 +523,8 @@
         <div class="checkout-grid">
           <div class="flow-card">
             <p class="eyebrow">Checkout handoff preview</p>
-            <h1>No charge can be created here.</h1>
-            <p>This static product surface has no Stripe account, backend, price ID, or payment form. The production handoff would use hosted checkout and repeat the plan terms before any charge.</p>
+            <h1>Hosted checkout keeps card details off Paperboy.</h1>
+            <p>This legacy design fixture demonstrates the handoff. The live subscription flow uses Stripe-hosted checkout after email verification.</p>
             <div class="guardrail guardrail-strong">
               <strong>Demo boundary</strong>
               <span>“Preview successful setup” changes local UI state only. It does not create a customer, subscription, invoice, or schedule.</span>
@@ -517,11 +536,11 @@
             <p class="price-label">Plan summary</p>
             <h2>Paperboy Daily Brief</h2>
             <p class="price"><span>$</span>49 <small>/ month</small></p>
-            <p class="hypothesis">The planned founding price is $49/month. Payment is not available during launch, and this product tour cannot create a charge.</p>
+            <p class="hypothesis">The founding price is $49/month after a card-required seven-day trial. The live flow repeats these terms before checkout.</p>
             <dl>
               <div><dt>Repositories</dt><dd id="checkout-repo-count">0 selected</dd></div>
               <div><dt>Delivery</dt><dd id="checkout-delivery">Not set</dd></div>
-              <div><dt>Billing today</dt><dd>$0.00 — demo</dd></div>
+              <div><dt>Trial terms</dt><dd>7 days, then $49/month</dd></div>
             </dl>
           </aside>
         </div>
@@ -662,7 +681,14 @@
     </div>
     <p>Build a public-source firehose. Read only what survives your filter.</p>
     <div>
-      <span>Automatic daily delivery · no card during launch</span>
+      <span>Seven-day card-required trial · then $49/month until canceled</span>
+      <nav class="footer-links" aria-label="Legal and privacy">
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+        <button class="text-button" id="allow-analytics" type="button">Allow product analytics</button>
+        <button class="text-button" id="decline-analytics" type="button">Decline analytics</button>
+      </nav>
+      <small id="analytics-note">Optional analytics stays off unless you allow it. No advertising tracker is loaded.</small>
     </div>
   </footer>
 
@@ -681,7 +707,7 @@
   </dialog>
 
   <noscript>
-    <div class="noscript">Paperboy needs JavaScript to validate, save, and activate your daily brief. No Gmail, GitHub, or billing connection is made.</div>
+    <div class="noscript">Paperboy needs JavaScript to validate and save your filter, confirm your email, and open secure checkout. No Gmail or GitHub connection is made.</div>
   </noscript>
 </body>
 </html>

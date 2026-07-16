@@ -64,10 +64,21 @@ class PaperboyConfig(BaseSettings):
     smtp_starttls: bool = True
     email_from: str = "paperboy@localhost"
     email_to: str | None = None
+    email_reply_to: str | None = None
 
     # Hosted firehose
     public_url: str = "https://paperboy.kaibuilds.com"
     manage_secret: str | None = None
+    tracking_secret: str | None = None
+    kaibuilds_capture_url: str | None = None
+
+    # Billing (Stripe-hosted Checkout + customer portal)
+    stripe_secret_key: str | None = None
+    stripe_webhook_secret: str | None = None
+    stripe_price_id: str | None = None
+    stripe_trial_days: int = Field(default=7, ge=0, le=90)
+    stripe_monthly_price_cents: int = Field(default=4900, ge=50)
+    stripe_currency: str = "usd"
 
     # API
     dashboard_url: str = ""
@@ -76,9 +87,9 @@ class PaperboyConfig(BaseSettings):
 
     @field_validator("root", mode="before")
     @classmethod
-    def _fallback_root(cls, v):
+    def _fallback_root(cls, v: Path | str | None) -> Path:
         if v is not None:
-            return v
+            return Path(v)
         p = os.environ.get("PAPERBOY_ROOT") or os.environ.get("BRAIN_ROOT")
         return Path(p) if p else Path.home() / ".paperboy"
 
@@ -92,6 +103,10 @@ class PaperboyConfig(BaseSettings):
     @property
     def discord_webhook_url(self) -> str | None:
         return self.discord_webhook or os.environ.get("DISCORD_WEBHOOK_URL")
+
+    @property
+    def billing_enabled(self) -> bool:
+        return bool(self.stripe_secret_key and self.stripe_webhook_secret and self.stripe_price_id)
 
 
 # Singleton — import this everywhere instead of os.environ.get(...)

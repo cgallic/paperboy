@@ -9,24 +9,28 @@ The primary flow is real, bounded product behavior:
 - describe what should make an item relevant and optionally name noise to ignore;
 - call the same-origin `/api/firehose/subscribe` endpoint once;
 - validate and safely fetch up to six public feeds;
-- persist the email, source list, relevance filter, and automatic delivery state;
+- persist the email, source list, relevance filter, consent, time zone, and pending verification state;
 - scan, filter, rank, deduplicate, and source-link the recent items;
 - render the first cut when returned; and
+- require an explicit confirmation POST from the emailed link;
+- hand verified users to Stripe-hosted checkout; and
 - expose tokenized in-page status and unsubscribe controls.
 
-The page only shows **Your daily brief is active** after the subscription API
-confirms `{ok: true, status: "subscribed"}`. A validation or persistence error
-keeps the form visible and never claims delivery was activated. Campaign
-attribution is sent with the subscription request, so there is no separate lead
-or human-follow-up step.
+The subscription API first returns `{ok: true, status: "pending_verification"}`.
+The page says **Check your email** and never claims delivery is active. The
+emailed `?confirm=` link renders an explicit confirmation button; it does not
+confirm on page load. After confirmation, the management screen requires hosted
+checkout and only claims delivery is active when server billing status is
+`trialing` or `active`.
 
 ## Product boundary
 
 The automatic subscription supports public RSS and Atom feeds. It does not
-connect to an inbox or auto-subscribe a user to email-only newsletters. No card
-or payment is collected during launch. The existing setup/account/checkout
-routes remain clearly labeled local fixture previews and are not linked from
-the primary live flow.
+connect to an inbox or auto-subscribe a user to email-only newsletters. The
+live commercial offer is a card-required seven-day trial, then $49/month until
+canceled. Card details remain on Stripe-hosted checkout. The existing
+setup/account/checkout routes remain clearly labeled fixture previews and are
+not linked from the primary live flow.
 
 ## Serve locally
 
@@ -55,8 +59,10 @@ git diff --check
 3. Choose one quick-start feed or paste up to six public RSS/Atom feed URLs.
 4. Describe what should make an item relevant.
 5. Optionally provide comma-separated ignore terms.
-6. Activate the filter and inspect the first ranked, source-linked results.
-7. Use the returned management controls to refresh status or unsubscribe.
+6. Request the subscription and inspect the first ranked, source-linked results.
+7. Open the emailed link and explicitly confirm the address.
+8. Start the card-required seven-day trial through hosted checkout.
+9. Use the returned management controls to refresh status or unsubscribe.
 
 ## Acceptance checklist
 
@@ -68,9 +74,14 @@ git diff --check
 - [ ] `/api/firehose/subscribe` is same-origin, bounded, and rejects private/non-public destinations.
 - [ ] Per-source failures do not discard valid feed results.
 - [ ] Preview items include title, source, score, relevance explanation, and original URL.
-- [ ] Success is rendered only after the API confirms an active subscription.
-- [ ] Successful subscriptions persist email, source URLs, focus, ignore terms, and attribution.
+- [ ] Pending requests render **Check your email** and never claim active delivery.
+- [ ] Successful requests persist email, source URLs, focus, ignore terms, time zone, consent, and attribution.
+- [ ] Confirmation requires an explicit POST and never exposes its token to analytics or lead capture.
+- [ ] Daily delivery is called active only when billing status is `trialing` or `active`.
+- [ ] Checkout accepts only a Stripe-hosted HTTPS URL and has a truthful unavailable state.
 - [ ] Tokenized status and unsubscribe actions work in-page without exposing tokens in copy.
-- [ ] Copy never claims Gmail access, automatic email-only newsletter subscription, or live billing.
+- [ ] Copy never claims Gmail access or automatic email-only newsletter subscription.
+- [ ] Optional first-party analytics sends only consented, anonymous lifecycle events.
+- [ ] Privacy and terms pages are linked from the footer.
 - [ ] Desktop and mobile flows complete without horizontal overflow.
 - [ ] Keyboard focus, labels, errors, reduced motion, target size, contrast, and typography pass the implemented Design OS floor.

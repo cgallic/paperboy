@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "paperboy"
-version = "0.3.0"
+version = "0.4.0"
 description = "Personal relevance filter that turns public RSS and Atom feeds into a short, source-linked brief."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -25,11 +25,13 @@ dependencies = [
     "pyyaml>=6.0",
     "pydantic>=2.0",
     "pydantic-settings>=2.0",
+    "tzdata>=2025.2",
 ]
 
 [project.optional-dependencies]
 api = [
     "fastapi>=0.110",
+    "stripe>=14.0,<15",
     "uvicorn[standard]>=0.29",
 ]
 email = [
@@ -43,6 +45,7 @@ dev = [
 ]
 all = [
     "fastapi>=0.110",
+    "stripe>=14.0,<15",
     "uvicorn[standard]>=0.29",
     "apscheduler>=3.10",
     "pytest>=8.0",
