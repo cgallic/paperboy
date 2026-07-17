@@ -65,6 +65,7 @@ class PaperboyConfig(BaseSettings):
     email_from: str = "paperboy@localhost"
     email_to: str | None = None
     email_reply_to: str | None = None
+    bounce_domain: str = "kaibuilds.com"
 
     # Hosted firehose
     public_url: str = "https://paperboy.kaibuilds.com"

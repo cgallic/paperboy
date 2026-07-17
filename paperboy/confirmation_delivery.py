@@ -10,6 +10,7 @@ from typing import Any
 from paperboy.email.sender import send_raw
 from paperboy.logging_config import configure_logging, get_logger
 from paperboy.subscriptions import (
+    bounce_address,
     claim_pending_confirmations,
     confirmation_token,
     confirmation_url,
@@ -58,7 +59,13 @@ def run_pending_confirmations(
     for subscription in subscriptions:
         try:
             subject, text, body_html = _render_confirmation(subscription)
-            result = send(subject, text, body_html, to=str(subscription["email"]))
+            result = send(
+                subject,
+                text,
+                body_html,
+                to=str(subscription["email"]),
+                envelope_from=bounce_address(subscription),
+            )
             ok = bool(result.get("ok"))
             detail = str(result.get("detail", "sent" if ok else "failed"))
         except Exception as exc:

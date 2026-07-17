@@ -10,6 +10,13 @@ from fastapi.testclient import TestClient
 
 from paperboy.api.main import app
 from paperboy.db import connect
+from paperboy.subscriptions import (
+    bounce_address,
+    confirm_subscription,
+    confirmation_token,
+    create_subscription,
+    get_subscription_by_id,
+)
 
 
 class APITests(unittest.TestCase):
@@ -81,6 +88,31 @@ class APITests(unittest.TestCase):
         self.assertEqual(response.headers["x-frame-options"], "DENY")
         self.assertEqual(response.headers["referrer-policy"], "no-referrer")
         self.assertIn("frame-ancestors 'none'", response.headers["content-security-policy"])
+
+    def test_signed_hard_bounce_report_suppresses_delivery(self) -> None:
+        pending, _token = create_subscription(
+            "bounce-api@example.com",
+            ["https://example.com/feed"],
+            "agent reliability",
+            [],
+        )
+        confirmed = confirm_subscription(confirmation_token(pending))
+        assert confirmed is not None
+        address = bounce_address(confirmed)
+        report = (
+            f"Delivered-To: {address}\r\n"
+            "Content-Type: multipart/report; boundary=paperboy\r\n\r\n"
+            "--paperboy\r\nContent-Type: text/plain\r\n\r\nDelivery failed.\r\n"
+            "--paperboy\r\nContent-Type: message/delivery-status\r\n\r\n"
+            "Action: failed\r\nStatus: 5.1.1\r\n\r\n--paperboy--\r\n"
+        )
+        response = self.client.post(
+            "/api/email/bounce", content=report, headers={"Content-Type": "message/rfc822"}
+        )
+        self.assertEqual(response.status_code, 204)
+        updated = get_subscription_by_id(confirmed["id"])
+        assert updated is not None
+        self.assertTrue(updated["suppressed"])
 
     def test_lead_rejects_invalid_email(self) -> None:
         response = self.client.post("/api/lead", json={"email": "not-an-email"})

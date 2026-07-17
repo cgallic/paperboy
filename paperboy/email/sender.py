@@ -95,6 +95,7 @@ def send_raw(
     dry_run: bool = False,
     unsubscribe_url: str | None = None,
     message_id: str | None = None,
+    envelope_from: str | None = None,
 ) -> dict:
     """Send a raw multipart email with optional RFC 8058 unsubscribe headers."""
     to_addr = to or settings.email_to
@@ -126,7 +127,7 @@ def send_raw(
         with _create_smtp_connection() as conn:
             if settings.smtp_user and settings.smtp_pass:
                 conn.login(settings.smtp_user, settings.smtp_pass)
-            conn.sendmail(from_address, [to_addr], msg.as_string())
+            conn.sendmail(envelope_from or from_address, [to_addr], msg.as_string())
         logger.info("email_sent", extra={"event": "email_sent", "to": to_addr, "subject": subject})
         return {"ok": True, "detail": "sent", "message_id": outbound_message_id}
     except Exception as exc:

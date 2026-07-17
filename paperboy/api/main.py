@@ -21,6 +21,8 @@ import urllib.error
 import urllib.request
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
+from email import policy
+from email.parser import BytesParser
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
@@ -61,6 +63,7 @@ from paperboy.subscriptions import (
     next_delivery_at,
     record_tracking_event,
     resolve_click_target,
+    suppress_from_bounce_address,
     unsubscribe,
     validate_subscription_payload,
 )
@@ -275,6 +278,35 @@ async def capture_analytics_event(request: Request) -> Response:
         "analytics_event",
         {"event": body["event"], "anonymous_id": anonymous_id, "properties": properties},
     )
+    return Response(status_code=204)
+
+
+@app.post("/api/email/bounce")
+async def capture_hard_bounce(request: Request) -> Response:
+    """Consume a Postfix DSN and suppress only a signed hard-bounce recipient."""
+    raw = await request.body()
+    if len(raw) > 512_000:
+        raise HTTPException(status_code=413, detail="bounce report is too large")
+    message = BytesParser(policy=policy.default).parsebytes(raw)
+    report_text = raw.decode("utf-8", errors="replace")
+    is_delivery_report = (
+        message.get_content_type() == "multipart/report"
+        or "message/delivery-status" in report_text.casefold()
+    )
+    is_hard_failure = bool(
+        re.search(r"(?im)^Action:\s*failed\s*$", report_text)
+        and re.search(r"(?im)^Status:\s*5\.\d+\.\d+\s*$", report_text)
+    )
+    if not is_delivery_report or not is_hard_failure:
+        return Response(status_code=204)
+    pattern = re.compile(
+        rf"paperboy-bounce\+\d+\.[a-f0-9]{{32}}@{re.escape(settings.bounce_domain)}",
+        re.IGNORECASE,
+    )
+    for address in pattern.findall(report_text):
+        if await asyncio.to_thread(suppress_from_bounce_address, address):
+            logger.warning("hard_bounce_suppressed", extra={"event": "hard_bounce_suppressed"})
+            break
     return Response(status_code=204)
 
 

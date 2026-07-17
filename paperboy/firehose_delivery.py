@@ -16,6 +16,7 @@ from paperboy.firehose import build_firehose_preview
 from paperboy.logging_config import configure_logging, get_logger
 from paperboy.subscriptions import (
     active_subscriptions,
+    bounce_address,
     create_tracking_token,
     delivery_date_if_due,
     management_token,
@@ -253,6 +254,7 @@ def run_daily_deliveries(
                 to=str(subscription["email"]),
                 unsubscribe_url=unsubscribe_url,
                 message_id=claim.message_id,
+                envelope_from=bounce_address(subscription),
             )
             status = "sent" if result.get("ok") else "failed"
             detail = str(result.get("detail", status))

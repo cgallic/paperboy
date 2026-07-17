@@ -5,6 +5,7 @@ import hashlib
 import hmac
 import json
 import os
+import re
 import secrets
 import sqlite3
 from datetime import date, datetime, time, timedelta, timezone
@@ -562,6 +563,36 @@ def suppress_email(email: str, reason: str, detail: str = "") -> None:
         conn.commit()
     finally:
         conn.close()
+
+
+def bounce_address(subscription: dict[str, Any]) -> str:
+    """Return a signed, non-PII envelope sender for bounce correlation."""
+    subscription_id = int(subscription["id"])
+    signature = hmac.new(
+        _management_secret(), f"bounce:{subscription_id}".encode(), hashlib.sha256
+    ).hexdigest()[:32]
+    return f"paperboy-bounce+{subscription_id}.{signature}@{settings.bounce_domain}"
+
+
+def suppress_from_bounce_address(address: str, detail: str = "hard bounce reported") -> bool:
+    """Verify a bounce envelope recipient and suppress only its signed subscription."""
+    match = re.fullmatch(
+        rf"paperboy-bounce\+(\d+)\.([a-f0-9]{{32}})@{re.escape(settings.bounce_domain)}",
+        address.strip().casefold(),
+    )
+    if match is None:
+        return False
+    subscription_id = int(match.group(1))
+    expected = hmac.new(
+        _management_secret(), f"bounce:{subscription_id}".encode(), hashlib.sha256
+    ).hexdigest()[:32]
+    if not hmac.compare_digest(match.group(2), expected):
+        return False
+    subscription = get_subscription_by_id(subscription_id)
+    if subscription is None:
+        return False
+    suppress_email(str(subscription["email"]), "hard_bounce", detail)
+    return True
 
 
 def unsuppress_email(email: str) -> bool:

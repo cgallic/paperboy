@@ -18,6 +18,7 @@ from paperboy.subscriptions import (
     SubscriptionValidationError,
     active_subscriptions,
     allow_subscription_attempt,
+    bounce_address,
     claim_billing_webhook,
     confirm_subscription,
     confirmation_token,
@@ -31,6 +32,7 @@ from paperboy.subscriptions import (
     resolve_click_target,
     set_billing_state,
     suppress_email,
+    suppress_from_bounce_address,
     unsuppress_email,
     validate_subscription_payload,
 )
@@ -364,6 +366,15 @@ class TimezoneAndDeliveryTests(ReliabilityTestCase):
 
 
 class TrackingAndEmailTests(ReliabilityTestCase):
+    def test_signed_bounce_address_suppresses_only_its_subscription(self) -> None:
+        subscription, _token = self.confirm_and_entitle()
+        address = bounce_address(subscription)
+        self.assertNotIn("reader@example.com", address)
+        self.assertFalse(suppress_from_bounce_address(address.replace("a", "b", 1)))
+        self.assertEqual(len(active_subscriptions()), 1)
+        self.assertTrue(suppress_from_bounce_address(address))
+        self.assertEqual(active_subscriptions(), [])
+
     def test_tracking_tokens_are_hashed_and_click_target_is_server_side(self) -> None:
         subscription, _token = self.create()
         click = create_tracking_token(
