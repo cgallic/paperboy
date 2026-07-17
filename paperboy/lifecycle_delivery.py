@@ -164,6 +164,8 @@ def deliver_pending(
             ),
             "lifecycle_event": row["event_type"],
             "paperboy_subscription_id": int(row["subscription_id"]),
+            "cadence": subscription["cadence"],
+            "weekly_day": subscription["weekly_day"],
             **{
                 key: value
                 for key, value in attribution.items()

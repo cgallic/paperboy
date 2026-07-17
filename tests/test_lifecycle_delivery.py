@@ -56,6 +56,8 @@ class LifecycleDeliveryTests(unittest.TestCase):
         self.assertEqual(summary, {"claimed": 1, "delivered": 1, "failed": 0, "skipped": 0})
         self.assertEqual(payloads[0]["utm_source"], "kaibuilds")
         self.assertEqual(payloads[0]["lifecycle_event"], "email_verified")
+        self.assertEqual(payloads[0]["cadence"], "daily")
+        self.assertEqual(payloads[0]["weekly_day"], 0)
         conn = connect()
         try:
             status = conn.execute("SELECT status FROM product_lifecycle_outbox").fetchone()[0]
