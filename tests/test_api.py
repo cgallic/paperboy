@@ -9,6 +9,7 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
@@ -215,6 +216,72 @@ class APITests(unittest.TestCase):
         updated = get_subscription_by_id(confirmed["id"])
         assert updated is not None
         self.assertTrue(updated["suppressed"])
+
+    def test_stripe_webhook_queues_trial_and_positive_purchase_attribution(self) -> None:
+        pending, _token = create_subscription(
+            "stripe-attribution@example.com",
+            ["https://example.com/feed"],
+            "agent reliability",
+            [],
+            {"utm_source": "affiliate", "utm_campaign": "billing"},
+            "UTC",
+            "weekly",
+            4,
+        )
+        subscription = confirm_subscription(confirmation_token(pending))
+        assert subscription is not None
+        trial_event = {
+            "id": "evt_api_trial_attribution",
+            "created": 100,
+            "type": "customer.subscription.created",
+            "data": {
+                "object": {
+                    "id": "sub_api_attribution",
+                    "status": "trialing",
+                    "customer": "cus_api_attribution",
+                    "trial_end": 9_999_999_999,
+                    "metadata": {"paperboy_subscription_id": str(subscription["id"])},
+                }
+            },
+        }
+        with patch("paperboy.api.main.construct_event", return_value=trial_event):
+            trial = self.client.post("/api/billing/webhook", content=b"signed")
+        self.assertEqual(trial.status_code, 200)
+        self.assertEqual(trial.json()["status"], "processed")
+
+        paid_event = {
+            "id": "evt_api_paid_attribution",
+            "created": 101,
+            "type": "invoice.paid",
+            "data": {
+                "object": {
+                    "id": "in_api_attribution",
+                    "subscription": "sub_api_attribution",
+                    "amount_paid": 500,
+                    "currency": "usd",
+                    "status_transitions": {"paid_at": 101},
+                }
+            },
+        }
+        with patch("paperboy.api.main.construct_event", return_value=paid_event):
+            paid = self.client.post("/api/billing/webhook", content=b"signed")
+        self.assertEqual(paid.status_code, 200)
+        self.assertEqual(paid.json()["status"], "processed")
+
+        conn = connect()
+        try:
+            rows = conn.execute(
+                "SELECT event_type, payload_json FROM product_lifecycle_outbox "
+                "WHERE subscription_id=? ORDER BY id",
+                (subscription["id"],),
+            ).fetchall()
+        finally:
+            conn.close()
+        self.assertEqual([row["event_type"] for row in rows], ["trial_started", "purchase"])
+        purchase = json.loads(rows[1]["payload_json"])
+        self.assertEqual(purchase["amount_paid"], 500)
+        self.assertEqual(purchase["currency"], "USD")
+        self.assertEqual(purchase["transaction_id"], "in_api_attribution")
 
     def test_lead_rejects_invalid_email(self) -> None:
         response = self.client.post("/api/lead", json={"email": "not-an-email"})

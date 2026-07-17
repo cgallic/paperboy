@@ -828,9 +828,28 @@ async def stripe_webhook(request: Request) -> JSONResponse:
                 },
             )
             event_object = (event.get("data") or {}).get("object") or {}
+            lifecycle_type: str | None = None
+            lifecycle_payload: dict[str, Any] = {
+                "billing_status": subscription["billing_status"],
+            }
+            if event_type.startswith("customer.subscription."):
+                if subscription["billing_status"] == "trialing":
+                    lifecycle_type = "trial_started"
+                elif subscription["billing_status"] == "canceled":
+                    lifecycle_type = "subscription_canceled"
+            elif event_type == "invoice.payment_failed":
+                lifecycle_type = "payment_failed"
             if event_type == "invoice.paid":
                 amount_paid = int(event_object.get("amount_paid") or 0)
                 if amount_paid > 0:
+                    lifecycle_type = "purchase"
+                    lifecycle_payload.update(
+                        {
+                            "amount_paid": amount_paid,
+                            "currency": str(event_object.get("currency") or "").upper(),
+                            "transaction_id": str(event_object.get("id") or event_id),
+                        }
+                    )
                     _append_product_event(
                         "purchase",
                         {
@@ -841,6 +860,13 @@ async def stripe_webhook(request: Request) -> JSONResponse:
                             "attribution": subscription["attribution"],
                         },
                     )
+            if lifecycle_type is not None:
+                enqueue_lifecycle_event(
+                    f"stripe:{event_id}:{lifecycle_type}",
+                    subscription_id,
+                    lifecycle_type,
+                    lifecycle_payload,
+                )
     return JSONResponse({"ok": True, "status": outcome})
 
 
