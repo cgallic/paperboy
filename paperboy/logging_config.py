@@ -75,7 +75,8 @@ def configure_logging(level: str | None = None, force_json: bool | None = None) 
         force_json: True to force JSON output.  Defaults to truthy
                     PAPERBOY_LOG_FORMAT=json env var.
     """
-    lvl = (level or os.environ.get("PAPERBOY_LOG_LEVEL", "INFO")).upper()
+    configured_level = level or os.environ.get("PAPERBOY_LOG_LEVEL") or "INFO"
+    lvl = configured_level.upper()
     json_mode = force_json if force_json is not None else os.environ.get("PAPERBOY_LOG_FORMAT", "").lower() == "json"
 
     root = logging.getLogger("paperboy")

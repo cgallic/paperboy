@@ -160,9 +160,14 @@ def call_ollama(system_prompt: str, user_prompt: str) -> dict:
     )
     with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
         resp = json.load(r)
+    if not isinstance(resp, dict):
+        raise json.JSONDecodeError("Ollama response is not an object", str(resp), 0)
     raw = resp.get("response", "").strip()
     raw = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw, flags=re.MULTILINE).strip()
-    return json.loads(raw)
+    verdict = json.loads(raw)
+    if not isinstance(verdict, dict):
+        raise json.JSONDecodeError("Ollama verdict is not an object", raw, 0)
+    return verdict
 
 
 def normalize_verdict(v: dict, parent_actor: str, parent_payload: dict) -> dict:
@@ -194,7 +199,7 @@ def normalize_verdict(v: dict, parent_actor: str, parent_payload: dict) -> dict:
     }
 
 
-def main():
+def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--dry-run", action="store_true")

@@ -39,6 +39,8 @@ jobs:
           kill %1
       - name: Lint with ruff
         run: ruff check .
+      - name: Type-check package
+        run: mypy paperboy
 
   dependency-audit:
     runs-on: ubuntu-latest

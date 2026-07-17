@@ -45,9 +45,10 @@ def post(content: str, *, username: str = "paperboy", dry_run: bool = False) -> 
     )
     try:
         with urllib.request.urlopen(req, timeout=15) as r:
-            ok = 200 <= r.status < 300
+            status = int(r.status)
+            ok = 200 <= status < 300
             if not ok:
-                print(f"[discord_post] HTTP {r.status}", file=sys.stderr)
+                print(f"[discord_post] HTTP {status}", file=sys.stderr)
             return ok
     except urllib.error.HTTPError as e:
         print(f"[discord_post] HTTPError {e.code}: {e.read()[:200]!r}", file=sys.stderr)

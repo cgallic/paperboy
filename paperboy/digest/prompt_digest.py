@@ -44,7 +44,7 @@ LABELS = {"today": "🎯 today", "answer": "❓ answer", "papers": "📄 papers"
           "proj": "🛠️ projects", "research": "🔬 research"}
 
 
-def _stream_from_actor(actor):
+def _stream_from_actor(actor: str | None) -> str:
     if not actor or ":" not in actor:
         return "research"
     prefix = actor.split(":", 1)[0]

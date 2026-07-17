@@ -25,6 +25,7 @@ from contextlib import asynccontextmanager
 from email import policy
 from email.parser import BytesParser
 from pathlib import Path
+from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, RedirectResponse, Response
@@ -433,8 +434,10 @@ async def capture_resend_event(request: Request) -> JSONResponse:
     if not _claim_email_provider_event(event_id, event_type):
         return JSONResponse({"ok": True, "duplicate": True})
     try:
-        data = event.get("data") if isinstance(event.get("data"), dict) else {}
-        recipients = data.get("to") if isinstance(data.get("to"), list) else []
+        raw_data = event.get("data")
+        data: dict[str, Any] = raw_data if isinstance(raw_data, dict) else {}
+        raw_recipients = data.get("to")
+        recipients: list[Any] = raw_recipients if isinstance(raw_recipients, list) else []
         email = str(recipients[0]).strip().lower() if recipients else ""
         subscription = get_subscription_by_email(email) if email else None
         subscription_id = int(subscription["id"]) if subscription is not None else None
