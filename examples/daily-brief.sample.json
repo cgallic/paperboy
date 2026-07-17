@@ -1,0 +1,162 @@
+{
+  "config": {
+    "edition_date": "2026-07-16",
+    "period_start": "2026-07-15T08:00:00Z",
+    "period_end": "2026-07-16T08:00:00Z",
+    "min_relevance": 7,
+    "max_items": 12,
+    "max_per_source": 3,
+    "max_repos": 5,
+    "policy_version": "daily-brief-v1",
+    "schedule_label": "Monday–Friday at 8:00 AM America/New_York",
+    "sample": true
+  },
+  "repos": [
+    {
+      "id": "repo-api-evals",
+      "full_name": "example-labs/api-evals",
+      "url": "https://github.com/example-labs/api-evals",
+      "visibility": "public",
+      "summary": "A Python evaluation harness for structured LLM graders.",
+      "languages": ["Python"],
+      "dependencies": ["pytest", "pydantic"],
+      "topics": ["llm-evaluation", "structured-output"]
+    },
+    {
+      "id": "repo-agent-core",
+      "full_name": "example-labs/agent-core",
+      "url": "https://github.com/example-labs/agent-core",
+      "visibility": "public",
+      "summary": "A small agent runtime with streamed tools and typed events.",
+      "languages": ["Python"],
+      "dependencies": ["httpx", "pydantic"],
+      "topics": ["ai-agents", "tool-streaming"]
+    }
+  ],
+  "signals": [
+    {
+      "id": "newsletter-model-routing",
+      "source_kind": "newsletter",
+      "source_label": "Forwarded · Model Systems Weekly",
+      "section": "From your newsletters",
+      "occurred_at": "2026-07-16T07:20:00Z",
+      "headline": "A practical routing test cuts small-model fallback errors",
+      "what_changed": "A forwarded technical newsletter published a reproducible rubric for deciding when a small model should hand work to a larger one.",
+      "evidence_urls": ["https://example.com/newsletters/model-routing-test"]
+    },
+    {
+      "id": "news-tool-streaming",
+      "source_kind": "news",
+      "source_label": "Developer news",
+      "section": "News",
+      "occurred_at": "2026-07-16T06:40:00Z",
+      "headline": "Tool-call streaming reaches a stable client release",
+      "what_changed": "A widely used model client moved streamed tool-call events from preview to its stable release channel.",
+      "evidence_urls": ["https://example.com/news/tool-streaming-stable"]
+    },
+    {
+      "id": "research-rubric-critique",
+      "source_kind": "research",
+      "source_label": "Research paper",
+      "section": "Repo impact",
+      "occurred_at": "2026-07-16T05:30:00Z",
+      "headline": "Rubric-grounded critique improves agreement on smaller models",
+      "what_changed": "A controlled evaluation found fixed-rubric critique more consistent than freeform self-critique for smaller models.",
+      "evidence_urls": ["https://example.com/research/rubric-grounded-critique"]
+    },
+    {
+      "id": "data-model-pricing",
+      "source_kind": "data",
+      "source_label": "Pricing data",
+      "section": "Data watch",
+      "occurred_at": "2026-07-16T04:10:00Z",
+      "headline": "Median small-model input pricing falls again",
+      "what_changed": "A public model-price index recorded a 14% month-over-month decrease across its small-model basket.",
+      "evidence_urls": ["https://example.com/data/model-price-index-july"]
+    },
+    {
+      "id": "github-pydantic-release",
+      "source_kind": "github",
+      "source_label": "GitHub release",
+      "section": "Repo impact",
+      "occurred_at": "2026-07-16T03:45:00Z",
+      "headline": "Pydantic release tightens one structured-output edge case",
+      "what_changed": "The public release notes describe stricter handling for a nested discriminated-union schema.",
+      "evidence_urls": ["https://example.com/github/pydantic-release-notes"]
+    },
+    {
+      "id": "news-python-packaging",
+      "source_kind": "news",
+      "source_label": "Python ecosystem",
+      "section": "News",
+      "occurred_at": "2026-07-15T22:10:00Z",
+      "headline": "A packaging resolver publishes a safer lockfile migration path",
+      "what_changed": "The resolver now documents a reversible migration path for projects moving from unconstrained requirements to lockfiles.",
+      "evidence_urls": ["https://example.com/news/python-lockfile-migration"]
+    },
+    {
+      "id": "research-retrieval-unrelated",
+      "source_kind": "research",
+      "source_label": "Research paper",
+      "section": "Research",
+      "occurred_at": "2026-07-15T20:00:00Z",
+      "headline": "New retrieval benchmark focuses on multilingual legal archives",
+      "what_changed": "The benchmark adds five legal corpora and a multilingual citation-recall task.",
+      "evidence_urls": ["https://example.com/research/legal-retrieval-benchmark"]
+    }
+  ],
+  "verdicts": [
+    {
+      "signal_id": "newsletter-model-routing",
+      "relevance": 8,
+      "why_it_matters": "The routing rubric could reduce unnecessary large-model calls without hiding failures in the morning scoring pass.",
+      "next_step": "Compare the rubric against 20 recent fallback decisions before changing any route.",
+      "action_kind": "act"
+    },
+    {
+      "signal_id": "news-tool-streaming",
+      "repo_id": "repo-agent-core",
+      "relevance": 9,
+      "why_it_matters": "example-labs/agent-core may be affected because its typed event loop already models partial tool output.",
+      "next_step": "Inspect the stable event shape against the repo's current streamed-tool parser.",
+      "action_kind": "act"
+    },
+    {
+      "signal_id": "research-rubric-critique",
+      "repo_id": "repo-api-evals",
+      "relevance": 9,
+      "why_it_matters": "example-labs/api-evals may be affected because its current evaluation step already compares structured grader outputs.",
+      "next_step": "Compare rubric-guided and freeform critique on one held-out set.",
+      "action_kind": "act"
+    },
+    {
+      "signal_id": "data-model-pricing",
+      "relevance": 7,
+      "why_it_matters": "The change may alter the break-even point for routing routine scoring work to smaller hosted models.",
+      "next_step": "Watch; do nothing until the index holds the lower median for a second weekly sample.",
+      "action_kind": "watch"
+    },
+    {
+      "signal_id": "github-pydantic-release",
+      "repo_id": "repo-api-evals",
+      "relevance": 8,
+      "why_it_matters": "example-labs/api-evals may be affected because it depends on Pydantic for nested structured grader results.",
+      "next_step": "Run the nested-union fixture against the new release in an isolated environment.",
+      "action_kind": "act"
+    },
+    {
+      "signal_id": "news-python-packaging",
+      "relevance": 7,
+      "why_it_matters": "The migration guide may reduce lockfile adoption risk across the selected Python repositories.",
+      "next_step": "Read the rollback section and note whether the current CI cache would remain valid.",
+      "action_kind": "act"
+    },
+    {
+      "signal_id": "research-retrieval-unrelated",
+      "relevance": 4,
+      "why_it_matters": "The subject is interesting but does not map to the selected repos' current work.",
+      "next_step": "Watch; do nothing unless a selected repo adds legal-document retrieval.",
+      "action_kind": "watch"
+    }
+  ]
+}

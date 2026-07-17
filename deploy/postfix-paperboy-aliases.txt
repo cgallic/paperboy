@@ -1,0 +1,1 @@
+paperboy-bounce: "|/usr/bin/curl --fail --silent --show-error -H 'Content-Type: message/rfc822' --data-binary @- http://127.0.0.1:9122/api/email/bounce"

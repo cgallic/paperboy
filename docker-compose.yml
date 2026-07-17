@@ -1,0 +1,96 @@
+services:
+  paperboy:
+    build: .
+    image: paperboy:latest
+    container_name: paperboy
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${PAPERBOY_HOST_PORT:-9122}:8000"
+    environment:
+      PAPERBOY_APP_ROOT: /app
+      PAPERBOY_ROOT: /app/data
+      PAPERBOY_DB: /app/data/events.db
+      PAPERBOY_DISCORD_WEBHOOK: ${PAPERBOY_DISCORD_WEBHOOK:-}
+      PAPERBOY_DISCORD_BOT_TOKEN: ${PAPERBOY_DISCORD_BOT_TOKEN:-}
+      PAPERBOY_DISCORD_CHANNEL_ID: ${PAPERBOY_DISCORD_CHANNEL_ID:-}
+      PAPERBOY_OLLAMA_URL: ${PAPERBOY_OLLAMA_URL:-http://host.docker.internal:11434}
+      PAPERBOY_SMTP_HOST: ${PAPERBOY_SMTP_HOST:-}
+      PAPERBOY_SMTP_PORT: ${PAPERBOY_SMTP_PORT:-587}
+      PAPERBOY_SMTP_USER: ${PAPERBOY_SMTP_USER:-}
+      PAPERBOY_SMTP_PASS: ${PAPERBOY_SMTP_PASS:-}
+      PAPERBOY_SMTP_STARTTLS: ${PAPERBOY_SMTP_STARTTLS:-true}
+      PAPERBOY_EMAIL_FROM: ${PAPERBOY_EMAIL_FROM:-paperboy@localhost}
+      PAPERBOY_EMAIL_TO: ${PAPERBOY_EMAIL_TO:-}
+      PAPERBOY_EMAIL_REPLY_TO: ${PAPERBOY_EMAIL_REPLY_TO:-}
+      PAPERBOY_BOUNCE_DOMAIN: ${PAPERBOY_BOUNCE_DOMAIN:-kaibuilds.com}
+      PAPERBOY_PUBLIC_URL: ${PAPERBOY_PUBLIC_URL:-https://paperboy.kaibuilds.com}
+      PAPERBOY_MANAGE_SECRET: ${PAPERBOY_MANAGE_SECRET:-}
+      PAPERBOY_TRACKING_SECRET: ${PAPERBOY_TRACKING_SECRET:-}
+      PAPERBOY_KAIBUILDS_CAPTURE_URL: ${PAPERBOY_KAIBUILDS_CAPTURE_URL:-}
+      PAPERBOY_STRIPE_SECRET_KEY: ${PAPERBOY_STRIPE_SECRET_KEY:-}
+      PAPERBOY_STRIPE_WEBHOOK_SECRET: ${PAPERBOY_STRIPE_WEBHOOK_SECRET:-}
+      PAPERBOY_STRIPE_PRICE_ID: ${PAPERBOY_STRIPE_PRICE_ID:-}
+      PAPERBOY_STRIPE_TRIAL_DAYS: ${PAPERBOY_STRIPE_TRIAL_DAYS:-7}
+      PAPERBOY_FAST_MODEL: ${PAPERBOY_FAST_MODEL:-llama3.2:3b}
+      PAPERBOY_RESEARCH_MODEL: ${PAPERBOY_RESEARCH_MODEL:-qwen2.5:7b}
+      PAPERBOY_LOG_LEVEL: ${PAPERBOY_LOG_LEVEL:-INFO}
+      PAPERBOY_LOG_FORMAT: ${PAPERBOY_LOG_FORMAT:-json}
+    volumes:
+      - paperboy-data:/app/data
+      - ./config:/app/config:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Optional: scheduler runs the digest pipeline on cadence
+  paperboy-scheduler:
+    build: .
+    image: paperboy:latest
+    container_name: paperboy-scheduler
+    restart: unless-stopped
+    profiles: ["scheduler"]
+    network_mode: host
+    environment:
+      PAPERBOY_APP_ROOT: /app
+      PAPERBOY_ROOT: /app/data
+      PAPERBOY_DB: /app/data/events.db
+      PAPERBOY_DISCORD_WEBHOOK: ${PAPERBOY_DISCORD_WEBHOOK:-}
+      PAPERBOY_DISCORD_BOT_TOKEN: ${PAPERBOY_DISCORD_BOT_TOKEN:-}
+      PAPERBOY_DISCORD_CHANNEL_ID: ${PAPERBOY_DISCORD_CHANNEL_ID:-}
+      PAPERBOY_OLLAMA_URL: ${PAPERBOY_OLLAMA_URL:-http://host.docker.internal:11434}
+      PAPERBOY_SMTP_HOST: ${PAPERBOY_SMTP_HOST:-}
+      PAPERBOY_SMTP_PORT: ${PAPERBOY_SMTP_PORT:-587}
+      PAPERBOY_SMTP_USER: ${PAPERBOY_SMTP_USER:-}
+      PAPERBOY_SMTP_PASS: ${PAPERBOY_SMTP_PASS:-}
+      PAPERBOY_SMTP_STARTTLS: ${PAPERBOY_SMTP_STARTTLS:-true}
+      PAPERBOY_EMAIL_FROM: ${PAPERBOY_EMAIL_FROM:-paperboy@localhost}
+      PAPERBOY_EMAIL_TO: ${PAPERBOY_EMAIL_TO:-}
+      PAPERBOY_EMAIL_REPLY_TO: ${PAPERBOY_EMAIL_REPLY_TO:-}
+      PAPERBOY_BOUNCE_DOMAIN: ${PAPERBOY_BOUNCE_DOMAIN:-kaibuilds.com}
+      PAPERBOY_PUBLIC_URL: ${PAPERBOY_PUBLIC_URL:-https://paperboy.kaibuilds.com}
+      PAPERBOY_MANAGE_SECRET: ${PAPERBOY_MANAGE_SECRET:-}
+      PAPERBOY_TRACKING_SECRET: ${PAPERBOY_TRACKING_SECRET:-}
+      PAPERBOY_SCHEDULER_ONLY: ${PAPERBOY_SCHEDULER_ONLY:-paperboy.firehose_delivery}
+      PAPERBOY_LOG_LEVEL: ${PAPERBOY_LOG_LEVEL:-INFO}
+      PAPERBOY_LOG_FORMAT: ${PAPERBOY_LOG_FORMAT:-json}
+    volumes:
+      - paperboy-data:/app/data
+      - ./config:/app/config:ro
+    command: ["python", "-m", "paperboy.scheduler"]
+    healthcheck:
+      test: ["CMD-SHELL", "kill -0 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    depends_on:
+      paperboy:
+        condition: service_healthy
+
+volumes:
+  paperboy-data:

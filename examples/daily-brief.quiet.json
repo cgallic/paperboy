@@ -1,0 +1,36 @@
+{
+  "config": {
+    "edition_date": "2026-07-16",
+    "period_start": "2026-07-15T08:00:00Z",
+    "period_end": "2026-07-16T08:00:00Z",
+    "min_relevance": 7,
+    "max_items": 12,
+    "max_per_source": 4,
+    "max_repos": 5,
+    "policy_version": "daily-brief-v1",
+    "schedule_label": "weekdays at 8:00 AM",
+    "sample": true
+  },
+  "repos": [],
+  "signals": [
+    {
+      "id": "quiet-signal",
+      "source_kind": "news",
+      "source_label": "General news",
+      "section": "News",
+      "occurred_at": "2026-07-16T06:00:00Z",
+      "headline": "An unrelated hardware event announces a new venue",
+      "what_changed": "The event moved to a larger venue and added a robotics track.",
+      "evidence_urls": ["https://example.com/news/hardware-event"]
+    }
+  ],
+  "verdicts": [
+    {
+      "signal_id": "quiet-signal",
+      "relevance": 3,
+      "why_it_matters": "It does not change a current software or research decision.",
+      "next_step": "Watch; do nothing unless hardware becomes an active focus.",
+      "action_kind": "watch"
+    }
+  ]
+}

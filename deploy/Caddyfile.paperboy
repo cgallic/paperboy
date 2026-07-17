@@ -1,0 +1,21 @@
+paperboy.kaibuilds.com {
+	tls {
+		on_demand
+	}
+	encode gzip
+
+	@kaibuilds_capture path /api/lead /api/hit /api/stats /api/sites
+	handle @kaibuilds_capture {
+		reverse_proxy 127.0.0.1:9120
+	}
+
+	handle /api/* {
+		reverse_proxy 127.0.0.1:9122
+	}
+
+	handle {
+		root * /var/www/kaibuilds/sites/paperboy
+		try_files {path} {path}.html {path}/index.html
+		file_server
+	}
+}

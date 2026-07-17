@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" role="img" aria-labelledby="title desc">
+  <title id="title">Paperboy direction three: Inbox Triage</title>
+  <desc id="desc">A familiar email inbox where irrelevant items are muted and useful items are promoted.</desc>
+  <rect width="1280" height="800" fill="#edf1f4"/>
+  <rect width="1280" height="74" fill="#ffffff"/>
+  <text x="42" y="46" fill="#17202a" font-family="Arial" font-size="25" font-weight="700">paperboy inbox</text>
+  <rect x="28" y="98" width="276" height="674" rx="10" fill="#17202a"/>
+  <text x="58" y="145" fill="#8fb4fa" font-family="monospace" font-size="12">YOUR FILTER</text>
+  <text x="58" y="188" fill="#ffffff" font-family="Arial" font-size="21" font-weight="700">What matters now</text>
+  <text x="58" y="229" fill="#aeb9c3" font-family="Arial" font-size="15">• AI product launches</text><text x="58" y="260" fill="#aeb9c3" font-family="Arial" font-size="15">• API and price changes</text><text x="58" y="291" fill="#aeb9c3" font-family="Arial" font-size="15">• Competitor moves</text>
+  <line x1="58" y1="330" x2="274" y2="330" stroke="#384654"/>
+  <text x="58" y="374" fill="#8fb4fa" font-family="monospace" font-size="12">IGNORE</text><text x="58" y="412" fill="#aeb9c3" font-family="Arial" font-size="15">Funding gossip</text><text x="58" y="442" fill="#aeb9c3" font-family="Arial" font-size="15">Beginner tutorials</text>
+  <rect x="332" y="98" width="920" height="674" rx="10" fill="#ffffff"/>
+  <text x="370" y="145" fill="#17202a" font-family="Georgia" font-size="32" font-weight="700">Today’s useful mail</text>
+  <text x="370" y="176" fill="#67727d" font-family="Arial" font-size="14">4 relevant · 36 muted</text>
+  <g font-family="Arial"><rect x="370" y="211" width="844" height="104" rx="5" fill="#eef4ff" stroke="#9bb9ef"/><text x="394" y="240" fill="#2864dc" font-family="monospace" font-size="11">HIGH RELEVANCE · HACKER NEWS</text><text x="394" y="273" fill="#17202a" font-size="19" font-weight="700">A model provider changed its API price</text><text x="394" y="298" fill="#67727d" font-size="14">Why: affects the fallback route you are evaluating.</text>
+  <rect x="370" y="331" width="844" height="104" rx="5" fill="#f8fafb" stroke="#d4dce2"/><text x="394" y="360" fill="#8b5c17" font-family="monospace" font-size="11">MEDIUM RELEVANCE · RSS</text><text x="394" y="393" fill="#17202a" font-size="19" font-weight="700">A competitor launched a usage dashboard</text><text x="394" y="418" fill="#67727d" font-size="14">Why: overlaps your onboarding watchlist.</text>
+  <rect x="370" y="451" width="844" height="72" rx="5" fill="#fafafa" stroke="#e3e6e8"/><text x="394" y="482" fill="#9ca4aa" font-family="monospace" font-size="11">MUTED</text><text x="470" y="487" fill="#9ca4aa" font-size="16">31 generic stories hidden</text>
+  <rect x="370" y="547" width="260" height="56" rx="5" fill="#2864dc"/><text x="500" y="582" text-anchor="middle" fill="white" font-size="16" font-weight="700">FILTER MY SOURCES</text></g>
+</svg>

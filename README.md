@@ -33,6 +33,32 @@ it" note from your local LLM.
 
 ---
 
+## Daily Intelligence Brief product sample
+
+The hosted product direction is the **Paperboy Daily Intelligence Brief**: one
+ranked morning edition assembled from explicitly forwarded newsletters, public
+news/research/data, and optional selected GitHub repositories. Repo Radar is a
+section of that edition, not a separate product. Suggested actions remain inert
+text for human review.
+
+This repository includes a deterministic, local-only sample of the selection
+and email-rendering boundary. It makes no network calls, sends no email, and
+uses sanitized fixture inputs. Relevance thresholds, edition size, and
+per-source diversity are explicit configuration so plan limits can change
+without changing ranking logic.
+
+```bash
+python -m paperboy.daily_brief.cli \
+  --input examples/daily-brief.sample.json \
+  --out-dir .local/daily-brief
+```
+
+The command writes plain-text and HTML previews. Run it with
+`examples/daily-brief.quiet.json` to see the one-line quiet edition used when
+nothing clears the relevance bar; it never pads the brief with weak items.
+
+---
+
 ## News → Agent Action Queue
 
 A file-first bridge that promotes the highest-signal digest items (papers

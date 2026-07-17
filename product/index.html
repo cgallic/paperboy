@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Build a daily brief from Hacker News, RSS, research, and public sources. Paperboy filters the firehose around what matters to you and delivers the cut automatically.">
+  <meta name="theme-color" content="#f3eee3">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://paperboy.kaibuilds.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Paperboy — Build your firehose. Read only what matters.">
+  <meta property="og:description" content="Add Hacker News, RSS, research, and public sources once. Paperboy filters them around your work and delivers a ranked, source-linked brief every day.">
+  <meta property="og:url" content="https://paperboy.kaibuilds.com/">
+  <title>Paperboy — Your Own Filtered Firehose</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="local-banner" role="status">
+    <span class="status-dot" aria-hidden="true"></span>
+    <strong>Automatic daily delivery</strong>
+    <span>Add your feeds once. Confirm your email and start the trial, then Paperboy delivers what survives every day.</span>
+  </div>
+
+  <header class="site-header" id="site-header">
+    <a class="brand" href="#home" data-route="home" aria-label="Paperboy home">
+      <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true">
+        <circle cx="7" cy="7" r="2"></circle>
+        <circle cx="18" cy="7" r="2"></circle>
+        <circle cx="29" cy="7" r="2"></circle>
+        <path d="M7 10c0 6 11 6 11 13M18 10v13M29 10c0 6-11 6-11 13"></path>
+        <path class="brand-route" d="M18 23v6"></path>
+        <circle cx="18" cy="31" r="2"></circle>
+      </svg>
+      <span>paperboy</span>
+    </a>
+
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="#how-it-works">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <button class="button button-small" type="button" data-start>Start my daily brief</button>
+    </nav>
+
+    <button class="menu-button" type="button" aria-expanded="false" aria-controls="mobile-nav">
+      <span class="sr-only">Toggle navigation</span>
+      <span></span><span></span>
+    </button>
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation" hidden>
+      <a href="#how-it-works">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <button class="button" type="button" data-start>Start my daily brief</button>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="screen screen-home" data-screen="home">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-line"></span> Your own filtered firehose</p>
+          <h1>Build your firehose. Read only what matters.</h1>
+          <p class="hero-lede">Add Hacker News, startup feeds, RSS, research, and other public sources. Paperboy ranks the stream against what you are building—and shows why each item made the cut.</p>
+          <div class="hero-actions">
+            <button class="button button-large" type="button" data-start>Start my daily brief <span aria-hidden="true">→</span></button>
+            <a class="quiet-link" href="#example">See the filter work <span aria-hidden="true">↓</span></a>
+          </div>
+          <ul class="trust-line" aria-label="Product boundaries">
+            <li>Any public RSS or Atom feed</li>
+            <li>No Gmail access</li>
+            <li>Confirm before delivery starts</li>
+          </ul>
+        </div>
+
+        <div class="signal-desk" aria-label="Example of sources filtered into a ranked brief">
+          <div class="desk-label"><span>Live product model</span><strong>Many inputs → a few signals</strong></div>
+          <div class="source-stack" aria-label="Example sources">
+            <div class="source-slip source-slip-hn"><span>HN</span><div><strong>Hacker News</strong><small>RSS · live feed</small></div></div>
+            <div class="source-slip source-slip-yc"><span>YC</span><div><strong>Startup feeds</strong><small>RSS / Atom</small></div></div>
+            <div class="source-slip source-slip-rss"><span>RSS</span><div><strong>Your feeds</strong><small>Blogs · releases</small></div></div>
+            <div class="source-slip source-slip-lab"><span>LAB</span><div><strong>Research</strong><small>arXiv · papers</small></div></div>
+          </div>
+          <div class="flow-rail" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="relevance-gate">
+            <span class="gate-kicker">Your filter</span>
+            <strong>AI agents<br>API changes<br>pricing risk</strong>
+            <small>Ignore: funding gossip</small>
+          </div>
+          <article class="ranked-signal">
+            <header><span>Made the cut</span><strong>8.7</strong></header>
+            <p class="signal-source">Hacker News · source linked</p>
+            <h2>A provider changed the pricing behind your fallback route</h2>
+            <p><strong>Why it matters:</strong> It overlaps the margin decision in your filter.</p>
+            <footer><span>1 of 4 signals</span><span>Open source ↗</span></footer>
+          </article>
+            <p class="desk-boundary">Example layout. Setup validates your feeds and generates the first live cut before email verification and checkout.</p>
+        </div>
+      </section>
+
+      <section class="signal-strip" aria-label="Product principle">
+          <p><span>01</span> Choose the firehose.</p>
+          <p><span>02</span> Define what deserves attention.</p>
+          <p><span>03</span> Get the daily cut automatically.</p>
+      </section>
+
+      <section class="section example-section" id="example">
+        <div class="section-heading">
+          <p class="eyebrow">The filter explains itself</p>
+          <h2>Every signal earns its place.</h2>
+          <p>Paperboy does not just summarize the stream. It ranks each item against your stated focus, links the source, and explains the match.</p>
+        </div>
+
+        <article class="impact-card impact-card-featured">
+          <div class="impact-score" aria-label="Relevance score: 8 out of 10"><strong>8</strong><span>/10</span></div>
+          <div class="impact-body">
+            <div class="impact-meta">
+              <span>Hacker News</span>
+              <code>AI infrastructure</code>
+              <span>Example</span>
+            </div>
+            <h3>A model provider changed the pricing behind your fallback route</h3>
+            <div class="impact-grid">
+              <div>
+                <h4>Why it matters</h4>
+                <p>Your filter names model margin and API changes. This item overlaps both, so it ranks above generic AI news.</p>
+              </div>
+              <div class="inspect-box">
+                <h4>Why the rest disappeared</h4>
+                <p>Funding gossip and beginner tutorials match your ignore list, so they never enter the brief.</p>
+              </div>
+            </div>
+            <a href="https://news.ycombinator.com/rss" target="_blank" rel="noreferrer">Open the Hacker News RSS feed <span aria-hidden="true">↗</span></a>
+          </div>
+        </article>
+      </section>
+
+      <section class="section route-section" id="how-it-works">
+        <div class="section-heading section-heading-narrow">
+          <p class="eyebrow">How it works</p>
+          <h2>Three inputs. One automatic daily brief.</h2>
+        </div>
+        <ol class="delivery-route">
+          <li>
+            <span class="route-number">1</span>
+            <h3>Build your firehose</h3>
+            <p>Start with Hacker News or paste the public RSS and Atom feeds you already follow.</p>
+          </li>
+          <li>
+            <span class="route-number">2</span>
+            <h3>Define relevance</h3>
+            <p>Describe what you are building, watching, deciding, and tired of seeing.</p>
+          </li>
+          <li>
+            <span class="route-number">3</span>
+            <h3>Let Paperboy set it up</h3>
+            <p>Paperboy validates the feeds, scans recent items, ranks the best matches, saves the filter, and emails a secure confirmation link.</p>
+          </li>
+          <li>
+            <span class="route-number route-number-final">✓</span>
+            <h3>Wake up to the daily cut</h3>
+            <p>After you confirm the address and start the trial, your active filter refreshes the sources and sends the strongest matches every day.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="permission-section">
+        <div class="permission-copy">
+          <p class="eyebrow eyebrow-light">Automatic, without inbox access</p>
+          <h2>Paste feeds. Paperboy does the setup.</h2>
+          <p>Paperboy works from public RSS and Atom feeds. It validates each URL, reads a bounded set of recent items, removes duplicates, and ranks the result against your filter. No Gmail connection or manual concierge step is required.</p>
+          <button class="button button-paper" type="button" data-start>Start my daily brief</button>
+        </div>
+        <div class="permission-ledger" aria-label="Automatic setup steps">
+          <div><span>Public feed validation</span><strong>Automatic</strong></div>
+          <div><span>Recent item scan</span><strong>Bounded</strong></div>
+          <div><span>Relevance ranking</span><strong>Your focus</strong></div>
+          <div><span>Duplicate removal</span><strong>Automatic</strong></div>
+          <div class="permission-zero"><span>Inbox access</span><strong>None</strong></div>
+          <p>Private feeds, paywalled sources, and email-only newsletters are not fetched by the live preview.</p>
+        </div>
+      </section>
+
+      <section class="section pricing-section" id="pricing">
+        <div class="section-heading section-heading-narrow">
+          <p class="eyebrow">Founding offer</p>
+          <h2>Try your filtered firehose for seven days.</h2>
+          <p>Preview the filter free. After email verification, start a card-required seven-day trial to activate daily delivery. Then pay $49 per month until canceled.</p>
+        </div>
+        <div class="pricing-grid">
+          <article class="price-card price-card-primary">
+            <div>
+              <p class="price-label">Seven-day trial</p>
+              <h3>Paperboy Filtered Firehose</h3>
+              <p class="price"><span>$</span>49 <small>/ month</small></p>
+              <p class="hypothesis">Card required for the seven-day trial. Billing starts after the trial unless you cancel.</p>
+              <ul>
+                <li>Your chosen public RSS and Atom feeds</li>
+                <li>A relevance filter built around your work</li>
+                <li>One ranked morning edition</li>
+                <li>Links to every original source</li>
+                <li>Cancel monthly</li>
+              </ul>
+            </div>
+            <button class="button button-wide" type="button" data-start>Start my daily brief</button>
+          </article>
+        </div>
+      </section>
+
+      <section class="section faq-section">
+        <div class="section-heading section-heading-narrow">
+          <p class="eyebrow">Straight answers</p>
+          <h2>What does automatic setup actually do?</h2>
+        </div>
+        <div class="faq-list">
+          <details>
+            <summary>Do I need to connect Gmail?</summary>
+            <p>No. Paste public RSS or Atom feed URLs. Paperboy reads only those URLs.</p>
+          </details>
+          <details>
+            <summary>Does Paperboy auto-subscribe me to newsletters?</summary>
+            <p>No. Many newsletters require email confirmation or expose no public feed. Use a public newsletter archive/feed when available; email-only ingestion is not part of the live preview.</p>
+          </details>
+          <details>
+            <summary>Which sources work right now?</summary>
+            <p>Public RSS and Atom feeds, including Hacker News and many blogs, release feeds, and research feeds.</p>
+          </details>
+          <details>
+            <summary>Is the first brief automated?</summary>
+            <p>Yes. Paperboy validates the feeds, scans recent items, removes duplicates, and ranks them against your filter. Delivery starts only after email confirmation and hosted trial checkout.</p>
+          </details>
+          <details>
+            <summary>Do I need to wait for someone to set it up?</summary>
+            <p>No. Paperboy validates and saves the filter automatically, then asks you to confirm the email address. No operator needs to approve it.</p>
+          </details>
+        </div>
+      </section>
+
+      <section class="final-cta">
+        <p class="eyebrow eyebrow-light">Use your actual feeds</p>
+        <h2>Turn your firehose into a short list of things worth reading.</h2>
+        <button class="button button-paper button-large" type="button" data-start>Start my daily brief <span aria-hidden="true">→</span></button>
+      </section>
+    </section>
+
+    <section class="screen flow-screen auth-screen" data-screen="signin" hidden>
+      <div class="flow-shell auth-shell">
+        <button class="back-link" type="button" data-route="home"><span aria-hidden="true">←</span> Back to home</button>
+        <div class="flow-card">
+          <p class="eyebrow">Automatic filter setup</p>
+          <h1>Start your automatic daily brief.</h1>
+          <p>Choose Hacker News or paste public RSS and Atom feeds. Tell Paperboy what matters once; it validates the filter and emails you a secure activation link.</p>
+          <div class="guardrail">
+            <strong>No human setup</strong>
+            <span>Paperboy validates and saves your public feeds automatically. Confirm your email, then start the hosted trial checkout to turn on delivery. It does not connect to an inbox.</span>
+          </div>
+          <form id="magic-link-form" novalidate>
+            <div class="field">
+              <label for="signin-email">Email address</label>
+              <input id="signin-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby="email-help email-error">
+              <span class="field-help" id="email-help">Your daily brief is delivered here. No inbox access is required.</span>
+              <span class="field-error" id="email-error" role="alert"></span>
+            </div>
+            <div class="field">
+              <label>Quick-start sources <span>optional</span></label>
+              <div class="preset-grid" id="source-presets" aria-label="Quick-start feed presets">
+                <button class="preset-chip" type="button" data-feed-preset="https://news.ycombinator.com/rss" aria-pressed="false"><span>HN</span> Hacker News</button>
+                <button class="preset-chip" type="button" data-feed-preset="https://export.arxiv.org/rss/cs.AI" aria-pressed="false"><span>AI</span> arXiv AI</button>
+                <button class="preset-chip" type="button" data-feed-preset="https://github.blog/feed/" aria-pressed="false"><span>GH</span> GitHub Blog</button>
+              </div>
+            </div>
+            <div class="field">
+              <label for="source-urls">Public RSS or Atom feed URLs</label>
+              <textarea id="source-urls" name="source_urls" rows="5" placeholder="One feed URL per line&#10;https://news.ycombinator.com/rss&#10;https://example.com/feed.xml" required aria-describedby="source-help"></textarea>
+              <span class="field-help" id="source-help">Direct public feed URLs work now. Add up to six sources.</span>
+            </div>
+            <div class="field">
+              <label for="work-focus">What should make an item relevant?</label>
+              <textarea id="work-focus" name="work_focus" rows="3" placeholder="For example: AI agent evaluation, API pricing changes, developer tools, and competitor launches." required></textarea>
+            </div>
+            <div class="field">
+              <label for="ignore-focus">What should Paperboy ignore? <span>optional</span></label>
+              <input id="ignore-focus" name="ignore_focus" type="text" placeholder="Funding gossip, beginner tutorials, hardware news">
+            </div>
+            <div class="field">
+              <label for="intake-timezone">Your time zone</label>
+              <input id="intake-timezone" name="timezone" type="text" autocomplete="off" required aria-describedby="timezone-help">
+              <span class="field-help" id="timezone-help">Detected from this browser. Edit it if you want the daily edition scheduled elsewhere.</span>
+            </div>
+            <label class="consent-check" for="email-consent">
+              <input id="email-consent" name="email_consent" type="checkbox" required>
+              <span>I agree to receive the Paperboy brief and service emails. I can unsubscribe at any time. See the <a href="/privacy/">privacy notice</a>.</span>
+            </label>
+            <span class="form-error" id="intake-error" role="alert"></span>
+            <button class="button button-wide" type="submit" id="subscription-submit">Start my daily brief</button>
+          </form>
+          <div class="confirmation-panel" id="confirmation-panel" hidden>
+            <p class="eyebrow">Confirm your email</p>
+            <h2>Verify your email to continue.</h2>
+            <p>This link verifies the address. Delivery starts only after Stripe confirms the trial is active.</p>
+            <span class="form-error" id="confirmation-error" role="alert"></span>
+            <button class="button button-wide" id="confirm-subscription" type="button">Confirm my email</button>
+          </div>
+          <div class="magic-success" id="magic-success" hidden>
+            <div class="success-mark" aria-hidden="true">✓</div>
+            <h2 id="subscription-success-title">Check your email.</h2>
+            <p id="subscription-success-copy">Paperboy saved your filter and sent a confirmation link. Nothing will be delivered until you confirm the address and finish checkout.</p>
+            <div class="subscription-ledger" aria-label="Subscription status">
+              <div><span>Status</span><strong id="subscription-status">Awaiting confirmation</strong></div>
+              <div><span>Delivery</span><strong id="subscription-delivery">Not started</strong></div>
+              <div><span>Payment</span><strong id="subscription-payment">Checkout required</strong></div>
+            </div>
+            <div class="management-summary" id="management-summary" hidden></div>
+            <div id="preview-results" hidden>
+              <div class="preview-summary" id="preview-summary" aria-live="polite"></div>
+              <div class="live-preview-list" id="live-preview-list"></div>
+            </div>
+            <nav class="subscription-actions" id="subscription-actions" aria-label="Manage daily brief" hidden>
+              <button class="button button-outline" id="manage-subscription" type="button">Refresh subscription status</button>
+              <button class="button" id="start-checkout" type="button" hidden>Continue to founding checkout</button>
+              <button class="button button-outline" id="manage-billing" type="button" hidden>Manage billing</button>
+              <button class="text-button" id="unsubscribe-subscription" type="button">Unsubscribe</button>
+            </nav>
+            <p class="billing-fallback" id="billing-fallback" role="status" hidden></p>
+            <button class="text-button button-wide" type="button" id="change-email">Change the filter</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen flow-screen setup-screen" data-screen="setup" hidden>
+      <div class="setup-header">
+        <a class="brand brand-compact" href="#home" data-route="home">
+          <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true"><circle cx="7" cy="7" r="2"></circle><circle cx="18" cy="7" r="2"></circle><circle cx="29" cy="7" r="2"></circle><path d="M7 10c0 6 11 6 11 13M18 10v13M29 10c0 6-11 6-11 13"></path><path class="brand-route" d="M18 23v6"></path><circle cx="18" cy="31" r="2"></circle></svg>
+          <span>paperboy</span>
+        </a>
+        <button class="text-button" type="button" data-route="home">Save and exit</button>
+      </div>
+      <div class="setup-layout">
+        <aside class="stepper" aria-label="Setup progress">
+          <p class="stepper-label">Local setup preview</p>
+          <ol>
+            <li class="active" data-step-marker="sources"><button type="button" data-go-step="sources"><span>1</span> Sources</button></li>
+            <li data-step-marker="focus"><button type="button" data-go-step="focus"><span>2</span> Interests</button></li>
+            <li data-step-marker="delivery"><button type="button" data-go-step="delivery"><span>3</span> Delivery</button></li>
+          </ol>
+          <div class="stepper-boundary">
+            <strong>Nothing live</strong>
+            <p>Fixture repos, local state, sample email, and demo checkout only.</p>
+          </div>
+        </aside>
+
+        <div class="setup-main">
+          <div class="setup-panel" data-step-panel="sources">
+            <p class="eyebrow">Setup 1 of 3</p>
+            <h1>Choose what belongs in your morning edition.</h1>
+            <p class="setup-lede">Each source lane is explicit. This local preview stores choices in your browser and contacts no email, news, research, data, or GitHub provider.</p>
+
+            <div class="source-lanes">
+              <label class="source-lane">
+                <input id="source-forwarding" type="checkbox" checked>
+                <span class="source-lane-check" aria-hidden="true">✓</span>
+                <span><strong>Forwarded newsletters</strong><small>Send only chosen messages to <code>local-preview@in.paperboy.example</code>. This demo address receives nothing.</small></span>
+              </label>
+              <label class="source-lane">
+                <input id="source-public" type="checkbox" checked>
+                <span class="source-lane-check" aria-hidden="true">✓</span>
+                <span><strong>Public news, research, and data</strong><small>Shared fixture catalog for releases, papers, technical news, and tracked metrics.</small></span>
+              </label>
+              <div class="source-lane source-lane-github">
+                <span class="source-lane-check" aria-hidden="true">+</span>
+                <span><strong>Selected public GitHub repos</strong><small>Optional Repo Radar context using fictional fixtures below.</small></span>
+              </div>
+            </div>
+
+            <section class="consent-ledger" aria-labelledby="permission-title">
+              <div class="consent-heading">
+                <div class="github-glyph" aria-hidden="true">GH</div>
+                <div>
+                  <h2 id="permission-title">Exact planned permission explanation</h2>
+                  <p>Fine-grained GitHub App · selected public repositories</p>
+                </div>
+                <span class="demo-badge">Local fixture</span>
+              </div>
+              <div class="scope-grid">
+                <div><span>Metadata</span><strong>Read</strong><small>Repository identity and mapping</small></div>
+                <div><span>Contents</span><strong>Read</strong><small>Bounded commit and dependency context</small></div>
+                <div><span>Pull requests</span><strong>Read</strong><small>Opened, merged, and review activity</small></div>
+                <div><span>Issues</span><strong>Read</strong><small>Opened, closed, and comment activity</small></div>
+              </div>
+              <div class="zero-scope"><span>Write permissions</span><strong>None</strong></div>
+              <p class="consent-footnote">No Actions, administration, members, organization, workflow, issue, pull request, or contents write permission. The live implementation must render provider-verified scopes.</p>
+            </section>
+
+            <button class="button" type="button" id="load-fixture-repos">Add fictional GitHub fixtures</button>
+
+            <section class="repo-picker" id="repo-picker" aria-labelledby="repo-picker-title" hidden>
+              <div class="repo-picker-header">
+                <div>
+                  <h2 id="repo-picker-title">Choose 1–5 public repositories</h2>
+                  <p>Fictional demo-labs repositories; none are queried.</p>
+                </div>
+                <strong id="repo-count">0 of 5 selected</strong>
+              </div>
+              <div class="repo-controls">
+                <div class="field field-compact">
+                  <label for="repo-search">Search fixture repositories</label>
+                  <input id="repo-search" type="search" placeholder="Search names or languages">
+                </div>
+                <label class="toggle">
+                  <input id="selected-only" type="checkbox">
+                  <span>Selected only</span>
+                </label>
+              </div>
+              <div class="repo-list" id="repo-list"></div>
+              <p class="selection-message" id="repo-message" aria-live="polite"></p>
+            </section>
+
+            <div class="setup-actions">
+              <span></span>
+              <button class="button" type="button" id="continue-to-focus">Use these sources <span aria-hidden="true">→</span></button>
+            </div>
+          </div>
+
+          <div class="setup-panel" data-step-panel="focus" hidden>
+            <p class="eyebrow">Setup 2 of 3</p>
+            <h1>What deserves your attention right now?</h1>
+            <p class="setup-lede">Give Paperboy an editorial lens for the newsletters, public signals, data, and optional repos you selected.</p>
+            <div class="selected-repo-summary" id="focus-repo-summary"></div>
+            <form id="focus-form">
+              <div class="field">
+                <label for="system-description">Interests and active work</label>
+                <textarea id="system-description" rows="4" placeholder="Describe what you track, build, or decide." required></textarea>
+                <span class="field-help">Example: Agent evaluation, model pricing, API changes, and developer tooling for small AI products.</span>
+              </div>
+              <div class="field">
+                <label for="current-friction">What decisions or risks are on your watchlist?</label>
+                <textarea id="current-friction" rows="3" placeholder="Name decisions, deadlines, or risks that should raise relevance." required></textarea>
+              </div>
+              <fieldset class="theme-fieldset">
+                <legend>Editorial interests</legend>
+                <p>Choose themes that should compete for space in the edition.</p>
+                <div class="chip-grid">
+                  <label><input type="checkbox" name="themes" value="Agent evaluation"><span>Agent evaluation</span></label>
+                  <label><input type="checkbox" name="themes" value="Tool use"><span>Tool use</span></label>
+                  <label><input type="checkbox" name="themes" value="RAG and memory"><span>RAG and memory</span></label>
+                  <label><input type="checkbox" name="themes" value="Local inference"><span>Local inference</span></label>
+                  <label><input type="checkbox" name="themes" value="Developer tooling"><span>Developer tooling</span></label>
+                  <label><input type="checkbox" name="themes" value="Schema-constrained output"><span>Schema-constrained output</span></label>
+                </div>
+              </fieldset>
+              <div class="field">
+                <label for="score-low">What should Paperboy skip? <span>Optional</span></label>
+                <input id="score-low" type="text" placeholder="e.g. funding gossip, generic trend lists, hardware-only papers">
+              </div>
+              <p class="form-error" id="focus-error" role="alert"></p>
+              <div class="setup-actions">
+                <button class="button button-outline" type="button" data-go-step="sources"><span aria-hidden="true">←</span> Sources</button>
+                <button class="button" type="submit">Save interests and continue <span aria-hidden="true">→</span></button>
+              </div>
+            </form>
+          </div>
+
+          <div class="setup-panel" data-step-panel="delivery" hidden>
+            <p class="eyebrow">Setup 3 of 3</p>
+            <h1>When should your Daily Brief arrive?</h1>
+            <p class="setup-lede">The values below update a local sample. No schedule is created and no email is sent.</p>
+            <div class="delivery-layout">
+              <form id="delivery-form">
+                <div class="field">
+                  <label for="delivery-email">Delivery email</label>
+                  <input id="delivery-email" type="email" autocomplete="email" required>
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="delivery-time">Delivery time</label>
+                    <input id="delivery-time" type="time" value="07:30" required>
+                  </div>
+                  <div class="field">
+                    <label for="delivery-zone">Time zone</label>
+                    <select id="delivery-zone">
+                      <option value="America/New_York">Eastern time</option>
+                      <option value="America/Chicago">Central time</option>
+                      <option value="America/Denver">Mountain time</option>
+                      <option value="America/Los_Angeles">Pacific time</option>
+                      <option value="America/La_Paz">La Paz</option>
+                      <option value="UTC">UTC</option>
+                    </select>
+                  </div>
+                </div>
+                <fieldset class="days-fieldset">
+                  <legend>Delivery days</legend>
+                  <div class="day-grid">
+                    <label><input type="checkbox" name="days" value="Mon" checked><span>M</span></label>
+                    <label><input type="checkbox" name="days" value="Tue" checked><span>T</span></label>
+                    <label><input type="checkbox" name="days" value="Wed" checked><span>W</span></label>
+                    <label><input type="checkbox" name="days" value="Thu" checked><span>T</span></label>
+                    <label><input type="checkbox" name="days" value="Fri" checked><span>F</span></label>
+                    <label><input type="checkbox" name="days" value="Sat"><span>S</span></label>
+                    <label><input type="checkbox" name="days" value="Sun"><span>S</span></label>
+                  </div>
+                </fieldset>
+                <p class="form-error" id="delivery-error" role="alert"></p>
+                <div class="setup-actions">
+                  <button class="button button-outline" type="button" data-go-step="focus"><span aria-hidden="true">←</span> Focus</button>
+                  <button class="button" type="submit">Continue to checkout preview <span aria-hidden="true">→</span></button>
+                </div>
+              </form>
+              <aside class="mini-email" aria-labelledby="mini-preview-title">
+                <p class="mini-label">Local sample · not sent</p>
+                <h2 id="mini-preview-title">Your first brief will look like this.</h2>
+                <div id="mini-email-content"></div>
+                <button class="quiet-link button-as-link" type="button" data-route="brief">Open responsive email preview <span aria-hidden="true">→</span></button>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen flow-screen checkout-screen" data-screen="checkout" hidden>
+      <div class="flow-shell checkout-shell">
+        <button class="back-link" type="button" data-route="setup" data-setup-step="delivery"><span aria-hidden="true">←</span> Back to delivery</button>
+        <div class="checkout-grid">
+          <div class="flow-card">
+            <p class="eyebrow">Checkout handoff preview</p>
+            <h1>Hosted checkout keeps card details off Paperboy.</h1>
+            <p>This legacy design fixture demonstrates the handoff. The live subscription flow uses Stripe-hosted checkout after email verification.</p>
+            <div class="guardrail guardrail-strong">
+              <strong>Demo boundary</strong>
+              <span>“Preview successful setup” changes local UI state only. It does not create a customer, subscription, invoice, or schedule.</span>
+            </div>
+            <button class="button button-wide" type="button" id="simulate-checkout">Preview successful setup</button>
+            <button class="text-button button-wide" type="button" data-route="setup" data-setup-step="delivery">Return to setup</button>
+          </div>
+          <aside class="order-summary">
+            <p class="price-label">Plan summary</p>
+            <h2>Paperboy Daily Brief</h2>
+            <p class="price"><span>$</span>49 <small>/ month</small></p>
+            <p class="hypothesis">The founding price is $49/month after a card-required seven-day trial. The live flow repeats these terms before checkout.</p>
+            <dl>
+              <div><dt>Repositories</dt><dd id="checkout-repo-count">0 selected</dd></div>
+              <div><dt>Delivery</dt><dd id="checkout-delivery">Not set</dd></div>
+              <div><dt>Trial terms</dt><dd>7 days, then $49/month</dd></div>
+            </dl>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen flow-screen account-screen" data-screen="account" hidden>
+      <div class="account-shell">
+        <header class="account-header">
+          <a class="brand brand-compact" href="#home" data-route="home">
+          <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true"><circle cx="7" cy="7" r="2"></circle><circle cx="18" cy="7" r="2"></circle><circle cx="29" cy="7" r="2"></circle><path d="M7 10c0 6 11 6 11 13M18 10v13M29 10c0 6-11 6-11 13"></path><path class="brand-route" d="M18 23v6"></path><circle cx="18" cy="31" r="2"></circle></svg>
+            <span>paperboy</span>
+          </a>
+          <div>
+            <button class="text-button" type="button" data-route="brief">Email preview</button>
+            <button class="text-button" type="button" data-route="home">Exit preview</button>
+          </div>
+        </header>
+
+        <div class="account-title">
+          <div>
+            <p class="eyebrow">Local account state preview</p>
+            <h1>Your Daily Brief setup</h1>
+          </div>
+          <span class="status-pill status-local">Local only</span>
+        </div>
+
+        <div class="account-notice">
+          <strong>Nothing is connected or subscribed.</strong>
+          <span>This page renders fixture and localStorage state so account, privacy, and billing states can be reviewed safely.</span>
+        </div>
+
+        <div class="account-grid">
+          <section class="account-card account-card-plan">
+            <div class="account-card-heading">
+              <div>
+                <p class="card-kicker">Subscription preview</p>
+                <h2>Paperboy Daily Brief</h2>
+              </div>
+              <span class="status-pill" id="billing-pill">Active preview</span>
+            </div>
+            <p class="billing-message" id="billing-message">Your subscription is active—in this preview only.</p>
+            <div class="state-preview">
+              <label for="billing-state">Preview billing state</label>
+              <select id="billing-state">
+                <option value="active">Active</option>
+                <option value="incomplete">Checkout incomplete</option>
+                <option value="processing">Payment processing</option>
+                <option value="past_due">Past due</option>
+                <option value="cancel_scheduled">Cancellation scheduled</option>
+                <option value="canceled">Canceled</option>
+                <option value="unavailable">Billing unavailable</option>
+              </select>
+            </div>
+            <button class="button button-outline button-wide" type="button" id="billing-action">Manage billing preview</button>
+          </section>
+
+          <section class="account-card">
+            <div class="account-card-heading">
+              <div><p class="card-kicker">Repositories</p><h2 id="account-repo-heading">0 of 5 selected</h2></div>
+                <button class="text-button" type="button" data-route="setup" data-setup-step="sources">Change</button>
+            </div>
+            <div class="account-repo-list" id="account-repo-list"></div>
+          </section>
+
+          <section class="account-card">
+            <div class="account-card-heading">
+              <div><p class="card-kicker">Delivery</p><h2>Schedule preview</h2></div>
+              <button class="text-button" type="button" data-route="setup" data-setup-step="delivery">Edit</button>
+            </div>
+            <dl class="account-details" id="account-delivery-details"></dl>
+          </section>
+
+          <section class="account-card">
+            <div class="account-card-heading">
+              <div><p class="card-kicker">GitHub connection</p><h2>Fixture connection</h2></div>
+              <span class="status-pill status-muted">Not live</span>
+            </div>
+            <p>Planned scope: selected public repositories, read-only metadata, contents, pull requests, and issues. No provider token exists in this preview.</p>
+            <button class="button button-outline button-wide" type="button" id="preview-disconnect">Preview disconnect effect</button>
+          </section>
+
+          <section class="account-card account-card-wide">
+            <div class="account-card-heading">
+              <div><p class="card-kicker">Privacy and retention</p><h2>Local data inventory</h2></div>
+            </div>
+            <div class="privacy-grid">
+              <div><strong>Browser storage</strong><p>Email, fixture selections, focus, schedule, and preview states.</p></div>
+              <div><strong>Network transmission</strong><p>None from product JavaScript. External links navigate only when clicked.</p></div>
+              <div><strong>Provider processing</strong><p>None. No model, GitHub, email, auth, or billing provider is called.</p></div>
+              <div><strong>Retention</strong><p>Until local demo data is cleared or browser storage is removed.</p></div>
+            </div>
+            <button class="button button-danger" type="button" id="clear-local-data">Clear local demo data</button>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen flow-screen brief-screen" data-screen="brief" hidden>
+      <div class="brief-page-shell">
+        <div class="brief-toolbar">
+          <button class="back-link" type="button" data-route="setup" data-setup-step="delivery"><span aria-hidden="true">←</span> Back to setup</button>
+          <div>
+            <span class="demo-badge">Responsive email preview · not sent</span>
+            <button class="text-button" type="button" data-route="account">Account states</button>
+          </div>
+        </div>
+        <div class="email-viewport">
+          <article class="email-brief" id="email-brief" aria-labelledby="email-brief-title">
+            <div class="email-preheader">Your capped morning edition from explicitly selected sources</div>
+            <header class="email-header">
+              <div class="email-brand-row">
+                <span class="email-brand">paperboy</span>
+                <span>Daily Brief</span>
+              </div>
+              <h1 id="email-brief-title">Changes worth checking for your repos.</h1>
+              <p id="email-summary">Local sample · 3 items · 2 fixture repositories</p>
+            </header>
+            <div class="email-body" id="email-impact-list"></div>
+            <footer class="email-footer">
+              <p>This is a local sample. No email was sent and no source was fetched.</p>
+              <nav aria-label="Email preference preview">
+                <button type="button" data-route="setup" data-setup-step="sources">Change sources</button>
+                <button type="button" data-route="setup" data-setup-step="delivery">Change delivery</button>
+                <button type="button" data-route="account">Privacy and billing</button>
+              </nav>
+            </footer>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="site-footer">
+    <div class="brand brand-footer">
+      <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true"><circle cx="7" cy="7" r="2"></circle><circle cx="18" cy="7" r="2"></circle><circle cx="29" cy="7" r="2"></circle><path d="M7 10c0 6 11 6 11 13M18 10v13M29 10c0 6-11 6-11 13"></path><path class="brand-route" d="M18 23v6"></path><circle cx="18" cy="31" r="2"></circle></svg>
+      <span>paperboy</span>
+    </div>
+    <p>Build a public-source firehose. Read only what survives your filter.</p>
+    <div>
+      <span>Seven-day card-required trial · then $49/month until canceled</span>
+      <nav class="footer-links" aria-label="Legal and privacy">
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+        <button class="text-button" id="allow-analytics" type="button">Allow product analytics</button>
+        <button class="text-button" id="decline-analytics" type="button">Decline analytics</button>
+      </nav>
+      <small id="analytics-note">Optional analytics stays off unless you allow it. No advertising tracker is loaded.</small>
+    </div>
+  </footer>
+
+  <div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+  <dialog id="confirm-dialog" aria-labelledby="confirm-title">
+    <form method="dialog">
+      <p class="eyebrow">Local state preview</p>
+      <h2 id="confirm-title">Confirm change</h2>
+      <p id="confirm-copy"></p>
+      <div class="dialog-actions">
+        <button class="button button-outline" value="cancel">Keep current state</button>
+        <button class="button button-danger" value="confirm" id="confirm-action">Confirm</button>
+      </div>
+    </form>
+  </dialog>
+
+  <noscript>
+    <div class="noscript">Paperboy needs JavaScript to validate and save your filter, confirm your email, and open secure checkout. No Gmail or GitHub connection is made.</div>
+  </noscript>
+</body>
+</html>
