@@ -30,7 +30,7 @@ dependencies = [
 
 [project.optional-dependencies]
 api = [
-    "fastapi>=0.110",
+    "fastapi>=0.139.2",
     "stripe>=14.0,<15",
     "uvicorn[standard]>=0.29",
 ]
@@ -44,7 +44,7 @@ dev = [
     "mypy>=1.9",
 ]
 all = [
-    "fastapi>=0.110",
+    "fastapi>=0.139.2",
     "stripe>=14.0,<15",
     "uvicorn[standard]>=0.29",
     "apscheduler>=3.10",
