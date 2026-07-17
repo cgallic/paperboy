@@ -118,6 +118,9 @@ class SchemaMigrationTests(unittest.TestCase):
                 INSERT INTO firehose_subscriptions
                     (email,sources_json,focus,ignore_json,token_hash,token_nonce,active,created_at,updated_at)
                 VALUES ('legacy@example.com','[]','legacy','[]','hash','nonce',1,'2026-01-01Z','2026-01-01Z');
+                INSERT INTO firehose_subscriptions
+                    (email,sources_json,focus,ignore_json,token_hash,token_nonce,active,created_at,updated_at,unsubscribed_at)
+                VALUES ('stopped@example.com','[]','legacy','[]','hash2','nonce2',0,'2026-01-01Z','2026-01-01Z','2026-01-02Z');
                 """
             )
             conn.commit()
@@ -134,6 +137,9 @@ class SchemaMigrationTests(unittest.TestCase):
                     active = migrated.execute(
                         "SELECT active FROM firehose_subscriptions WHERE email='legacy@example.com'"
                     ).fetchone()[0]
+                    stopped_status = migrated.execute(
+                        "SELECT verification_status FROM firehose_subscriptions WHERE email='stopped@example.com'"
+                    ).fetchone()[0]
                 finally:
                     migrated.close()
             finally:
@@ -145,6 +151,7 @@ class SchemaMigrationTests(unittest.TestCase):
             self.assertIn("billing_status", columns)
             self.assertIn("timezone", columns)
             self.assertEqual(active, 0)
+            self.assertEqual(stopped_status, "expired")
 
 
 class VerificationTests(ReliabilityTestCase):

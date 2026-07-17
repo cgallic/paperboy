@@ -241,6 +241,10 @@ def init_schema() -> None:
             "UPDATE firehose_subscriptions SET active = 0 "
             "WHERE verification_status != 'verified' OR verified_at IS NULL"
         )
+        conn.execute(
+            "UPDATE firehose_subscriptions SET verification_status = 'expired', active = 0 "
+            "WHERE unsubscribed_at IS NOT NULL AND verification_status = 'pending'"
+        )
         conn.commit()
     finally:
         conn.close()

@@ -440,6 +440,7 @@ def claim_pending_confirmations(
             """
             SELECT s.id FROM firehose_subscriptions AS s
             WHERE s.verification_status = 'pending'
+              AND s.unsubscribed_at IS NULL
               AND s.verification_sent_at IS NULL
               AND s.verification_attempts < 3
               AND s.verification_expires_at > ?
