@@ -86,7 +86,10 @@ def run_pending_confirmations(
 
 def main() -> None:
     configure_logging()
-    print(json.dumps(run_pending_confirmations(), sort_keys=True))
+    summary = run_pending_confirmations()
+    print(json.dumps(summary, sort_keys=True))
+    if summary["failed"]:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

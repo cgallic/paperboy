@@ -1,8 +1,8 @@
 """Email delivery for the Paperboy Daily Intelligence Brief.
 
-Supports SMTP (plain, STARTTLS, or SSL) and is SendGrid-ready
-via SMTP relay.  Renders plain-text + HTML from a BriefEdition
-and sends via the configured SMTP server.
+Supports SMTP (plain, STARTTLS, or SSL), including Resend's authenticated
+SMTP relay. Renders plain-text + HTML from a BriefEdition and sends via the
+configured SMTP server.
 """
 from __future__ import annotations
 
@@ -109,6 +109,10 @@ def send_raw(
     msg["To"] = to_addr
     outbound_message_id = message_id or make_msgid(domain="paperboy.kaibuilds.com")
     msg["Message-ID"] = outbound_message_id
+    if settings.email_reply_to:
+        msg["Reply-To"] = settings.email_reply_to
+    if settings.smtp_host == "smtp.resend.com":
+        msg["Resend-Idempotency-Key"] = f"paperboy/{outbound_message_id.strip('<>')}"
     if unsubscribe_url:
         parsed = urlsplit(unsubscribe_url)
         if parsed.scheme != "https" or not parsed.hostname or parsed.username:

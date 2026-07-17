@@ -1,0 +1,19 @@
+[Unit]
+Description=Paperboy verified SQLite and signing-key backup
+Documentation=https://github.com/cgallic/paperboy
+Requires=docker.service
+After=docker.service
+ConditionPathExists=/opt/paperboy/docker-compose.yml
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/paperboy
+ExecStart=/usr/bin/docker compose exec -T paperboy python -m paperboy.backup create
+TimeoutStartSec=900
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict

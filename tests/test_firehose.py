@@ -228,6 +228,34 @@ class FirehoseRankingTests(unittest.TestCase):
         self.assertEqual(result["sources"][1], {"url": "https://feeds.example.com/good", "status": "ok"})
         self.assertEqual(len(result["items"]), 1)
 
+    def test_multi_term_focus_rejects_one_token_noise_and_matches_regular_plural(self) -> None:
+        def fetcher(_url: str) -> tuple[str, list[dict[str, str]]]:
+            return (
+                "Builder Feed",
+                [
+                    {
+                        "title": "AI celebrity roundup",
+                        "url": "https://example.com/noise",
+                        "summary": "AI music and celebrity news.",
+                    },
+                    {
+                        "title": "An AI agent reliability benchmark",
+                        "url": "https://example.com/agent",
+                        "summary": "A practical evaluation for production systems.",
+                    },
+                ],
+            )
+
+        result = build_firehose_preview(
+            ["https://feeds.example.com/one"],
+            "AI agents retrieval developer tools",
+            [],
+            fetcher=fetcher,
+        )
+
+        self.assertEqual([item["url"] for item in result["items"]], ["https://example.com/agent"])
+        self.assertIn("agents", result["items"][0]["why"])
+
     def test_preview_enforces_total_and_per_source_item_caps(self) -> None:
         def fetcher(url: str) -> tuple[str, list[dict[str, str]]]:
             source_id = url.rsplit("/", 1)[-1]

@@ -13,12 +13,10 @@ import os
 import sys
 import urllib.error
 import urllib.request
-import xml.etree.ElementTree as ET
 from pathlib import Path
+from xml.etree import ElementTree
 
-from paperboy.stream_common import (
-    write_prompt_event, recent_actors_by_stream, slug_for_stream
-)
+from paperboy.stream_common import recent_actors_by_stream, slug_for_stream, write_prompt_event
 
 MAX_PER_VERTICAL = int(os.environ.get("NEWS_MAX_PER_VERTICAL", "2"))
 FETCH_TIMEOUT = int(os.environ.get("NEWS_FETCH_TIMEOUT", "12"))
@@ -67,8 +65,8 @@ def _fetch_feed(url: str) -> list[dict]:
     except Exception:
         return []
     try:
-        root = ET.fromstring(data)
-    except ET.ParseError:
+        root = ElementTree.fromstring(data)
+    except ElementTree.ParseError:
         return []
     items: list[dict] = []
     # RSS 2.0

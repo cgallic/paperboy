@@ -38,6 +38,7 @@ def main() -> None:
         assert page.locator('link[rel="canonical"]').get_attribute("href") == "https://paperboy.kaibuilds.com/"
         assert page.locator(".trust-line").get_by_text("No Gmail access", exact=True).is_visible()
         assert page.get_by_role("button", name="Start my daily brief").first.is_visible()
+        assert page.get_by_role("link", name="Open source").is_visible()
         assert page.get_by_role("link", name="Privacy").is_visible()
         assert page.get_by_role("link", name="Terms").is_visible()
         page.wait_for_timeout(500)

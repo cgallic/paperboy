@@ -1,14 +1,15 @@
 """Playwright smoke for Paperboy's verified, paid subscription funnel."""
 
 import json
+import tempfile
 from pathlib import Path
 from urllib.parse import urlparse
 
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
-SCREENSHOT = ROOT / "paperboy-product-smoke.png"
-LANDING_SCREENSHOT = ROOT / "paperboy-landing-smoke.png"
+SCREENSHOT = Path(tempfile.gettempdir()) / "paperboy-product-smoke.png"
+LANDING_SCREENSHOT = Path(tempfile.gettempdir()) / "paperboy-landing-smoke.png"
 
 
 def main() -> None:
@@ -21,6 +22,7 @@ def main() -> None:
     unexpected_leads: list[dict] = []
     subscribe_failure = {"enabled": False}
     checkout_failure = {"enabled": False}
+    billing_config = {"enabled": True}
     status_payload = {
         "ok": True,
         "status": "active",
@@ -60,6 +62,20 @@ def main() -> None:
 
         def serve_product(route, request) -> None:
             path = urlparse(request.url).path
+            if path == "/api/config":
+                json_response(
+                    route,
+                    {
+                        "version": "0.4.0",
+                        "billing": {
+                            "enabled": billing_config["enabled"],
+                            "trial_days": 7,
+                            "monthly_price_cents": 4900,
+                            "currency": "USD",
+                        },
+                    },
+                )
+                return
             if path == "/api/firehose/subscribe":
                 subscription_payloads.append(json.loads(request.post_data or "{}"))
                 if subscribe_failure["enabled"]:
@@ -172,6 +188,8 @@ def main() -> None:
         assert page.get_by_role("heading", name="Build your firehose. Read only what matters.").is_visible()
         assert page.get_by_role("link", name="Privacy").is_visible()
         assert page.get_by_role("link", name="Terms").is_visible()
+        assert page.get_by_role("link", name="Open source").is_visible()
+        assert page.get_by_text("Hosted checkout available", exact=True).is_visible()
         assert analytics_payloads == []
         page.screenshot(path=str(LANDING_SCREENSHOT))
 
@@ -215,9 +233,6 @@ def main() -> None:
             {
                 "billing_status": "trialing",
                 "next_delivery_at": "2026-07-17T07:30:00-04:00",
-                "transaction_id": "cs_smoke_123",
-                "currency": "USD",
-                "value": 49,
             }
         )
         page.goto("http://paperboy.kaibuilds.com:8123/?billing=success", wait_until="networkidle")
@@ -232,9 +247,10 @@ def main() -> None:
             "subscription_requested",
             "email_verified",
             "begin_checkout",
-            "purchase",
+            "trial_started",
         ):
             assert expected in event_names
+        assert "purchase" not in event_names
         serialized_analytics = json.dumps(analytics_payloads)
         assert "paperboy-smoke@example.invalid" not in serialized_analytics
         assert "smoke-manage" not in serialized_analytics
@@ -247,7 +263,7 @@ def main() -> None:
         page.screenshot(path=str(SCREENSHOT), full_page=True)
 
         checkout_failure["enabled"] = True
-        status_payload.update({"billing_status": "unpaid", "transaction_id": None})
+        status_payload.update({"billing_status": "unpaid"})
         unavailable = context.new_page()
         unavailable.goto("http://paperboy.kaibuilds.com:8123/?manage=smoke-manage", wait_until="networkidle")
         unavailable.get_by_role("heading", name="Email verified. Finish checkout to start delivery.").wait_for()
@@ -282,6 +298,13 @@ def main() -> None:
         assert legal.title() == "Terms — Paperboy"
         assert legal.get_by_role("heading", name="Trial and billing").is_visible()
 
+        billing_config["enabled"] = False
+        unavailable_launch = context.new_page()
+        unavailable_launch.goto("http://paperboy.kaibuilds.com:8123/", wait_until="networkidle")
+        assert unavailable_launch.get_by_text("Preview and email verification are live", exact=True).is_visible()
+        assert unavailable_launch.get_by_text("No card will be requested or charged.", exact=False).is_visible()
+        assert unavailable_launch.get_by_text("Checkout temporarily unavailable", exact=True).is_visible()
+
         context.close()
         browser.close()
 
@@ -291,7 +314,8 @@ def main() -> None:
     print("Paperboy Playwright smoke passed")
     print("- pending requests never claim active delivery")
     print("- explicit email confirmation and Stripe-hosted checkout passed")
-    print("- server-confirmed trial return and purchase event passed")
+    print("- server-confirmed trial return emitted trial_started, never purchase")
+    print("- runtime checkout availability copy passed")
     print("- checkout failure, subscription failure, mobile, privacy, and terms passed")
     print("- consented analytics contained no email or lifecycle token")
 

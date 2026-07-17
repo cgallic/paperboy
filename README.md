@@ -4,7 +4,8 @@
 > thousand things and delivers the twelve that matter to you.
 
 A daily Discord digest of news + research papers, scored by your local LLM
-against your own interests. No cloud, no SaaS, no account.
+against your own interests. The self-hosted edition needs no Paperboy cloud
+account or hosted subscription.
 
 Drop your favorite RSS feeds in `news_sources.yaml`. Describe your stack in
 `research-interests.md`. Wake up to a Discord post like this:
@@ -40,6 +41,13 @@ ranked morning edition assembled from explicitly forwarded newsletters, public
 news/research/data, and optional selected GitHub repositories. Repo Radar is a
 section of that edition, not a separate product. Suggested actions remain inert
 text for human review.
+
+The public founding beta is at **[paperboy.kaibuilds.com](https://paperboy.kaibuilds.com/)**.
+Its live automatic intake is currently narrower than that product direction:
+it previews and saves user-selected public RSS/Atom feeds, verifies the delivery
+email, and activates scheduled delivery only after hosted checkout confirms a
+trial. The page reports checkout availability live; a preview or verified email
+is not a paid subscription.
 
 This repository includes a deterministic, local-only sample of the selection
 and email-rendering boundary. It makes no network calls, sends no email, and

@@ -11,6 +11,7 @@ from paperboy.billing import BillingUnavailableError, apply_event, create_checko
 from paperboy.config import settings
 from paperboy.db import init_schema
 from paperboy.subscriptions import (
+    active_subscriptions,
     confirm_subscription,
     confirmation_token,
     create_subscription,
@@ -76,9 +77,11 @@ class BillingTests(unittest.TestCase):
         ), self.assertRaises(BillingUnavailableError):
             create_checkout(self.subscription)
 
-    def test_checkout_webhook_grants_trial_entitlement(self) -> None:
+    def test_subscription_webhook_with_trial_end_grants_entitlement(self) -> None:
         outcome, subscription_id = apply_event(
             {
+                "id": "evt_checkout",
+                "created": 100,
                 "type": "checkout.session.completed",
                 "data": {
                     "object": {
@@ -89,12 +92,65 @@ class BillingTests(unittest.TestCase):
                 },
             }
         )
+        self.assertEqual((outcome, subscription_id), ("ignored", self.subscription["id"]))
+        self.assertEqual(get_subscription_by_id(self.subscription["id"])["billing_status"], "unpaid")
+
+        outcome, subscription_id = apply_event(
+            {
+                "id": "evt_subscription_created",
+                "created": 101,
+                "type": "customer.subscription.created",
+                "data": {
+                    "object": {
+                        "id": "sub_123",
+                        "status": "trialing",
+                        "customer": "cus_123",
+                        "trial_end": 9999999999,
+                        "metadata": {"paperboy_subscription_id": str(self.subscription["id"])},
+                    }
+                },
+            }
+        )
         self.assertEqual((outcome, subscription_id), ("processed", self.subscription["id"]))
         updated = get_subscription_by_id(self.subscription["id"])
         assert updated is not None
         self.assertEqual(updated["billing_status"], "trialing")
         self.assertEqual(updated["billing_customer_id"], "cus_123")
         self.assertEqual(updated["billing_subscription_id"], "sub_123")
+        self.assertIsNotNone(updated["trial_ends_at"])
+        self.assertEqual(len(active_subscriptions()), 1)
+
+    def test_stale_subscription_update_cannot_restore_canceled_entitlement(self) -> None:
+        base_object = {
+            "id": "sub_123",
+            "customer": "cus_123",
+            "metadata": {"paperboy_subscription_id": str(self.subscription["id"])},
+        }
+        created = {
+            "id": "evt_created",
+            "created": 100,
+            "type": "customer.subscription.created",
+            "data": {"object": {**base_object, "status": "trialing", "trial_end": 9999999999}},
+        }
+        deleted = {
+            "id": "evt_deleted",
+            "created": 300,
+            "type": "customer.subscription.deleted",
+            "data": {"object": {**base_object, "status": "canceled"}},
+        }
+        stale_update = {
+            "id": "evt_stale",
+            "created": 200,
+            "type": "customer.subscription.updated",
+            "data": {"object": {**base_object, "status": "active"}},
+        }
+
+        self.assertEqual(apply_event(created)[0], "processed")
+        self.assertEqual(apply_event(deleted)[0], "processed")
+        self.assertEqual(get_subscription_by_id(self.subscription["id"])["billing_status"], "canceled")
+        self.assertEqual(apply_event(stale_update)[0], "ignored")
+        self.assertEqual(get_subscription_by_id(self.subscription["id"])["billing_status"], "canceled")
+        self.assertEqual(active_subscriptions(), [])
 
 
 if __name__ == "__main__":

@@ -39,6 +39,32 @@ class EmailTests(unittest.TestCase):
             settings.smtp_port = old_port
             settings.smtp_starttls = old_starttls
 
+    def test_resend_smtp_adds_idempotency_and_reply_to_headers(self) -> None:
+        old_host = settings.smtp_host
+        old_reply_to = settings.email_reply_to
+        connection = MagicMock()
+        connection.__enter__.return_value = connection
+        try:
+            settings.smtp_host = "smtp.resend.com"
+            settings.email_reply_to = "support@example.com"
+            with patch("paperboy.email.sender._create_smtp_connection", return_value=connection):
+                result = send_raw(
+                    "Test",
+                    "Text",
+                    to="reader@example.com",
+                    message_id="<stable@paperboy.kaibuilds.com>",
+                )
+            message = connection.sendmail.call_args.args[2]
+            self.assertIn("Reply-To: support@example.com", message)
+            self.assertIn(
+                "Resend-Idempotency-Key: paperboy/stable@paperboy.kaibuilds.com",
+                message,
+            )
+            self.assertTrue(result["ok"])
+        finally:
+            settings.smtp_host = old_host
+            settings.email_reply_to = old_reply_to
+
 
 if __name__ == "__main__":
     unittest.main()

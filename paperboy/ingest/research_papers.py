@@ -15,6 +15,7 @@ Event shape:
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
 import json
 import os
@@ -24,12 +25,12 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
+from xml.etree import ElementTree
 
 from paperboy.db import connect
-from paperboy.stream_common import write_event, update_payload
+from paperboy.stream_common import update_payload, write_event
 
 CONTENT_MAX_CHARS = 4000
 SUMMARY_EXCERPT_CHARS = 500
@@ -93,10 +94,8 @@ def load_existing_payloads(actors: set[str]) -> dict[str, dict]:
             tuple(actors),
         )
         for actor, pj in rows:
-            try:
+            with contextlib.suppress(json.JSONDecodeError):
                 out[actor] = json.loads(pj)
-            except json.JSONDecodeError:
-                pass
         return out
     finally:
         conn.close()
@@ -168,8 +167,8 @@ def fetch_arxiv(cfg: dict, ua: str, timeout: int, verbose: bool) -> list[dict]:
         print(f"[arxiv] fetch failed: {err}", file=sys.stderr)
         return []
     try:
-        root = ET.fromstring(body)
-    except ET.ParseError as e:
+        root = ElementTree.fromstring(body)
+    except ElementTree.ParseError as e:
         print(f"[arxiv] XML parse error: {e}", file=sys.stderr)
         return []
     papers = []

@@ -4,6 +4,12 @@ This walks through a clean install on a Linux host with systemd. If you've
 read the README quickstart and want more detail (or you hit a snag), this is
 the page.
 
+Looking for the hosted founding beta instead? Open
+**[paperboy.kaibuilds.com](https://paperboy.kaibuilds.com/)**. The hosted beta
+and this self-hosted Discord project are deliberately separate: the live page
+shows its current source and checkout boundaries, while this guide installs
+the free MIT-licensed local runtime you operate yourself.
+
 ## paperboy alone, or paperboy + open-brane?
 
 paperboy ships a compatible events.db schema in its own `db.py`, so the

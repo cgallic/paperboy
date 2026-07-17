@@ -8,6 +8,7 @@
 - **One-liner:** Paperboy turns a user-built firehose of public feeds into a short, source-linked brief ranked around what matters to them.
 - **Category:** Personal relevance filter
 - **URL:** https://paperboy.kaibuilds.com/
+- **Current live boundary:** Founding beta for user-selected public RSS/Atom feeds. Feed validation, preview, persistence, confirmation delivery, and scheduling are automatic; paid delivery activates only after hosted checkout reports a trial as active. The broader forwarded-newsletter and selected-GitHub product remains a direction, not a live claim.
 
 ## ICP (Ideal Customer Profile)
 
@@ -73,7 +74,7 @@
 
 - **Monetization:** Card-required seven-day trial followed by a recurring subscription
 - **Pricing:** $49/month after the trial until canceled
-- **Stage:** Pre-PMF validation; the product measures preview, verification, checkout, paid activation, and retention as separate stages
+- **Stage:** Pre-PMF validation; preview, verification, trial start, a real paid transaction, and retention are separate stages. A trial start must never be reported as a purchase.
 
 ## Current Marketing
 

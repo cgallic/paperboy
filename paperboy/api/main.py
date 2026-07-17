@@ -13,12 +13,13 @@ Static files from product/ are served at / so the landing page works.
 from __future__ import annotations
 
 import asyncio
+import base64
+import hashlib
+import hmac
 import json
 import re
 import sqlite3
 import time
-import urllib.error
-import urllib.request
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from email import policy
@@ -46,11 +47,13 @@ from paperboy.firehose import (
     validate_preview_payload,
 )
 from paperboy.health import run_all
+from paperboy.lifecycle_delivery import enqueue_lifecycle_event
 from paperboy.logging_config import configure_logging, get_logger
 from paperboy.subscriptions import (
     SubscriptionSuppressedError,
     SubscriptionValidationError,
     allow_subscription_attempt,
+    billing_entitled,
     claim_billing_webhook,
     confirm_subscription,
     create_subscription,
@@ -63,6 +66,7 @@ from paperboy.subscriptions import (
     next_delivery_at,
     record_tracking_event,
     resolve_click_target,
+    suppress_email,
     suppress_from_bounce_address,
     unsubscribe,
     validate_subscription_payload,
@@ -86,8 +90,145 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Rate-limit helper (naive; replace with Redis in prod)
+# Single-process limits are sufficient while Paperboy runs one API worker.
 _last_hit: dict[str, float] = {}
+_rate_buckets: dict[tuple[str, str], list[float]] = {}
+_rate_lock = asyncio.Lock()
+_preview_semaphore = asyncio.Semaphore(4)
+
+
+def _client_identity(request: Request) -> str:
+    forwarded = request.headers.get("x-forwarded-for", "").split(",", 1)[0].strip()
+    return forwarded or (request.client.host if request.client else "unknown")
+
+
+async def _allow_rate(
+    request: Request,
+    scope: str,
+    *,
+    limit: int,
+    window_seconds: int,
+) -> bool:
+    now = time.monotonic()
+    key = (scope, _client_identity(request))
+    cutoff = now - window_seconds
+    async with _rate_lock:
+        recent = [timestamp for timestamp in _rate_buckets.get(key, []) if timestamp >= cutoff]
+        if len(recent) >= limit:
+            _rate_buckets[key] = recent
+            return False
+        recent.append(now)
+        _rate_buckets[key] = recent
+        if len(_rate_buckets) > 4096:
+            for stale_key in list(_rate_buckets)[:1024]:
+                if not any(timestamp >= cutoff for timestamp in _rate_buckets[stale_key]):
+                    _rate_buckets.pop(stale_key, None)
+        return True
+
+
+async def _read_bounded_body(request: Request, limit: int) -> bytes:
+    content_length = request.headers.get("content-length")
+    if content_length:
+        try:
+            if int(content_length) > limit:
+                raise HTTPException(status_code=413, detail="request body is too large")
+        except ValueError:
+            raise HTTPException(status_code=400, detail="invalid content-length") from None
+    chunks: list[bytes] = []
+    size = 0
+    try:
+        async for chunk in request.stream():
+            size += len(chunk)
+            if size > limit:
+                raise HTTPException(status_code=413, detail="request body is too large")
+            chunks.append(chunk)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail="could not read request body") from exc
+    return b"".join(chunks)
+
+
+async def _read_json_body(request: Request, limit: int) -> object:
+    raw = await _read_bounded_body(request, limit)
+    try:
+        return json.loads(raw)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=400, detail="request body must be valid JSON") from exc
+
+
+def _verify_resend_signature(raw: bytes, request: Request) -> str:
+    secret = settings.resend_webhook_secret or ""
+    message_id = request.headers.get("svix-id", "")
+    timestamp_text = request.headers.get("svix-timestamp", "")
+    signatures = request.headers.get("svix-signature", "")
+    if not secret.startswith("whsec_") or not message_id or not timestamp_text or not signatures:
+        raise ValueError("missing Resend webhook signature")
+    try:
+        timestamp = int(timestamp_text)
+        key = base64.b64decode(secret.removeprefix("whsec_"), validate=True)
+    except (ValueError, TypeError) as exc:
+        raise ValueError("invalid Resend webhook signature metadata") from exc
+    if abs(int(time.time()) - timestamp) > 300:
+        raise ValueError("stale Resend webhook")
+    signed = f"{message_id}.{timestamp_text}.".encode() + raw
+    expected = base64.b64encode(hmac.new(key, signed, hashlib.sha256).digest()).decode()
+    supplied = [part[3:] for part in signatures.split() if part.startswith("v1,")]
+    if not supplied or not any(hmac.compare_digest(expected, value) for value in supplied):
+        raise ValueError("invalid Resend webhook signature")
+    return message_id
+
+
+def _claim_email_provider_event(event_id: str, event_type: str) -> bool:
+    now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    stale = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(time.time() - 600))
+    conn = connect()
+    try:
+        row = conn.execute(
+            "SELECT status,received_at FROM email_provider_events WHERE event_id=?", (event_id,)
+        ).fetchone()
+        if row is None:
+            conn.execute(
+                "INSERT INTO email_provider_events "
+                "(event_id,event_type,received_at,status) VALUES (?,?,?,'processing')",
+                (event_id, event_type, now),
+            )
+            conn.commit()
+            return True
+        if row["status"] == "failed" or (
+            row["status"] == "processing" and str(row["received_at"]) < stale
+        ):
+            conn.execute(
+                "UPDATE email_provider_events SET status='processing', received_at=?, detail='' "
+                "WHERE event_id=?",
+                (now, event_id),
+            )
+            conn.commit()
+            return True
+        return False
+    finally:
+        conn.close()
+
+
+def _finish_email_provider_event(
+    event_id: str,
+    status: str,
+    *,
+    subscription_id: int | None = None,
+    provider_email_id: str | None = None,
+    detail: str = "",
+) -> None:
+    now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    conn = connect()
+    try:
+        conn.execute(
+            "UPDATE email_provider_events SET status=?, subscription_id=?, provider_email_id=?, "
+            "processed_at=?, detail=? WHERE event_id=?",
+            (status, subscription_id, provider_email_id, now, detail[:120], event_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def _append_product_event(event_type: str, payload: dict) -> int:
@@ -104,37 +245,6 @@ def _append_product_event(event_type: str, payload: dict) -> int:
         return int(cursor.lastrowid)
     finally:
         conn.close()
-
-
-def _forward_verified_lead(subscription: dict) -> bool:
-    """Forward a server-verified conversion to the existing KaiBuilds ledger."""
-    if not settings.kaibuilds_capture_url:
-        return False
-    attribution = subscription.get("attribution", {})
-    payload = {
-        "slug": "paperboy",
-        "email": subscription["email"],
-        "source": "paperboy_email_verified",
-        "page": settings.public_url,
-        "offer": "7-day trial",
-        "price": "$49/month",
-        **{
-            key: value
-            for key, value in attribution.items()
-            if key.startswith("utm_") or key in {"ref", "gclid", "fbclid"}
-        },
-    }
-    request = urllib.request.Request(
-        settings.kaibuilds_capture_url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
-    try:
-        with urllib.request.urlopen(request, timeout=3) as response:
-            return 200 <= int(response.status) < 300
-    except (OSError, urllib.error.URLError):
-        return False
 
 
 @app.middleware("http")
@@ -188,8 +298,12 @@ async def health() -> JSONResponse:
 @app.post("/api/lead")
 async def capture_lead(request: Request) -> JSONResponse:
     try:
-        body = await request.json()
-    except Exception:
+        body = await _read_json_body(request, 32_000)
+    except HTTPException as exc:
+        if exc.status_code == 400:
+            return JSONResponse({"ok": False, "error": "invalid_json"}, status_code=400)
+        raise
+    if not isinstance(body, dict):
         return JSONResponse({"ok": False, "error": "invalid_json"}, status_code=400)
 
     email = str(body.get("email", "")).strip().lower()
@@ -246,22 +360,18 @@ _ANALYTICS_EVENTS = {
     "subscription_requested",
     "email_verified",
     "begin_checkout",
-    "purchase",
+    "trial_started",
 }
-_ANALYTICS_PROPERTIES = {"source_count", "billing_status", "currency", "value", "transaction_id"}
+_ANALYTICS_PROPERTIES = {"source_count", "billing_status", "currency", "value"}
 _ANONYMOUS_ID = re.compile(r"^[A-Za-z0-9_-]{16,80}$")
 
 
 @app.post("/api/analytics/event")
 async def capture_analytics_event(request: Request) -> Response:
     """Persist an explicitly consented, PII-free first-party product event."""
-    raw = await request.body()
-    if len(raw) > 8192:
-        raise HTTPException(status_code=413, detail="event is too large")
-    try:
-        body = json.loads(raw)
-    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise HTTPException(status_code=400, detail="request body must be valid JSON") from exc
+    if not await _allow_rate(request, "analytics", limit=120, window_seconds=60):
+        raise HTTPException(status_code=429, detail="too many analytics events")
+    body = await _read_json_body(request, 8192)
     if not isinstance(body, dict) or body.get("event") not in _ANALYTICS_EVENTS:
         raise HTTPException(status_code=422, detail="unsupported analytics event")
     anonymous_id = body.get("anonymous_id")
@@ -284,9 +394,7 @@ async def capture_analytics_event(request: Request) -> Response:
 @app.post("/api/email/bounce")
 async def capture_hard_bounce(request: Request) -> Response:
     """Consume a Postfix DSN and suppress only a signed hard-bounce recipient."""
-    raw = await request.body()
-    if len(raw) > 512_000:
-        raise HTTPException(status_code=413, detail="bounce report is too large")
+    raw = await _read_bounded_body(request, 512_000)
     message = BytesParser(policy=policy.default).parsebytes(raw)
     report_text = raw.decode("utf-8", errors="replace")
     is_delivery_report = (
@@ -308,6 +416,63 @@ async def capture_hard_bounce(request: Request) -> Response:
             logger.warning("hard_bounce_suppressed", extra={"event": "hard_bounce_suppressed"})
             break
     return Response(status_code=204)
+
+
+@app.post("/api/email/resend-webhook")
+async def capture_resend_event(request: Request) -> JSONResponse:
+    """Verify and apply Resend delivery outcomes without retaining recipient PII twice."""
+    raw = await _read_bounded_body(request, 256_000)
+    try:
+        event_id = _verify_resend_signature(raw, request)
+        event = json.loads(raw)
+    except (ValueError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=400, detail="invalid Resend webhook") from exc
+    if not isinstance(event, dict) or not isinstance(event.get("type"), str):
+        raise HTTPException(status_code=422, detail="invalid Resend event")
+    event_type = str(event["type"])
+    if not _claim_email_provider_event(event_id, event_type):
+        return JSONResponse({"ok": True, "duplicate": True})
+    try:
+        data = event.get("data") if isinstance(event.get("data"), dict) else {}
+        recipients = data.get("to") if isinstance(data.get("to"), list) else []
+        email = str(recipients[0]).strip().lower() if recipients else ""
+        subscription = get_subscription_by_email(email) if email else None
+        subscription_id = int(subscription["id"]) if subscription is not None else None
+        provider_email_id = str(data.get("email_id") or "") or None
+        if subscription is not None and event_type in {
+            "email.bounced",
+            "email.complained",
+            "email.suppressed",
+        }:
+            suppress_email(email, f"resend_{event_type.rsplit('.', 1)[-1]}", event_id)
+        if subscription_id is not None and event_type in {
+            "email.sent",
+            "email.delivered",
+            "email.delivery_delayed",
+            "email.failed",
+            "email.bounced",
+            "email.complained",
+            "email.suppressed",
+        }:
+            _append_product_event(
+                "email_provider_event",
+                {
+                    "subscription_id": subscription_id,
+                    "provider": "resend",
+                    "provider_event": event_type,
+                    "provider_email_id": provider_email_id,
+                },
+            )
+        _finish_email_provider_event(
+            event_id,
+            "processed" if subscription_id is not None else "ignored",
+            subscription_id=subscription_id,
+            provider_email_id=provider_email_id,
+        )
+    except Exception as exc:
+        _finish_email_provider_event(event_id, "failed", detail=type(exc).__name__)
+        raise HTTPException(status_code=500, detail="Resend webhook processing failed") from exc
+    return JSONResponse({"ok": True, "status": "processed"})
 
 
 @app.get("/api/hit")
@@ -357,8 +522,12 @@ async def render_brief(request: Request) -> JSONResponse:
     from paperboy.daily_brief.cli import run as render_run
 
     try:
-        body = await request.json()
-    except Exception:
+        body = await _read_json_body(request, 1024)
+    except HTTPException as exc:
+        if exc.status_code == 400:
+            return JSONResponse({"ok": False, "error": "invalid_json"}, status_code=400)
+        raise
+    if not isinstance(body, dict):
         return JSONResponse({"ok": False, "error": "invalid_json"}, status_code=400)
 
     if body:
@@ -386,60 +555,34 @@ async def render_brief(request: Request) -> JSONResponse:
 @app.post("/api/firehose/preview")
 async def preview_firehose(request: Request) -> JSONResponse:
     """Return an instant, source-linked RSS/Atom relevance preview."""
-    content_length = request.headers.get("content-length")
-    if content_length:
-        try:
-            if int(content_length) > MAX_REQUEST_BYTES:
-                raise HTTPException(status_code=413, detail="request body is too large")
-        except ValueError:
-            raise HTTPException(status_code=400, detail="invalid content-length") from None
-    try:
-        raw_body = await request.body()
-    except Exception as exc:
-        raise HTTPException(status_code=400, detail="could not read request body") from exc
-    if len(raw_body) > MAX_REQUEST_BYTES:
-        raise HTTPException(status_code=413, detail="request body is too large")
-    try:
-        payload = json.loads(raw_body)
-    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise HTTPException(status_code=400, detail="request body must be valid JSON") from exc
+    if not await _allow_rate(request, "preview", limit=12, window_seconds=60):
+        raise HTTPException(status_code=429, detail="too many previews; try again shortly")
+    payload = await _read_json_body(request, MAX_REQUEST_BYTES)
     try:
         sources, focus, ignore = validate_preview_payload(payload)
     except PreviewValidationError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
-    result = await asyncio.to_thread(build_firehose_preview, sources, focus, ignore)
+    async with _preview_semaphore:
+        result = await asyncio.to_thread(build_firehose_preview, sources, focus, ignore)
     return JSONResponse(result)
 
 
 @app.post("/api/firehose/subscribe")
 async def subscribe_firehose(request: Request) -> JSONResponse:
     """Preview a firehose, then persist it for automatic daily delivery."""
-    content_length = request.headers.get("content-length")
-    if content_length:
-        try:
-            if int(content_length) > MAX_REQUEST_BYTES:
-                raise HTTPException(status_code=413, detail="request body is too large")
-        except ValueError:
-            raise HTTPException(status_code=400, detail="invalid content-length") from None
-    raw_body = await request.body()
-    if len(raw_body) > MAX_REQUEST_BYTES:
-        raise HTTPException(status_code=413, detail="request body is too large")
-    try:
-        payload = json.loads(raw_body)
-    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise HTTPException(status_code=400, detail="request body must be valid JSON") from exc
+    payload = await _read_json_body(request, MAX_REQUEST_BYTES)
     try:
         email, sources, focus, ignore, attribution, timezone_name = validate_subscription_payload(payload)
     except SubscriptionValidationError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
-    forwarded_for = request.headers.get("x-forwarded-for", "").split(",", 1)[0].strip()
-    client_ip = forwarded_for or (request.client.host if request.client else "unknown")
+    client_ip = _client_identity(request)
     if not await asyncio.to_thread(allow_subscription_attempt, client_ip, email):
         raise HTTPException(status_code=429, detail="too many subscription attempts; try again later")
 
-    preview = await asyncio.to_thread(build_firehose_preview, sources, focus, ignore)
+    async with _preview_semaphore:
+        preview = await asyncio.to_thread(build_firehose_preview, sources, focus, ignore)
     if not any(source.get("status") == "ok" for source in preview["sources"]):
         return JSONResponse(
             {
@@ -461,6 +604,8 @@ async def subscribe_firehose(request: Request) -> JSONResponse:
             timezone_name,
         )
     except SubscriptionSuppressedError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except SubscriptionValidationError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
     except (OSError, sqlite3.Error):
         logger.exception("subscription_persistence_failed", extra={"event": "subscription_persistence_failed"})
@@ -486,7 +631,7 @@ async def firehose_subscription_status(token: str) -> JSONResponse:
     subscription = await asyncio.to_thread(get_subscription, token)
     if subscription is None:
         raise HTTPException(status_code=404, detail="subscription not found")
-    entitled = subscription["billing_status"] in {"trialing", "active"}
+    entitled = billing_entitled(subscription)
     status = (
         "unsubscribed"
         if subscription["unsubscribed_at"] or subscription["suppressed"]
@@ -511,9 +656,7 @@ async def firehose_subscription_status(token: str) -> JSONResponse:
             ),
             "checkout_available": settings.billing_enabled and status == "active" and not entitled,
             "portal_available": settings.billing_enabled and bool(subscription["billing_customer_id"]),
-            "transaction_id": subscription["billing_subscription_id"] if entitled else None,
-            "currency": settings.stripe_currency.upper(),
-            "value": settings.stripe_monthly_price_cents / 100,
+            "paid_at": subscription["paid_at"],
         }
     )
 
@@ -533,9 +676,12 @@ async def confirm_firehose_subscription(token: str) -> JSONResponse:
                 "attribution": subscription["attribution"],
             },
         )
-        forwarded = await asyncio.to_thread(_forward_verified_lead, subscription)
-        if not forwarded and settings.kaibuilds_capture_url:
-            logger.warning("verified_lead_forward_failed", extra={"event": "verified_lead_forward_failed"})
+        await asyncio.to_thread(
+            enqueue_lifecycle_event,
+            f"email_verified:{subscription['id']}:{subscription['verified_at']}",
+            int(subscription["id"]),
+            "email_verified",
+        )
     logger.info("firehose_email_verified", extra={"event": "firehose_email_verified", "email": subscription["email"]})
     return JSONResponse(
         {
@@ -566,10 +712,7 @@ async def unsubscribe_firehose(token: str) -> JSONResponse:
 
 @app.post("/api/billing/checkout")
 async def start_checkout(request: Request) -> JSONResponse:
-    try:
-        body = await request.json()
-    except Exception:
-        raise HTTPException(status_code=400, detail="request body must be valid JSON") from None
+    body = await _read_json_body(request, 8192)
     token = body.get("token") if isinstance(body, dict) else None
     if not isinstance(token, str):
         raise HTTPException(status_code=422, detail="management token is required")
@@ -594,10 +737,7 @@ async def start_checkout(request: Request) -> JSONResponse:
 
 @app.post("/api/billing/portal")
 async def start_customer_portal(request: Request) -> JSONResponse:
-    try:
-        body = await request.json()
-    except Exception:
-        raise HTTPException(status_code=400, detail="request body must be valid JSON") from None
+    body = await _read_json_body(request, 8192)
     token = body.get("token") if isinstance(body, dict) else None
     if not isinstance(token, str):
         raise HTTPException(status_code=422, detail="management token is required")
@@ -618,9 +758,7 @@ async def start_customer_portal(request: Request) -> JSONResponse:
 
 @app.post("/api/billing/webhook")
 async def stripe_webhook(request: Request) -> JSONResponse:
-    payload = await request.body()
-    if len(payload) > 1_000_000:
-        raise HTTPException(status_code=413, detail="webhook payload is too large")
+    payload = await _read_bounded_body(request, 1_000_000)
     try:
         event = construct_event(payload, request.headers.get("stripe-signature", ""))
     except BillingUnavailableError as exc:
@@ -649,6 +787,20 @@ async def stripe_webhook(request: Request) -> JSONResponse:
                     "attribution": subscription["attribution"],
                 },
             )
+            event_object = (event.get("data") or {}).get("object") or {}
+            if event_type == "invoice.paid":
+                amount_paid = int(event_object.get("amount_paid") or 0)
+                if amount_paid > 0:
+                    _append_product_event(
+                        "purchase",
+                        {
+                            "subscription_id": subscription_id,
+                            "transaction_id": str(event_object.get("id") or event_id),
+                            "amount_paid": amount_paid,
+                            "currency": str(event_object.get("currency") or "").upper(),
+                            "attribution": subscription["attribution"],
+                        },
+                    )
     return JSONResponse({"ok": True, "status": outcome})
 
 

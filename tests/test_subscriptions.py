@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import tempfile
 import unittest
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
 
@@ -13,7 +13,9 @@ from paperboy.api.main import app
 from paperboy.db import connect, init_schema
 from paperboy.firehose_delivery import run_daily_deliveries
 from paperboy.subscriptions import (
+    ExistingSubscriptionError,
     SubscriptionValidationError,
+    active_subscriptions,
     confirm_subscription,
     confirmation_token,
     create_subscription,
@@ -76,7 +78,13 @@ class SubscriptionTestCase(unittest.TestCase):
         subscription, token = self.create(email)
         confirmed = confirm_subscription(confirmation_token(subscription))
         assert confirmed is not None
-        entitled = set_billing_state(int(confirmed["id"]), "trialing")
+        entitled = set_billing_state(
+            int(confirmed["id"]),
+            "trialing",
+            trial_ends_at=(datetime.now(timezone.utc) + timedelta(days=7))
+            .isoformat()
+            .replace("+00:00", "Z"),
+        )
         assert entitled is not None
         return entitled, token
 
@@ -144,6 +152,24 @@ class SubscriptionStorageTests(SubscriptionTestCase):
         finally:
             conn.close()
         self.assertEqual(count, 1)
+
+    def test_unverified_resubscribe_cannot_disable_verified_entitled_row(self) -> None:
+        entitled, old_token = self.activate()
+        with self.assertRaises(ExistingSubscriptionError):
+            create_subscription(
+                "reader@example.com",
+                ["https://attacker.example/rss"],
+                "replacement focus",
+                [],
+            )
+
+        current = get_subscription(old_token)
+        assert current is not None
+        self.assertEqual(current["id"], entitled["id"])
+        self.assertTrue(current["active"])
+        self.assertEqual(current["verification_status"], "verified")
+        self.assertEqual(current["sources"], ["https://example.com/feed"])
+        self.assertEqual(len(active_subscriptions()), 1)
 
 
 class SubscriptionEndpointTests(SubscriptionTestCase):
@@ -256,6 +282,49 @@ class FirehoseDeliveryTests(SubscriptionTestCase):
         finally:
             conn.close()
         self.assertEqual((status, item_count), ("sent", 1))
+
+    def test_daily_delivery_does_not_resend_previously_delivered_item(self) -> None:
+        self.activate()
+        sent: list[str] = []
+
+        def sender(_subject: str, body_text: str, *_args, **_kwargs) -> dict:
+            sent.append(body_text)
+            return {"ok": True, "detail": "sent", "message_id": None}
+
+        first = run_daily_deliveries(
+            delivery_day=date(2026, 7, 16),
+            preview_builder=lambda *_: _preview(),
+            sender=sender,
+        )
+        second = run_daily_deliveries(
+            delivery_day=date(2026, 7, 17),
+            preview_builder=lambda *_: _preview(),
+            sender=sender,
+        )
+
+        self.assertEqual(first["sent"], 1)
+        self.assertEqual(second["sent"], 1)
+        self.assertIn("Agent reliability in production", sent[0])
+        self.assertNotIn("Agent reliability in production", sent[1])
+        self.assertIn("No items cleared your filter today.", sent[1])
+        conn = connect()
+        try:
+            item_counts = [
+                int(row[0])
+                for row in conn.execute(
+                    "SELECT item_count FROM firehose_deliveries ORDER BY delivery_date"
+                )
+            ]
+            delivered_items = int(
+                conn.execute(
+                    "SELECT COUNT(*) FROM events "
+                    "WHERE source = 'paperboy-firehose' AND type = 'delivered-item'"
+                ).fetchone()[0]
+            )
+        finally:
+            conn.close()
+        self.assertEqual(item_counts, [1, 0])
+        self.assertEqual(delivered_items, 1)
 
     def test_failed_send_is_recorded_and_not_duplicated_that_day(self) -> None:
         self.activate()

@@ -4,19 +4,25 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       matrix:
         python-version: ["3.10", "3.12"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install package with all extras
         run: pip install -e ".[all]"
+      - name: Validate installed dependency graph
+        run: python -m pip check
       - name: Compile package
         run: python -m compileall -q paperboy
       - name: Run tests
@@ -32,15 +38,18 @@ jobs:
           curl -fsS http://127.0.0.1:8000/api/health | grep -q status
           kill %1
       - name: Lint with ruff
-        run: >-
-          ruff check
-          paperboy/api
-          paperboy/email
-          paperboy/config.py
-          paperboy/health.py
-          paperboy/logging_config.py
-          paperboy/scheduler.py
-          tests/test_api.py
-          tests/test_config.py
-          tests/test_email.py
-          tests/test_health.py
+        run: ruff check .
+
+  dependency-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install runtime dependencies and audit tool
+        run: pip install -e ".[api,email]" pip-audit
+      - name: Audit resolved Python dependencies
+        run: python -m pip_audit --skip-editable

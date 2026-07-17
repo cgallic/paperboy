@@ -150,6 +150,37 @@ def _mapped_status(value: Any) -> str:
     return "past_due"
 
 
+def _event_identity(event: Any) -> tuple[str, int] | None:
+    event_id = str(_value(event, "id", ""))
+    try:
+        created = int(_value(event, "created"))
+    except (TypeError, ValueError):
+        return None
+    if not event_id or created < 0:
+        return None
+    return event_id, created
+
+
+def _apply_ordered_state(
+    subscription_id: int,
+    status: str,
+    event: Any,
+    **values: Any,
+) -> bool:
+    identity = _event_identity(event)
+    if identity is None:
+        return False
+    event_id, event_created = identity
+    updated = set_billing_state(
+        subscription_id,
+        status,
+        event_created=event_created,
+        event_id=event_id,
+        **values,
+    )
+    return bool(updated and updated.get("_billing_event_applied", False))
+
+
 def apply_event(event: Any) -> tuple[str, int | None]:
     """Apply a verified Stripe event and return (outcome, subscription id)."""
     event_type = str(_value(event, "type", ""))
@@ -160,14 +191,9 @@ def apply_event(event: Any) -> tuple[str, int | None]:
         subscription_id = _metadata_id(obj)
         if subscription_id is None or get_subscription_by_id(subscription_id) is None:
             return "ignored", None
-        external_subscription = _value(obj, "subscription")
-        set_billing_state(
-            subscription_id,
-            "trialing",
-            customer_id=_value(obj, "customer"),
-            billing_subscription_id=external_subscription,
-        )
-        return "processed", subscription_id
+        # Checkout does not carry the authoritative trial end. Entitlement is
+        # granted by customer.subscription.created/updated instead.
+        return "ignored", subscription_id
 
     if event_type in {"customer.subscription.created", "customer.subscription.updated", "customer.subscription.deleted"}:
         external_subscription = _value(obj, "id")
@@ -178,14 +204,18 @@ def apply_event(event: Any) -> tuple[str, int | None]:
         if subscription is None:
             return "ignored", None
         mapped = "canceled" if event_type.endswith("deleted") else _mapped_status(_value(obj, "status"))
-        set_billing_state(
+        trial_ends_at = _timestamp(_value(obj, "trial_end"))
+        if mapped == "trialing" and trial_ends_at is None:
+            return "ignored", int(subscription["id"])
+        applied = _apply_ordered_state(
             int(subscription["id"]),
             mapped,
+            event,
             customer_id=_value(obj, "customer"),
             billing_subscription_id=external_subscription,
-            trial_ends_at=_timestamp(_value(obj, "trial_end")),
+            trial_ends_at=trial_ends_at,
         )
-        return "processed", int(subscription["id"])
+        return ("processed" if applied else "ignored"), int(subscription["id"])
 
     if event_type in {"invoice.paid", "invoice.payment_failed"}:
         external_subscription = _value(obj, "subscription")
@@ -196,16 +226,23 @@ def apply_event(event: Any) -> tuple[str, int | None]:
         subscription = _subscription_for_external_id(external_subscription)
         if subscription is None:
             return "ignored", None
-        status = (
-            "trialing"
-            if event_type == "invoice.paid" and subscription["billing_status"] == "trialing"
-            else "active" if event_type == "invoice.paid" else "past_due"
-        )
-        set_billing_state(
+        amount_paid = int(_value(obj, "amount_paid", 0) or 0)
+        status = "past_due"
+        if event_type == "invoice.paid":
+            status = (
+                "trialing"
+                if subscription["billing_status"] == "trialing" and amount_paid <= 0
+                else "active"
+            )
+        applied = _apply_ordered_state(
             int(subscription["id"]),
             status,
+            event,
+            trial_ends_at=(
+                subscription["trial_ends_at"] if status == "trialing" else None
+            ),
             paid_at=_timestamp(_value(_value(obj, "status_transitions", {}) or {}, "paid_at")),
         )
-        return "processed", int(subscription["id"])
+        return ("processed" if applied else "ignored"), int(subscription["id"])
 
     return "ignored", None

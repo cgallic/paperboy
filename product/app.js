@@ -173,12 +173,12 @@
   }
 
   function trackProductEvent(name, properties) {
-    var allowed = ["page_view", "signup_started", "subscription_requested", "email_verified", "begin_checkout", "purchase"];
+    var allowed = ["page_view", "signup_started", "subscription_requested", "email_verified", "begin_checkout", "trial_started"];
     if (!analyticsAllowed() || allowed.indexOf(name) < 0) return;
     window.dataLayer = window.dataLayer || [];
     var event = { event: name, product: "paperboy" };
     var safe = properties || {};
-    ["source_count", "billing_status", "currency", "value", "transaction_id"].forEach(function (key) {
+    ["source_count", "billing_status", "currency"].forEach(function (key) {
       if (safe[key] !== undefined && safe[key] !== null) event[key] = safe[key];
     });
     window.dataLayer.push(event);
@@ -213,6 +213,31 @@
     var pixel = new Image();
     pixel.alt = "";
     pixel.src = "/api/hit?slug=paperboy&r=" + Date.now();
+  }
+
+  async function loadRuntimeAvailability() {
+    var title = document.getElementById("launch-status-title");
+    var copy = document.getElementById("launch-status-copy");
+    var note = document.getElementById("checkout-availability-note");
+    try {
+      var response = await fetch("/api/config", { headers: { "Accept": "application/json" } });
+      var result = await response.json();
+      if (!response.ok || !result || !result.billing || typeof result.billing.enabled !== "boolean") return;
+      document.body.setAttribute("data-billing-available", result.billing.enabled ? "true" : "false");
+      if (result.billing.enabled) {
+        title.textContent = "Automatic daily delivery";
+        copy.textContent = "Add your feeds once. Confirm your email and start the hosted trial, then Paperboy delivers what survives every day.";
+        note.querySelector("strong").textContent = "Hosted checkout available";
+        note.querySelector("span").textContent = "Email verification comes first. Stripe confirms the trial before daily delivery becomes active.";
+      } else {
+        title.textContent = "Preview and email verification are live";
+        copy.textContent = "Checkout is temporarily unavailable, so paid daily delivery cannot activate yet. No card will be requested or charged.";
+        note.querySelector("strong").textContent = "Checkout temporarily unavailable";
+        note.querySelector("span").textContent = "You can preview the filter and verify your email, but delivery will not start until hosted checkout is enabled.";
+      }
+    } catch (error) {
+      // Availability copy stays conservative when runtime configuration cannot be read.
+    }
   }
 
   function routeTo(screen, options) {
@@ -516,13 +541,8 @@
     if (isVerified) {
       trackLifecycleOnce("email_verified", "email_verified");
     }
-    if ((billingStatus === "active" || billingStatus === "trialing") && (details.transaction_id || result.transaction_id)) {
-      trackLifecycleOnce("purchase", "purchase", {
-        billing_status: billingStatus,
-        currency: details.currency || result.currency || "USD",
-        value: Number(details.value || result.value || 49),
-        transaction_id: details.transaction_id || result.transaction_id
-      });
+    if (billingStatus === "trialing") {
+      trackLifecycleOnce("trial_started", "trial_started", { billing_status: billingStatus });
     }
   }
 
@@ -1065,7 +1085,7 @@
     button.disabled = true;
     button.textContent = "Opening secure checkout…";
     fallback.hidden = true;
-    trackProductEvent("begin_checkout", { currency: "USD", value: 49 });
+    trackProductEvent("begin_checkout", { currency: "USD" });
     try {
       var response = await fetch("/api/billing/checkout", {
         method: "POST",
@@ -1385,6 +1405,7 @@
     detectTimezone();
     updateAnalyticsConsentUi();
     trackPageViewOnce();
+    void loadRuntimeAvailability();
     var params = new URLSearchParams(location.search);
     var confirmToken = params.get("confirm");
     var manageToken = params.get("manage");

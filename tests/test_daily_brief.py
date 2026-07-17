@@ -8,8 +8,7 @@ from pathlib import Path
 
 from paperboy.daily_brief.brief import build_daily_brief, render_html, render_text
 from paperboy.daily_brief.cli import load_fixture, run
-from paperboy.daily_brief.models import BriefFixture, ExternalSignal, ImpactVerdict, RepoProfile
-
+from paperboy.daily_brief.models import BriefFixture, ImpactVerdict
 
 ROOT = Path(__file__).resolve().parents[1]
 SAMPLE = ROOT / "examples" / "daily-brief.sample.json"

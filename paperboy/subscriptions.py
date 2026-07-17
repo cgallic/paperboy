@@ -21,6 +21,7 @@ from paperboy.firehose import PreviewValidationError, validate_preview_payload
 _ATTRIBUTION_KEYS = {"source", "page", "ref", "gclid", "fbclid"}
 _BILLING_STATUSES = {"unpaid", "trialing", "active", "past_due", "canceled"}
 _VERIFICATION_TTL = timedelta(hours=48)
+_WEBHOOK_PROCESSING_LEASE = timedelta(minutes=10)
 _DELIVERY_HOUR = 8
 
 
@@ -30,6 +31,10 @@ class SubscriptionValidationError(ValueError):
 
 class SubscriptionSuppressedError(SubscriptionValidationError):
     """The address has explicitly unsubscribed or was delivery-suppressed."""
+
+
+class ExistingSubscriptionError(SubscriptionSuppressedError):
+    """An existing verified subscription must be changed through its private link."""
 
 
 def _utc_now(now: datetime | None = None) -> datetime:
@@ -263,8 +268,18 @@ def create_subscription(
     conn = connect()
     try:
         row = conn.execute(
-            "SELECT id, created_at FROM firehose_subscriptions WHERE email = ?", (email,)
+            "SELECT id, created_at, active, verification_status, billing_status "
+            "FROM firehose_subscriptions WHERE email = ?",
+            (email,),
         ).fetchone()
+        if row is not None and (
+            bool(row["active"])
+            or str(row["verification_status"]) == "verified"
+            or str(row["billing_status"]) in {"trialing", "active"}
+        ):
+            raise ExistingSubscriptionError(
+                "this email already has a verified subscription; use its private management link"
+            )
         values = (
             json.dumps(sources),
             focus,
@@ -600,7 +615,25 @@ def unsuppress_email(email: str) -> bool:
     init_schema()
     conn = connect()
     try:
+        row = conn.execute(
+            "SELECT reason FROM firehose_suppressions WHERE email = ?", (normalized,)
+        ).fetchone()
         cursor = conn.execute("DELETE FROM firehose_suppressions WHERE email = ?", (normalized,))
+        if row is not None and str(row["reason"]) == "hard_bounce":
+            conn.execute(
+                """
+                UPDATE firehose_subscriptions
+                SET active = CASE
+                        WHEN verification_status = 'verified'
+                         AND billing_status IN ('trialing', 'active')
+                         AND unsubscribed_at IS NULL THEN 1
+                        ELSE active
+                    END,
+                    updated_at = ?
+                WHERE email = ?
+                """,
+                (_now(), normalized),
+            )
         conn.commit()
         return int(cursor.rowcount) == 1
     finally:
@@ -638,7 +671,27 @@ def active_subscriptions() -> list[dict[str, Any]]:
         ).fetchall()
     finally:
         conn.close()
-    return [_decode_subscription(row) for row in rows]
+    return [
+        subscription
+        for row in rows
+        if billing_entitled(subscription := _decode_subscription(row))
+    ]
+
+
+def billing_entitled(
+    subscription: dict[str, Any], *, now: datetime | None = None
+) -> bool:
+    """Return whether Stripe state currently permits delivery."""
+    status = str(subscription.get("billing_status") or "unpaid")
+    if status == "active":
+        return True
+    if status != "trialing" or not subscription.get("trial_ends_at"):
+        return False
+    try:
+        trial_end = _parse_iso(str(subscription["trial_ends_at"]))
+    except (TypeError, ValueError):
+        return False
+    return trial_end > _utc_now(now)
 
 
 def next_delivery_at(
@@ -672,12 +725,59 @@ def set_billing_state(
     billing_subscription_id: str | None = None,
     trial_ends_at: str | None = None,
     paid_at: str | None = None,
+    event_created: int | None = None,
+    event_id: str | None = None,
 ) -> dict[str, Any] | None:
     if status not in _BILLING_STATUSES:
         raise ValueError("unsupported billing status")
+    if event_created is not None and event_created < 0:
+        raise ValueError("event_created must be a non-negative Unix timestamp")
+    if event_created is not None and (not event_id or len(event_id) > 255):
+        raise ValueError("event_id is required for an ordered billing update")
     init_schema()
     conn = connect()
+    applied = True
     try:
+        if event_created is not None:
+            conn.execute("BEGIN IMMEDIATE")
+            current = conn.execute(
+                "SELECT billing_status FROM firehose_subscriptions WHERE id = ?",
+                (subscription_id,),
+            ).fetchone()
+            if current is None:
+                conn.commit()
+                return None
+            actor = f"subscription:{subscription_id}"
+            previous = conn.execute(
+                "SELECT payload_json FROM events "
+                "WHERE source = 'paperboy-billing' AND type = 'state-applied' AND actor = ? "
+                "ORDER BY id DESC LIMIT 1",
+                (actor,),
+            ).fetchone()
+            previous_created: int | None = None
+            if previous is not None:
+                try:
+                    previous_created = int(json.loads(str(previous["payload_json"]))["event_created"])
+                except (KeyError, TypeError, ValueError, json.JSONDecodeError):
+                    previous_created = None
+            applied = not (
+                previous_created is not None
+                and (
+                    event_created < previous_created
+                    or (
+                        event_created == previous_created
+                        and str(current["billing_status"]) == "canceled"
+                        and status in {"trialing", "active"}
+                    )
+                )
+            )
+            if not applied:
+                conn.commit()
+                subscription = get_subscription_by_id(subscription_id)
+                if subscription is not None:
+                    subscription["_billing_event_applied"] = False
+                return subscription
+        now_iso = _now()
         conn.execute(
             """
             UPDATE firehose_subscriptions
@@ -692,14 +792,38 @@ def set_billing_state(
                 billing_subscription_id,
                 trial_ends_at,
                 paid_at,
-                _now(),
+                now_iso,
                 subscription_id,
             ),
         )
+        if event_created is not None:
+            conn.execute(
+                """
+                INSERT INTO events
+                    (ts, source, type, actor, payload_json, attachment_uri, ingested_at)
+                VALUES (?, 'paperboy-billing', 'state-applied', ?, ?, NULL, ?)
+                """,
+                (
+                    now_iso,
+                    f"subscription:{subscription_id}",
+                    json.dumps(
+                        {
+                            "event_id": event_id,
+                            "event_created": event_created,
+                            "status": status,
+                        },
+                        sort_keys=True,
+                    ),
+                    now_iso,
+                ),
+            )
         conn.commit()
     finally:
         conn.close()
-    return get_subscription_by_id(subscription_id)
+    subscription = get_subscription_by_id(subscription_id)
+    if subscription is not None and event_created is not None:
+        subscription["_billing_event_applied"] = applied
+    return subscription
 
 
 def _rate_hash(kind: str, value: str) -> str:
@@ -897,9 +1021,10 @@ def claim_billing_webhook(event_id: str, event_type: str, *, now: datetime | Non
     try:
         conn.execute("BEGIN IMMEDIATE")
         row = conn.execute(
-            "SELECT status FROM billing_webhook_events WHERE event_id = ?", (event_id,)
+            "SELECT status, received_at FROM billing_webhook_events WHERE event_id = ?", (event_id,)
         ).fetchone()
         received_at = _iso(_utc_now(now))
+        retryable = False
         if row is None:
             conn.execute(
                 """
@@ -910,7 +1035,17 @@ def claim_billing_webhook(event_id: str, event_type: str, *, now: datetime | Non
                 (event_id, event_type, received_at),
             )
             claimed = True
-        elif str(row["status"]) == "failed":
+        else:
+            stale_processing = False
+            if str(row["status"]) == "processing":
+                try:
+                    stale_processing = _parse_iso(str(row["received_at"])) <= (
+                        _utc_now(now) - _WEBHOOK_PROCESSING_LEASE
+                    )
+                except (TypeError, ValueError):
+                    stale_processing = True
+            retryable = str(row["status"]) == "failed" or stale_processing
+        if row is not None and retryable:
             conn.execute(
                 """
                 UPDATE billing_webhook_events
@@ -920,7 +1055,7 @@ def claim_billing_webhook(event_id: str, event_type: str, *, now: datetime | Non
                 (event_type, received_at, event_id),
             )
             claimed = True
-        else:
+        elif row is not None:
             claimed = False
         conn.commit()
         return claimed

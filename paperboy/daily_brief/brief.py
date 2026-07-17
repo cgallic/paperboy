@@ -5,8 +5,8 @@ import hashlib
 import html
 import json
 from collections import Counter
+from collections.abc import Iterable
 from dataclasses import replace
-from typing import Iterable
 
 from paperboy.daily_brief.models import (
     BriefEdition,

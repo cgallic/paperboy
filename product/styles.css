@@ -989,6 +989,28 @@ p {
   color: #fff;
 }
 
+.self-hosted-note {
+  max-width: 760px;
+  margin: 22px auto 0;
+  color: var(--ink-soft);
+  font-size: 14px;
+  text-align: center;
+}
+
+.self-hosted-note a {
+  color: var(--signal-dark);
+  font-weight: 650;
+}
+
+body[data-billing-available="false"] .status-dot {
+  background: #efb663;
+  box-shadow: 0 0 0 4px rgba(239,182,99,.14);
+}
+
+body[data-billing-available="false"] .validation-offer {
+  border-left-color: #efb663;
+}
+
 .faq-section {
   padding-top: 80px;
 }
@@ -3587,6 +3609,10 @@ dialog h2 {
   }
 
   #analytics-note {
+    text-align: left;
+  }
+
+  .self-hosted-note {
     text-align: left;
   }
 
