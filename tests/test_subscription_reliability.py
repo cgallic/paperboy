@@ -31,6 +31,7 @@ from paperboy.subscriptions import (
     next_delivery_at,
     record_tracking_event,
     resolve_click_target,
+    set_analytics_consent,
     set_billing_state,
     suppress_email,
     suppress_from_bounce_address,
@@ -495,13 +496,17 @@ class TrackingAndEmailTests(ReliabilityTestCase):
         self.assertEqual(active_subscriptions(), [])
 
     def test_tracking_tokens_are_hashed_and_click_target_is_server_side(self) -> None:
-        subscription, _token = self.create()
+        subscription, management_token_value = self.create()
+        self.assertIsNotNone(set_analytics_consent(management_token_value, True))
         click = create_tracking_token(int(subscription["id"]), "click", target_url="https://example.com/story")
         opened = create_tracking_token(int(subscription["id"]), "open")
         self.assertEqual(resolve_click_target(click), "https://example.com/story")
         self.assertIsNone(resolve_click_target(opened))
         self.assertTrue(record_tracking_event(click, "click", metadata={"ua": "test"}))
         self.assertTrue(record_tracking_event(opened, "open"))
+        self.assertIsNotNone(set_analytics_consent(management_token_value, False))
+        self.assertEqual(resolve_click_target(click), "https://example.com/story")
+        self.assertFalse(record_tracking_event(click, "click"))
         self.assertFalse(record_tracking_event(click + "x", "click"))
         self.assertIsNone(resolve_click_target("not-ascii-\u2603"))
         self.assertFalse(record_tracking_event("not-ascii-\u2603", "open"))

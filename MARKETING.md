@@ -61,7 +61,7 @@
 ### User Segments
 
 - **Trial subscriber:** Chooses public RSS/Atom feeds, a relevance filter, and a daily or weekly cadence, confirms the email, and starts a card-required seven-day trial.
-- **Paid subscriber:** Keeps reading after the trial at the $5/month founding price.
+- **Paid subscriber:** Keeps reading after the trial at $5/month until canceled.
 
 ## Value Prop
 

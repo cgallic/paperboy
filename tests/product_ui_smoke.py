@@ -18,6 +18,7 @@ def main() -> None:
     status_requests: list[str] = []
     checkout_payloads: list[dict] = []
     analytics_payloads: list[dict] = []
+    edition_analytics_payloads: list[dict] = []
     unsubscribe_requests: list[str] = []
     unexpected_leads: list[dict] = []
     subscribe_failure = {"enabled": False}
@@ -27,7 +28,9 @@ def main() -> None:
         "ok": True,
         "status": "active",
         "billing_status": "unpaid",
+        "analytics_consent": True,
         "checkout_available": True,
+        "portal_available": False,
         "email_masked": "p***@example.invalid",
         "sources": ["https://news.ycombinator.com/rss"],
         "focus": "API pricing and QA validation",
@@ -70,8 +73,9 @@ def main() -> None:
                         "version": "0.4.0",
                         "billing": {
                             "enabled": billing_config["enabled"],
+                            "price_id": "price_1TuDuLQ83TayWBtCMf8gcKQ9",
                             "trial_days": 7,
-                            "monthly_price_cents": 4900,
+                            "monthly_price_cents": 500,
                             "currency": "USD",
                         },
                     },
@@ -116,7 +120,9 @@ def main() -> None:
                         "ok": True,
                         "status": "active",
                         "billing_status": "unpaid",
+                        "analytics_consent": True,
                         "checkout_available": True,
+                        "portal_available": False,
                         "manage_url": "/?manage=smoke-manage",
                         "status_url": "/api/firehose/subscriptions/smoke-manage",
                         "unsubscribe_url": "/api/firehose/subscriptions/smoke-manage/unsubscribe",
@@ -132,7 +138,23 @@ def main() -> None:
                 return
             if path == "/api/firehose/subscriptions/smoke-manage/unsubscribe":
                 unsubscribe_requests.append(request.url)
-                json_response(route, {"ok": True, "status": "unsubscribed"})
+                json_response(
+                    route,
+                    {
+                        "ok": True,
+                        "status": "unsubscribed",
+                        "billing_status": "trialing",
+                        "analytics_consent": False,
+                        "checkout_available": False,
+                        "portal_available": True,
+                    },
+                )
+                return
+            if path == "/api/firehose/subscriptions/smoke-manage/analytics-consent":
+                payload = json.loads(request.post_data or "{}")
+                edition_analytics_payloads.append(payload)
+                status_payload["analytics_consent"] = payload.get("allowed")
+                json_response(route, {"ok": True, "analytics_consent": payload.get("allowed")})
                 return
             if path == "/api/billing/checkout":
                 checkout_payloads.append(json.loads(request.post_data or "{}"))
@@ -236,7 +258,7 @@ def main() -> None:
         assert page.get_by_text("Checkout required", exact=True).count() >= 1
         assert unexpected_leads == []
 
-        page.get_by_role("button", name="Continue to founding checkout").click()
+        page.get_by_role("button", name="Continue to secure checkout").click()
         page.wait_for_url("https://checkout.stripe.com/**")
         assert checkout_payloads == [{"token": "smoke-manage"}]
 
@@ -244,6 +266,7 @@ def main() -> None:
             {
                 "billing_status": "trialing",
                 "next_delivery_at": "2026-07-17T07:30:00-04:00",
+                "portal_available": True,
             }
         )
         page.goto("http://newpaperboy.com:8123/?billing=success", wait_until="networkidle")
@@ -251,6 +274,10 @@ def main() -> None:
         assert page.get_by_text("Weekly · Friday at 8:00 AM · America/New_York", exact=True).is_visible()
         assert status_requests
         assert page.get_by_text("7-day trial", exact=True).is_visible()
+        assert page.get_by_text("Edition open and source-link analytics are allowed.", exact=True).is_visible()
+        page.get_by_role("button", name="Turn off edition analytics").click()
+        page.get_by_text("Edition open and source-link analytics are off.", exact=True).wait_for()
+        assert edition_analytics_payloads == [{"allowed": False}]
         page.wait_for_timeout(200)
         event_names = [payload["event"] for payload in analytics_payloads]
         for expected in (
@@ -273,18 +300,22 @@ def main() -> None:
         assert "smoke-manage" not in serialized_analytics
         assert "verify-smoke" not in serialized_analytics
 
-        page.get_by_role("button", name="Unsubscribe", exact=True).click()
-        page.locator("#confirm-dialog").get_by_role("button", name="Unsubscribe").click()
+        page.get_by_role("button", name="Stop delivery only", exact=True).click()
+        assert page.get_by_text("does not cancel Stripe billing", exact=False).is_visible()
+        page.locator("#confirm-dialog").get_by_role("button", name="Stop delivery only").click()
         page.get_by_role("heading", name="This weekly rollup is unsubscribed.").wait_for()
+        assert page.get_by_text("Stripe billing is still active", exact=False).is_visible()
+        assert page.locator("#subscription-payment").text_content() == "7-day trial"
+        assert page.get_by_role("button", name="Manage billing").is_visible()
         assert len(unsubscribe_requests) == 1
         page.screenshot(path=str(SCREENSHOT), full_page=True)
 
         checkout_failure["enabled"] = True
-        status_payload.update({"billing_status": "unpaid"})
+        status_payload.update({"billing_status": "unpaid", "portal_available": False})
         unavailable = context.new_page()
         unavailable.goto("http://newpaperboy.com:8123/?manage=smoke-manage", wait_until="networkidle")
         unavailable.get_by_role("heading", name="Email verified. Finish checkout to start delivery.").wait_for()
-        unavailable.get_by_role("button", name="Continue to founding checkout").click()
+        unavailable.get_by_role("button", name="Continue to secure checkout").click()
         unavailable.get_by_text("Checkout is temporarily unavailable.", exact=False).wait_for()
         assert unavailable.get_by_text("delivery has not started", exact=False).is_visible()
 
@@ -311,9 +342,12 @@ def main() -> None:
         legal.goto("http://newpaperboy.com:8123/privacy/", wait_until="networkidle")
         assert legal.title() == "Privacy — Paperboy"
         assert legal.get_by_role("heading", name="What Paperboy collects").is_visible()
+        assert legal.get_by_text("MEET KAI LLC", exact=False).is_visible()
         legal.goto("http://newpaperboy.com:8123/terms/", wait_until="networkidle")
         assert legal.title() == "Terms — Paperboy"
         assert legal.get_by_role("heading", name="Trial and billing").is_visible()
+        assert legal.get_by_role("heading", name="Cancellation and refunds").is_visible()
+        assert legal.get_by_text("MEET KAI LLC", exact=False).is_visible()
 
         billing_config["enabled"] = False
         unavailable_launch = context.new_page()
@@ -333,7 +367,9 @@ def main() -> None:
     print("- explicit email confirmation and Stripe-hosted checkout passed")
     print("- server-confirmed trial return emitted trial_started, never purchase")
     print("- runtime checkout availability copy passed")
-    print("- checkout failure, subscription failure, mobile, privacy, and terms passed")
+    print("- checkout failure, subscription failure, mobile, seller identity, cancellation, and refund copy passed")
+    print("- stopping delivery preserved visible Stripe billing management")
+    print("- edition open/click analytics consent was revocable from private management")
     print("- consented analytics contained no email or lifecycle token")
 
 

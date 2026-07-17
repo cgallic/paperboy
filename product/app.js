@@ -470,6 +470,7 @@
     var isVerified = status === "active" || status === "confirmed";
     var isUnsubscribed = status === "unsubscribed";
     var isDelivering = isVerified && (billingStatus === "trialing" || billingStatus === "active");
+    var billingContinuesAfterUnsubscribe = isUnsubscribed && ["trialing", "active", "past_due"].indexOf(billingStatus) >= 0;
     var checkoutRequired = isVerified && !isUnsubscribed && !isDelivering;
     var canCheckout = checkoutRequired && (billingStatus === "unpaid" || billingStatus === "canceled");
     var paymentLabels = {
@@ -487,7 +488,7 @@
           : checkoutRequired ? "Checkout required" : "Not started";
     document.getElementById("subscription-status").textContent = statusLabel;
     document.getElementById("subscription-delivery").textContent = deliveryLabel;
-    document.getElementById("subscription-payment").textContent = isVerified
+    document.getElementById("subscription-payment").textContent = isVerified || billingContinuesAfterUnsubscribe
       ? (paymentLabels[billingStatus] || "Checkout required")
       : "Not started";
     if (result.manage_url || result.status_url || result.unsubscribe_url) renderSubscriptionActions(result);
@@ -526,6 +527,15 @@
     }
     summary.hidden = !summary.childElementCount;
 
+    var editionAnalyticsActions = document.getElementById("edition-analytics-actions");
+    var editionAnalyticsAllowed = details.analytics_consent === true;
+    editionAnalyticsActions.hidden = !isVerified || isUnsubscribed || !activeManagementToken;
+    document.getElementById("edition-analytics-note").textContent = editionAnalyticsAllowed
+      ? "Edition open and source-link analytics are allowed."
+      : "Edition open and source-link analytics are off.";
+    document.getElementById("allow-edition-analytics").hidden = editionAnalyticsAllowed;
+    document.getElementById("decline-edition-analytics").hidden = !editionAnalyticsAllowed;
+
     document.getElementById("subscription-success-title").textContent = isUnsubscribed
       ? "This " + cadenceLabel + " rollup is unsubscribed."
       : billingStatus === "past_due" ? "Payment needs attention."
@@ -534,7 +544,9 @@
         : isVerified ? "Email verified. Finish checkout to start delivery."
           : "Check your email.";
     document.getElementById("subscription-success-copy").textContent = isUnsubscribed
-      ? "Automatic delivery is off. You can create a new filter whenever you are ready."
+      ? billingContinuesAfterUnsubscribe
+        ? "Automatic delivery is off, but Stripe billing is still active. Use Manage billing to cancel future charges."
+        : "Automatic delivery is off. Contact support if you want to restart this saved filter."
       : billingStatus === "past_due" ? "Delivery is paused until payment is updated. No new charge was attempted from this page."
         : billingStatus === "canceled" ? "Delivery is off. Your filter remains saved, and you can start a new hosted checkout when ready."
       : isDelivering ? "Paperboy will refresh the sources and deliver the strongest matches automatically."
@@ -543,6 +555,7 @@
     document.getElementById("unsubscribe-subscription").hidden = isUnsubscribed || !activeUnsubscribeUrl;
     document.getElementById("start-checkout").hidden = !canCheckout || !activeManagementToken || result.checkout_available === false;
     document.getElementById("manage-billing").hidden = !activeManagementToken || result.portal_available !== true;
+    document.getElementById("change-email").hidden = isVerified || isUnsubscribed;
     if (result.checkout_available === false && checkoutRequired) {
       var fallback = document.getElementById("billing-fallback");
       fallback.textContent = "Checkout is temporarily unavailable. Your email is verified, no card was charged, and delivery has not started.";
@@ -1138,7 +1151,7 @@
       fallback.textContent = "Checkout is temporarily unavailable. Your email is verified, no card was charged, and delivery has not started.";
       fallback.hidden = false;
       button.disabled = false;
-      button.textContent = "Try founding checkout again";
+      button.textContent = "Try secure checkout again";
     }
   });
 
@@ -1169,9 +1182,9 @@
   document.getElementById("unsubscribe-subscription").addEventListener("click", function () {
     if (!activeUnsubscribeUrl) return;
     openConfirm(
-      "Stop this rollup?",
-      "Paperboy will stop automatic delivery. Your existing source links are not deleted by this action.",
-      "Unsubscribe",
+      "Stop delivery only?",
+      "Paperboy will stop automatic delivery, but this does not cancel Stripe billing. Use Manage billing separately to stop future charges.",
+      "Stop delivery only",
       async function () {
         var button = document.getElementById("unsubscribe-subscription");
         button.disabled = true;
@@ -1195,6 +1208,46 @@
         }
       }
     );
+  });
+
+  async function updateEditionAnalyticsConsent(allowed) {
+    if (!activeManagementToken) return;
+    var allowButton = document.getElementById("allow-edition-analytics");
+    var declineButton = document.getElementById("decline-edition-analytics");
+    var note = document.getElementById("edition-analytics-note");
+    allowButton.disabled = true;
+    declineButton.disabled = true;
+    try {
+      var encoded = encodeURIComponent(activeManagementToken);
+      var response = await fetch("/api/firehose/subscriptions/" + encoded + "/analytics-consent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ allowed: allowed })
+      });
+      var result = await response.json();
+      if (!response.ok || !result || result.ok !== true || result.analytics_consent !== allowed) {
+        throw new Error(subscriptionErrorMessage(response, result));
+      }
+      note.textContent = allowed
+        ? "Edition open and source-link analytics are allowed."
+        : "Edition open and source-link analytics are off.";
+      allowButton.hidden = allowed;
+      declineButton.hidden = !allowed;
+      toast(allowed ? "Edition analytics allowed." : "Edition analytics turned off.");
+    } catch (error) {
+      note.textContent = "Paperboy could not update edition analytics. Try again.";
+    } finally {
+      allowButton.disabled = false;
+      declineButton.disabled = false;
+    }
+  }
+
+  document.getElementById("allow-edition-analytics").addEventListener("click", function () {
+    updateEditionAnalyticsConsent(true);
+  });
+
+  document.getElementById("decline-edition-analytics").addEventListener("click", function () {
+    updateEditionAnalyticsConsent(false);
   });
 
   document.getElementById("confirm-subscription").addEventListener("click", async function (event) {

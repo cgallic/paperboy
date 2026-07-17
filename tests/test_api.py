@@ -62,9 +62,29 @@ class APITests(unittest.TestCase):
         data = response.json()
         self.assertIn("version", data)
         self.assertEqual(data["billing"]["monthly_price_cents"], 500)
+        self.assertIn("price_id", data["billing"])
         self.assertIn("fast_model", data)
         self.assertNotIn("smtp_pass", data)
         self.assertNotIn("discord_bot_token", data)
+
+    def test_config_exposes_public_price_while_billing_is_disabled(self) -> None:
+        old_price = settings.stripe_price_id
+        old_secret = settings.stripe_secret_key
+        old_webhook = settings.stripe_webhook_secret
+        try:
+            settings.stripe_price_id = "price_1TuDuLQ83TayWBtCMf8gcKQ9"
+            settings.stripe_secret_key = None
+            settings.stripe_webhook_secret = None
+            response = self.client.get("/api/config")
+            self.assertFalse(response.json()["billing"]["enabled"])
+            self.assertEqual(
+                response.json()["billing"]["price_id"],
+                "price_1TuDuLQ83TayWBtCMf8gcKQ9",
+            )
+        finally:
+            settings.stripe_price_id = old_price
+            settings.stripe_secret_key = old_secret
+            settings.stripe_webhook_secret = old_webhook
 
     def test_hit_pixel(self) -> None:
         response = self.client.get("/api/hit?slug=paperboy")

@@ -206,9 +206,9 @@
               <ul>
                 <li>Your chosen public RSS and Atom feeds</li>
                 <li>A relevance filter built around your work</li>
-                <li>One ranked morning edition</li>
+                <li>One ranked edition on your chosen schedule</li>
                 <li>Links to every original source</li>
-                <li>Cancel monthly</li>
+                <li>Cancel recurring billing through Stripe</li>
               </ul>
             </div>
             <button class="button button-wide" type="button" data-start>Build my rollup</button>
@@ -341,18 +341,23 @@
               <div><span>Payment</span><strong id="subscription-payment">Checkout required</strong></div>
             </div>
             <div class="management-summary" id="management-summary" hidden></div>
+            <div class="subscription-actions" id="edition-analytics-actions" aria-label="Edition analytics preference" hidden>
+              <span id="edition-analytics-note">Edition open and source-link analytics are off.</span>
+              <button class="text-button" id="allow-edition-analytics" type="button">Allow edition analytics</button>
+              <button class="text-button" id="decline-edition-analytics" type="button">Turn off edition analytics</button>
+            </div>
             <div id="preview-results" hidden>
               <div class="preview-summary" id="preview-summary" aria-live="polite"></div>
               <div class="live-preview-list" id="live-preview-list"></div>
             </div>
             <nav class="subscription-actions" id="subscription-actions" aria-label="Manage rollup" hidden>
               <button class="button button-outline" id="manage-subscription" type="button">Refresh subscription status</button>
-              <button class="button" id="start-checkout" type="button" hidden>Continue to founding checkout</button>
+              <button class="button" id="start-checkout" type="button" hidden>Continue to secure checkout</button>
               <button class="button button-outline" id="manage-billing" type="button" hidden>Manage billing</button>
-              <button class="text-button" id="unsubscribe-subscription" type="button">Unsubscribe</button>
+              <button class="text-button" id="unsubscribe-subscription" type="button">Stop delivery only</button>
             </nav>
             <p class="billing-fallback" id="billing-fallback" role="status" hidden></p>
-            <button class="text-button button-wide" type="button" id="change-email">Change the filter</button>
+            <button class="text-button button-wide" type="button" id="change-email">Start over with another email</button>
           </div>
         </div>
       </div>
@@ -567,7 +572,7 @@
             <p class="price-label">Plan summary</p>
             <h2>Paperboy Rollup</h2>
             <p class="price"><span>$</span>5 <small>/ month</small></p>
-            <p class="hypothesis">The founding price is $5/month after a card-required seven-day trial. The live flow repeats these terms before checkout.</p>
+            <p class="hypothesis">The price is $5/month after a card-required seven-day trial. The live flow repeats these terms before checkout.</p>
             <dl>
               <div><dt>Repositories</dt><dd id="checkout-repo-count">0 selected</dd></div>
               <div><dt>Delivery</dt><dd id="checkout-delivery">Not set</dd></div>
@@ -716,11 +721,13 @@
       <nav class="footer-links" aria-label="Legal and privacy">
         <a href="/privacy/">Privacy</a>
         <a href="/terms/">Terms</a>
+        <a href="mailto:paperboy@kaibuilds.com">Contact</a>
         <a href="https://github.com/cgallic/paperboy" target="_blank" rel="noreferrer">GitHub</a>
         <button class="text-button" id="allow-analytics" type="button">Allow product analytics</button>
         <button class="text-button" id="decline-analytics" type="button">Decline analytics</button>
       </nav>
       <small id="analytics-note">Optional analytics stays off unless you allow it. No advertising tracker is loaded.</small>
+      <small>Paperboy is sold and operated by MEET KAI LLC, Puerto Rico.</small>
     </div>
   </footer>
 

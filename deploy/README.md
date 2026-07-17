@@ -24,6 +24,50 @@ retry jobs every five minutes. Its Docker health check requires every interval
 job to complete successfully within the configured heartbeat window. A running
 PID alone is not considered healthy.
 
+Configure working SMTP and a stable `PAPERBOY_MANAGE_SECRET` of at least 32
+bytes before accepting subscribers. Preserve that secret across releases so
+existing confirmation, management, unsubscribe, bounce, and tracking links
+remain valid. After the API and scheduler are healthy, publish the matching
+versioned static product files as part of the same release:
+
+```bash
+rsync -a product/ /var/www/kaibuilds/sites/paperboy/
+```
+
+## KaiBuilds live billing contract
+
+- Stripe account: `acct_1TuD1gQ83TayWBtC` (`KaiBuilds` / `MEET KAI LLC`).
+- Recurring price: `price_1TuDuLQ83TayWBtCMf8gcKQ9` (`$5 USD/month`, lookup
+  key `paperboy_monthly_usd_v1`).
+- Canonical public URL: `https://newpaperboy.com`.
+- Webhook URL: `https://newpaperboy.com/api/billing/webhook`.
+- Required webhook events: `checkout.session.completed`,
+  `customer.subscription.created`, `customer.subscription.updated`,
+  `customer.subscription.deleted`, `invoice.paid`, and
+  `invoice.payment_failed`.
+
+Keep the live `PAPERBOY_STRIPE_SECRET_KEY` and endpoint-specific
+`PAPERBOY_STRIPE_WEBHOOK_SECRET` only in the protected production environment;
+never add either secret to source or logs. Configure the Stripe customer portal
+to let customers update payment methods and cancel subscriptions. The public
+price ID is safe to expose and `/api/config` reports it even while secret or
+webhook configuration keeps checkout disabled.
+
+During billing containment, keep the secret and webhook values empty and verify
+`/api/config` reports billing disabled while still showing the exact public price
+ID above, seven trial days, `500` monthly cents, and `USD`. Confirm both
+containers remain healthy and the public UI says checkout is unavailable. Do
+not enable checkout until an authorized operator has installed a live key for
+the correct KaiBuilds account and an endpoint-specific webhook secret, verified
+the portal configuration, and approved an activation release.
+
+For that later activation release, first verify confirmation delivery and one
+due rollup with a controlled address. From the verified private management page,
+create a Checkout session and confirm Stripe displays the same terms, then leave
+Checkout without entering payment details or submitting a charge. Verify portal
+access and cancellation-webhook handling against a controlled Stripe-backed
+test subscription before calling billing fulfillment complete.
+
 Install `Caddyfile.paperboy` before the wildcard `*.kaibuilds.com` behavior is
 used. It deliberately preserves `/api/lead`, `/api/hit`, `/api/stats`, and
 `/api/sites` on the KaiBuilds capture service so leads remain durable and

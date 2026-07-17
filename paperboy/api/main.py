@@ -69,6 +69,7 @@ from paperboy.subscriptions import (
     next_delivery_at,
     record_tracking_event,
     resolve_click_target,
+    set_analytics_consent,
     suppress_email,
     suppress_from_bounce_address,
     unsubscribe,
@@ -527,6 +528,7 @@ async def runtime_config() -> JSONResponse:
             "version": "0.4.0",
             "billing": {
                 "enabled": settings.billing_enabled,
+                "price_id": settings.stripe_price_id,
                 "trial_days": settings.stripe_trial_days,
                 "monthly_price_cents": settings.stripe_monthly_price_cents,
                 "currency": settings.stripe_currency.upper(),
@@ -684,6 +686,7 @@ async def firehose_subscription_status(token: str) -> JSONResponse:
             "weekly_day": subscription["weekly_day"],
             "delivery": delivery_schedule_label(subscription),
             "billing_status": subscription["billing_status"],
+            "analytics_consent": bool(subscription["attribution"].get("_analytics_consent")),
             "created_at": subscription["created_at"],
             "last_sent_at": subscription["last_sent_at"],
             "next_delivery_at": (
@@ -725,6 +728,7 @@ async def confirm_firehose_subscription(token: str) -> JSONResponse:
             "ok": True,
             "status": "active",
             "billing_status": subscription["billing_status"],
+            "analytics_consent": bool(subscription["attribution"].get("_analytics_consent")),
             "manage_url": manage_url,
             "status_url": status_url,
             "unsubscribe_url": unsubscribe_url,
@@ -747,7 +751,28 @@ async def unsubscribe_firehose(token: str) -> JSONResponse:
     if subscription is None:
         raise HTTPException(status_code=404, detail="subscription not found")
     logger.info("firehose_unsubscribed", extra={"event": "firehose_unsubscribed", "email": subscription["email"]})
-    return JSONResponse({"ok": True, "status": "unsubscribed"})
+    return JSONResponse(
+        {
+            "ok": True,
+            "status": "unsubscribed",
+            "billing_status": subscription["billing_status"],
+            "analytics_consent": bool(subscription["attribution"].get("_analytics_consent")),
+            "checkout_available": False,
+            "portal_available": settings.billing_enabled and bool(subscription["billing_customer_id"]),
+        }
+    )
+
+
+@app.post("/api/firehose/subscriptions/{token}/analytics-consent")
+async def update_firehose_analytics_consent(token: str, request: Request) -> JSONResponse:
+    body = await _read_json_body(request, 1024)
+    allowed = body.get("allowed") if isinstance(body, dict) else None
+    if not isinstance(allowed, bool):
+        raise HTTPException(status_code=422, detail="allowed must be true or false")
+    subscription = await asyncio.to_thread(set_analytics_consent, token, allowed)
+    if subscription is None:
+        raise HTTPException(status_code=404, detail="subscription not found")
+    return JSONResponse({"ok": True, "analytics_consent": allowed})
 
 
 @app.post("/api/billing/checkout")
