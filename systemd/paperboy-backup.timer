@@ -1,0 +1,11 @@
+[Unit]
+Description=Create a verified Paperboy backup daily
+
+[Timer]
+OnCalendar=*-*-* 03:20:00 UTC
+Persistent=true
+RandomizedDelaySec=600
+Unit=paperboy-backup.service
+
+[Install]
+WantedBy=timers.target

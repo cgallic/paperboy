@@ -1,14 +1,19 @@
 from __future__ import annotations
 
+import base64
+import hashlib
+import hmac
 import json
 import os
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
 from fastapi.testclient import TestClient
 
 from paperboy.api.main import app
+from paperboy.config import settings
 from paperboy.db import connect
 from paperboy.subscriptions import (
     bounce_address,
@@ -82,6 +87,47 @@ class APITests(unittest.TestCase):
             },
         )
         self.assertEqual(rejected.status_code, 422)
+        trial = self.client.post(
+            "/api/analytics/event",
+            json={
+                "event": "trial_started",
+                "anonymous_id": "pb_1234567890abcdef",
+                "properties": {"billing_status": "trialing"},
+            },
+        )
+        self.assertEqual(trial.status_code, 204)
+        false_purchase = self.client.post(
+            "/api/analytics/event",
+            json={
+                "event": "purchase",
+                "anonymous_id": "pb_1234567890abcdef",
+                "properties": {"currency": "USD", "value": 49},
+            },
+        )
+        self.assertEqual(false_purchase.status_code, 422)
+
+    def test_preview_is_rate_limited_and_stream_body_is_bounded(self) -> None:
+        headers = {"x-forwarded-for": "203.0.113.77"}
+        for _ in range(12):
+            response = self.client.post(
+                "/api/firehose/preview",
+                json={"sources": [], "focus": "agent reliability"},
+                headers=headers,
+            )
+            self.assertEqual(response.status_code, 422)
+        limited = self.client.post(
+            "/api/firehose/preview",
+            json={"sources": [], "focus": "agent reliability"},
+            headers=headers,
+        )
+        self.assertEqual(limited.status_code, 429)
+
+        oversized = self.client.post(
+            "/api/firehose/preview",
+            content=b"x" * 70_000,
+            headers={"x-forwarded-for": "203.0.113.78", "content-type": "application/json"},
+        )
+        self.assertEqual(oversized.status_code, 413)
 
     def test_security_headers_are_present(self) -> None:
         response = self.client.get("/api/config")
@@ -110,6 +156,54 @@ class APITests(unittest.TestCase):
             "/api/email/bounce", content=report, headers={"Content-Type": "message/rfc822"}
         )
         self.assertEqual(response.status_code, 204)
+        updated = get_subscription_by_id(confirmed["id"])
+        assert updated is not None
+        self.assertTrue(updated["suppressed"])
+
+    def test_signed_resend_bounce_is_idempotent_and_suppresses_delivery(self) -> None:
+        pending, _token = create_subscription(
+            "resend-api@example.com",
+            ["https://example.com/feed"],
+            "agent reliability",
+            [],
+        )
+        confirmed = confirm_subscription(confirmation_token(pending))
+        assert confirmed is not None
+        key = b"paperboy-resend-test-secret-32b"
+        old_secret = settings.resend_webhook_secret
+        settings.resend_webhook_secret = "whsec_" + base64.b64encode(key).decode()
+        try:
+            payload = json.dumps(
+                {
+                    "type": "email.bounced",
+                    "data": {
+                        "email_id": "resend-email-1",
+                        "to": ["resend-api@example.com"],
+                    },
+                },
+                separators=(",", ":"),
+            ).encode()
+            event_id = "resend-event-1"
+            timestamp = str(int(time.time()))
+            digest = base64.b64encode(
+                hmac.new(
+                    key,
+                    f"{event_id}.{timestamp}.".encode() + payload,
+                    hashlib.sha256,
+                ).digest()
+            ).decode()
+            headers = {
+                "content-type": "application/json",
+                "svix-id": event_id,
+                "svix-timestamp": timestamp,
+                "svix-signature": f"v1,{digest}",
+            }
+            response = self.client.post("/api/email/resend-webhook", content=payload, headers=headers)
+            self.assertEqual(response.status_code, 200)
+            duplicate = self.client.post("/api/email/resend-webhook", content=payload, headers=headers)
+            self.assertTrue(duplicate.json()["duplicate"])
+        finally:
+            settings.resend_webhook_secret = old_secret
         updated = get_subscription_by_id(confirmed["id"])
         assert updated is not None
         self.assertTrue(updated["suppressed"])

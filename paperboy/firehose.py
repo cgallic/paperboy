@@ -6,6 +6,7 @@ are limited and reject non-public destinations before every redirect.
 """
 from __future__ import annotations
 
+import hashlib
 import html
 import http.client
 import ipaddress
@@ -14,6 +15,7 @@ import socket
 import urllib.parse
 from collections import Counter
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from html.parser import HTMLParser
 from typing import Any
 from xml.etree import ElementTree
@@ -69,6 +71,22 @@ def _tokens(text: str, *, remove_stopwords: bool = True) -> tuple[str, ...]:
     if remove_stopwords:
         return tuple(token for token in raw if token not in _STOPWORDS and len(token) > 1)
     return tuple(raw)
+
+
+def _match_token(token: str) -> str:
+    """Normalize a conservative subset of regular English plurals for matching."""
+    if len(token) > 4 and token.endswith("ies"):
+        return f"{token[:-3]}y"
+    if len(token) > 4 and token.endswith(("ches", "shes", "xes", "zes")):
+        return token[:-2]
+    if (
+        len(token) > 3
+        and token.endswith("s")
+        and not token.endswith(("ss", "us", "is", "ous"))
+        and token not in {"news", "series", "species", "status"}
+    ):
+        return token[:-1]
+    return token
 
 
 def validate_preview_payload(payload: Any) -> tuple[list[str], str, list[str]]:
@@ -360,6 +378,18 @@ def _canonical_url(url: str) -> str:
     )
 
 
+def firehose_item_fingerprint(item: dict[str, Any]) -> str:
+    """Return a stable private identity without changing the preview contract."""
+    raw_url = str(item.get("url") or "").strip()
+    try:
+        canonical_url = _canonical_url(raw_url) if raw_url else ""
+    except ValueError:
+        canonical_url = raw_url
+    title = " ".join(_tokens(str(item.get("title") or ""), remove_stopwords=False))
+    identity = canonical_url or title
+    return hashlib.sha256(identity.encode("utf-8")).hexdigest()
+
+
 def _contains_sequence(tokens: tuple[str, ...], sequence: tuple[str, ...]) -> bool:
     if not sequence or len(sequence) > len(tokens):
         return False
@@ -378,19 +408,31 @@ def _score_item(
     if any(_contains_sequence(combined_tokens, sequence) for sequence in ignore_sequences):
         return None
 
-    title_set = set(title_tokens)
-    summary_set = set(summary_tokens)
+    normalized_title_tokens = tuple(_match_token(token) for token in title_tokens)
+    normalized_summary_tokens = tuple(_match_token(token) for token in summary_tokens)
+    title_set = set(normalized_title_tokens)
+    summary_set = set(normalized_summary_tokens)
     ordered_focus = tuple(dict.fromkeys(focus_terms))
-    title_hits = tuple(term for term in ordered_focus if term in title_set)
-    summary_hits = tuple(term for term in ordered_focus if term in summary_set and term not in title_set)
+    normalized_focus = tuple(_match_token(term) for term in ordered_focus)
+    title_hits = tuple(
+        term for term, normalized in zip(ordered_focus, normalized_focus, strict=True) if normalized in title_set
+    )
+    summary_hits = tuple(
+        term
+        for term, normalized in zip(ordered_focus, normalized_focus, strict=True)
+        if normalized in summary_set and normalized not in title_set
+    )
     matches = title_hits + summary_hits
-    if not matches:
+    minimum_matches = 2 if len(set(normalized_focus)) >= 3 else 1
+    if len({_match_token(term) for term in matches}) < minimum_matches:
         return None
 
     coverage = round(20 * len(set(matches)) / len(ordered_focus))
     score = 15 * len(title_hits) + 6 * len(summary_hits) + coverage
-    focus_bigrams = tuple(zip(ordered_focus, ordered_focus[1:], strict=False))
-    score += 8 * sum(1 for bigram in focus_bigrams if _contains_sequence(title_tokens, bigram))
+    focus_bigrams = tuple(zip(normalized_focus, normalized_focus[1:], strict=False))
+    score += 8 * sum(
+        1 for bigram in focus_bigrams if _contains_sequence(normalized_title_tokens, bigram)
+    )
     return min(100, score), matches[:4]
 
 
@@ -409,16 +451,23 @@ def build_firehose_preview(
     focus_terms = _tokens(focus)
     ignore_sequences = tuple(sequence for sequence in (_tokens(term, remove_stopwords=False) for term in ignore) if sequence)
 
-    for source_url in sources:
+    def fetch_source(source_url: str) -> tuple[str, str, list[dict[str, str]], str | None]:
         try:
             source_label, raw_items = source_fetcher(source_url)
         except FeedFetchError as exc:
-            source_results.append({"url": source_url, "status": "error", "error": exc.code})
-            continue
+            return source_url, "", [], exc.code
         except Exception:
-            source_results.append({"url": source_url, "status": "error", "error": "fetch_failed"})
-            continue
+            return source_url, "", [], "fetch_failed"
+        return source_url, source_label, raw_items, None
 
+    # A slow source must not serially consume the entire request/delivery budget.
+    # executor.map preserves the submitted source order for deterministic output.
+    with ThreadPoolExecutor(max_workers=min(len(sources), MAX_SOURCES)) as executor:
+        fetched_sources = executor.map(fetch_source, sources)
+    for source_url, source_label, raw_items, error in fetched_sources:
+        if error:
+            source_results.append({"url": source_url, "status": "error", "error": error})
+            continue
         source_results.append({"url": source_url, "status": "ok"})
         scanned += len(raw_items)
         for raw_item in raw_items:

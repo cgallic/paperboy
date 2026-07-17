@@ -12,7 +12,7 @@ from typing import Any
 from paperboy.config import settings
 from paperboy.db import connect, init_schema
 from paperboy.email.sender import send_raw
-from paperboy.firehose import build_firehose_preview
+from paperboy.firehose import build_firehose_preview, firehose_item_fingerprint
 from paperboy.logging_config import configure_logging, get_logger
 from paperboy.subscriptions import (
     active_subscriptions,
@@ -24,6 +24,8 @@ from paperboy.subscriptions import (
 )
 
 logger = get_logger("firehose_delivery")
+_DELIVERED_ITEM_SOURCE = "paperboy-firehose"
+_DELIVERED_ITEM_TYPE = "delivered-item"
 
 
 def _utc_now(now: datetime | None = None) -> datetime:
@@ -116,9 +118,12 @@ def _finish_delivery(
     detail: str,
     item_count: int,
     *,
+    subscription_id: int | None = None,
+    item_fingerprints: tuple[str, ...] = (),
     now: datetime | None = None,
 ) -> None:
     now_dt = _utc_now(now)
+    now_iso = _iso(now_dt)
     next_attempt = None
     if status == "failed" and claim.attempt_count < 3:
         next_attempt = _iso(now_dt + timedelta(minutes=15 * (2 ** (claim.attempt_count - 1))))
@@ -130,11 +135,58 @@ def _finish_delivery(
             SET completed_at = ?, status = ?, detail = ?, item_count = ?, next_attempt_at = ?
             WHERE id = ? AND status = 'running'
             """,
-            (_iso(now_dt), status, detail[:1000], item_count, next_attempt, claim.delivery_id),
+            (now_iso, status, detail[:1000], item_count, next_attempt, claim.delivery_id),
         )
+        if status == "sent" and subscription_id is not None:
+            for fingerprint in item_fingerprints:
+                actor = _delivered_item_actor(subscription_id, fingerprint)
+                conn.execute(
+                    """
+                    INSERT INTO events
+                        (ts, source, type, actor, payload_json, attachment_uri, ingested_at)
+                    SELECT ?, ?, ?, ?, ?, NULL, ?
+                    WHERE NOT EXISTS (
+                        SELECT 1 FROM events WHERE source = ? AND type = ? AND actor = ?
+                    )
+                    """,
+                    (
+                        now_iso,
+                        _DELIVERED_ITEM_SOURCE,
+                        _DELIVERED_ITEM_TYPE,
+                        actor,
+                        json.dumps({"delivery_id": claim.delivery_id}, sort_keys=True),
+                        now_iso,
+                        _DELIVERED_ITEM_SOURCE,
+                        _DELIVERED_ITEM_TYPE,
+                        actor,
+                    ),
+                )
         conn.commit()
     finally:
         conn.close()
+
+
+def _delivered_item_actor(subscription_id: int, fingerprint: str) -> str:
+    return f"subscription:{subscription_id}:item:{fingerprint}"
+
+
+def _previously_delivered_fingerprints(
+    subscription_id: int, fingerprints: tuple[str, ...]
+) -> set[str]:
+    if not fingerprints:
+        return set()
+    actors = tuple(_delivered_item_actor(subscription_id, fingerprint) for fingerprint in fingerprints)
+    placeholders = ",".join("?" for _ in actors)
+    conn = connect()
+    try:
+        rows = conn.execute(
+            f"SELECT actor FROM events WHERE source = ? AND type = ? AND actor IN ({placeholders})",
+            (_DELIVERED_ITEM_SOURCE, _DELIVERED_ITEM_TYPE, *actors),
+        ).fetchall()
+    finally:
+        conn.close()
+    actor_prefix = f"subscription:{subscription_id}:item:"
+    return {str(row["actor"])[len(actor_prefix):] for row in rows}
 
 
 def _render_digest(
@@ -237,12 +289,27 @@ def run_daily_deliveries(
             summary["skipped"] += 1
             continue
         item_count = 0
+        item_fingerprints: tuple[str, ...] = ()
         try:
             preview = build_preview(
                 list(subscription["sources"]),
                 str(subscription["focus"]),
                 list(subscription["ignore"]),
             )
+            candidates = list(preview["items"])
+            candidate_fingerprints = tuple(
+                firehose_item_fingerprint(item) for item in candidates
+            )
+            delivered = _previously_delivered_fingerprints(
+                int(subscription["id"]), candidate_fingerprints
+            )
+            fresh_pairs = [
+                (item, fingerprint)
+                for item, fingerprint in zip(candidates, candidate_fingerprints, strict=True)
+                if fingerprint not in delivered
+            ]
+            preview = {**preview, "items": [item for item, _fingerprint in fresh_pairs]}
+            item_fingerprints = tuple(fingerprint for _item, fingerprint in fresh_pairs)
             item_count = len(preview["items"])
             subject, text, body_html, unsubscribe_url = _render_digest(
                 subscription, preview, day, claim.delivery_id
@@ -265,7 +332,15 @@ def run_daily_deliveries(
             )
             status = "failed"
             detail = f"{type(exc).__name__}: {exc}"
-        _finish_delivery(claim, status, detail, item_count, now=now_dt)
+        _finish_delivery(
+            claim,
+            status,
+            detail,
+            item_count,
+            subscription_id=int(subscription["id"]),
+            item_fingerprints=item_fingerprints,
+            now=now_dt,
+        )
         summary[status] += 1
 
     logger.info(
@@ -276,7 +351,10 @@ def run_daily_deliveries(
 
 def main() -> None:
     configure_logging()
-    print(json.dumps(run_daily_deliveries(), sort_keys=True))
+    summary = run_daily_deliveries()
+    print(json.dumps(summary, sort_keys=True))
+    if summary["failed"]:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

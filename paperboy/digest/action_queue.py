@@ -72,7 +72,7 @@ def _now_iso() -> str:
 
 def _action_id(kind: str, key: str) -> str:
     """Stable id for an action item — sha1 of source-kind + underlying key."""
-    h = hashlib.sha1(f"{kind}:{key}".encode("utf-8")).hexdigest()[:16]
+    h = hashlib.sha1(f"{kind}:{key}".encode()).hexdigest()[:16]
     return f"act_{h}"
 
 

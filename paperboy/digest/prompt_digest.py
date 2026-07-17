@@ -24,12 +24,11 @@ from __future__ import annotations
 import json
 import os
 import sys
+import urllib.request
 from datetime import datetime, timedelta, timezone
 
 from paperboy.db import connect
 from paperboy.discord_post import deliver
-import urllib.request
-
 
 LIMIT = int(os.environ.get("PROMPT_DIGEST_LIMIT", "12"))
 LOOKBACK_HOURS = int(os.environ.get("PROMPT_DIGEST_LOOKBACK_HOURS", "48"))

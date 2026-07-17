@@ -173,6 +173,34 @@ CREATE TABLE IF NOT EXISTS billing_webhook_events (
     status            TEXT NOT NULL,
     detail            TEXT NOT NULL DEFAULT ''
 );
+
+CREATE TABLE IF NOT EXISTS product_lifecycle_outbox (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_key         TEXT    NOT NULL UNIQUE,
+    subscription_id   INTEGER NOT NULL,
+    event_type        TEXT    NOT NULL,
+    payload_json      TEXT    NOT NULL DEFAULT '{}',
+    status            TEXT    NOT NULL DEFAULT 'pending',
+    attempt_count     INTEGER NOT NULL DEFAULT 0,
+    next_attempt_at   TEXT,
+    claimed_at        TEXT,
+    delivered_at      TEXT,
+    last_error        TEXT    NOT NULL DEFAULT '',
+    created_at        TEXT    NOT NULL,
+    FOREIGN KEY (subscription_id) REFERENCES firehose_subscriptions(id)
+);
+
+CREATE TABLE IF NOT EXISTS email_provider_events (
+    event_id          TEXT PRIMARY KEY,
+    event_type        TEXT NOT NULL,
+    subscription_id   INTEGER,
+    provider_email_id TEXT,
+    received_at       TEXT NOT NULL,
+    processed_at      TEXT,
+    status            TEXT NOT NULL,
+    detail            TEXT NOT NULL DEFAULT '',
+    FOREIGN KEY (subscription_id) REFERENCES firehose_subscriptions(id)
+);
 """
 
 
@@ -217,6 +245,10 @@ CREATE INDEX IF NOT EXISTS idx_firehose_subscription_attempts_ip
     ON firehose_subscription_attempts(ip_hash, attempted_at);
 CREATE INDEX IF NOT EXISTS idx_firehose_subscription_attempts_email
     ON firehose_subscription_attempts(email_hash, attempted_at);
+CREATE INDEX IF NOT EXISTS idx_product_lifecycle_outbox_pending
+    ON product_lifecycle_outbox(status, next_attempt_at, created_at);
+CREATE INDEX IF NOT EXISTS idx_email_provider_events_subscription
+    ON email_provider_events(subscription_id, received_at);
 """
 
 

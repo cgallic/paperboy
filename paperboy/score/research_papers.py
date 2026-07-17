@@ -175,7 +175,7 @@ def normalize_verdict(v: dict, parent_actor: str, parent_payload: dict) -> dict:
     applies_to = v.get("applies_to") or []
     if not isinstance(applies_to, list):
         applies_to = []
-    applies_to = [str(s).strip().lower() for s in applies_to if isinstance(s, (str, int))][:6]
+    applies_to = [str(s).strip().lower() for s in applies_to if isinstance(s, str | int)][:6]
     novelty = str(v.get("novelty", "low")).strip().lower()
     if novelty not in VALID_NOVELTY:
         novelty = "low"

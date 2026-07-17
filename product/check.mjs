@@ -41,6 +41,7 @@ function requireText(source, text, label) {
 
 [
   ['fetch("/api/firehose/subscribe"', "same-origin automatic subscription"],
+  ['fetch("/api/config"', "runtime checkout availability"],
   ['["pending_verification", "pending"].indexOf(subscribeResult.status)', "pending verification response"],
   ['/api/firehose/subscriptions/" + encoded + "/confirm', "explicit confirmation endpoint"],
   ['fetch("/api/billing/checkout"', "hosted checkout handoff"],
@@ -96,8 +97,12 @@ if (/<form[^>]+action=/i.test(html)) {
   failures.push("A form action could submit data outside the local preview.");
 }
 
-if ((js.match(/fetch\(/g) || []).length !== 7 || !js.includes('fetch("/api/firehose/subscribe"') || !js.includes("refreshManagedSubscription(activeStatusUrl)") || !js.includes("fetch(activeUnsubscribeUrl")) {
+if ((js.match(/fetch\(/g) || []).length !== 8 || !js.includes('fetch("/api/firehose/subscribe"') || !js.includes("refreshManagedSubscription(activeStatusUrl)") || !js.includes("fetch(activeUnsubscribeUrl")) {
   failures.push("Expected same-origin lifecycle fetches are missing or an unexpected fetch was added.");
+}
+
+if (!js.includes('"trial_started"') || js.includes('"purchase"') || js.includes('"transaction_id"')) {
+  failures.push("Trial analytics must remain distinct from a real paid transaction.");
 }
 
 if (js.includes('/api/firehose/preview')) {
@@ -113,6 +118,10 @@ if (js.includes('/api/firehose/preview')) {
 
 if (!html.includes('href="/privacy/"') || !html.includes('href="/terms/"')) {
   failures.push("Privacy and terms footer links are missing.");
+}
+
+if (!html.includes('href="https://github.com/cgallic/paperboy"')) {
+  failures.push("Visible open-source project link is missing.");
 }
 
 [["XMLHttpRequest", "XMLHttpRequest"], ["WebSocket", "WebSocket"], ["sendBeacon", "sendBeacon"]].forEach(([needle, label]) => {

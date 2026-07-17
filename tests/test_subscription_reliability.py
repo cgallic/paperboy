@@ -11,6 +11,7 @@ from unittest.mock import MagicMock, patch
 from paperboy.confirmation_delivery import run_pending_confirmations
 from paperboy.db import connect, init_schema
 from paperboy.email.sender import send_raw
+from paperboy.firehose_delivery import main as firehose_delivery_main
 from paperboy.firehose_delivery import run_daily_deliveries
 from paperboy.scheduler import INTERVAL_JOBS
 from paperboy.subscriptions import (
@@ -92,7 +93,13 @@ class ReliabilityTestCase(unittest.TestCase):
         subscription, manage_token = self.create()
         confirmed = confirm_subscription(confirmation_token(subscription))
         assert confirmed is not None
-        entitled = set_billing_state(int(confirmed["id"]), "trialing")
+        entitled = set_billing_state(
+            int(confirmed["id"]),
+            "trialing",
+            trial_ends_at=(datetime.now(timezone.utc) + timedelta(days=7))
+            .isoformat()
+            .replace("+00:00", "Z"),
+        )
         assert entitled is not None
         return entitled, manage_token
 
@@ -215,8 +222,27 @@ class VerificationTests(ReliabilityTestCase):
         self.assertFalse(repeated["_newly_verified"])
         self.assertEqual(confirmed["billing_status"], "unpaid")
         self.assertEqual(active_subscriptions(), [])
-        set_billing_state(int(confirmed["id"]), "trialing")
+        set_billing_state(
+            int(confirmed["id"]),
+            "trialing",
+            trial_ends_at=(datetime.now(timezone.utc) + timedelta(days=7))
+            .isoformat()
+            .replace("+00:00", "Z"),
+        )
         self.assertEqual(len(active_subscriptions()), 1)
+
+    def test_expired_or_missing_trial_end_never_grants_delivery(self) -> None:
+        subscription, _token = self.create()
+        confirmed = confirm_subscription(confirmation_token(subscription))
+        assert confirmed is not None
+        set_billing_state(int(confirmed["id"]), "trialing")
+        self.assertEqual(active_subscriptions(), [])
+        set_billing_state(
+            int(confirmed["id"]),
+            "trialing",
+            trial_ends_at="2020-01-01T00:00:00Z",
+        )
+        self.assertEqual(active_subscriptions(), [])
 
     def test_expired_confirmation_cannot_activate(self) -> None:
         subscription, _token = self.create()
@@ -268,15 +294,17 @@ class ConsentAndAbuseTests(ReliabilityTestCase):
         self.assertNotIn("reader@example.com", str(rows))
 
     def test_suppression_blocks_delivery_and_resubscribe(self) -> None:
-        subscription, _token = self.confirm_and_entitle()
+        subscription, token = self.confirm_and_entitle()
         self.assertEqual(len(active_subscriptions()), 1)
         suppress_email(str(subscription["email"]), "hard_bounce", "550 rejected")
         self.assertEqual(active_subscriptions(), [])
         with self.assertRaises(SubscriptionSuppressedError):
             self.create()
         self.assertTrue(unsuppress_email("reader@example.com"))
-        pending, _new_token = self.create()
-        self.assertFalse(pending["active"])
+        self.assertTrue(get_subscription(token)["active"])
+        self.assertEqual(len(active_subscriptions()), 1)
+        with self.assertRaises(SubscriptionSuppressedError):
+            self.create()
 
 
 class TimezoneAndDeliveryTests(ReliabilityTestCase):
@@ -440,6 +468,34 @@ class BillingPrimitiveTests(ReliabilityTestCase):
         self.assertTrue(claim_billing_webhook("evt_1", "checkout.completed"))
         finish_billing_webhook("evt_1", "processed")
         self.assertFalse(claim_billing_webhook("evt_1", "checkout.completed"))
+
+    def test_stuck_processing_webhook_is_reclaimed_after_lease(self) -> None:
+        start = datetime(2026, 7, 16, 12, tzinfo=timezone.utc)
+        self.assertTrue(
+            claim_billing_webhook("evt_stuck", "customer.subscription.updated", now=start)
+        )
+        self.assertFalse(
+            claim_billing_webhook(
+                "evt_stuck",
+                "customer.subscription.updated",
+                now=start + timedelta(minutes=9),
+            )
+        )
+        self.assertTrue(
+            claim_billing_webhook(
+                "evt_stuck",
+                "customer.subscription.updated",
+                now=start + timedelta(minutes=11),
+            )
+        )
+
+    def test_delivery_cli_exits_nonzero_when_any_delivery_failed(self) -> None:
+        with patch(
+            "paperboy.firehose_delivery.run_daily_deliveries",
+            return_value={"active": 1, "sent": 0, "failed": 1, "skipped": 0},
+        ), self.assertRaises(SystemExit) as caught:
+            firehose_delivery_main()
+        self.assertEqual(caught.exception.code, 1)
 
     def test_scheduler_runs_confirmation_and_due_delivery_frequently(self) -> None:
         self.assertIn(("paperboy.confirmation_delivery", 5), INTERVAL_JOBS)

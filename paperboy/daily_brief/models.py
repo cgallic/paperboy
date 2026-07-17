@@ -6,11 +6,11 @@ network.
 """
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
-from typing import Any, Mapping, Sequence
+from typing import Any
 from urllib.parse import urlsplit
-
 
 DEFAULT_SECTION_ORDER = (
     "From your newsletters",
@@ -106,7 +106,7 @@ class RunConfig:
             raise ValueError("section_order must contain unique section names")
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "RunConfig":
+    def from_dict(cls, data: Mapping[str, Any]) -> RunConfig:
         section_order = _text_tuple(data, "section_order") or DEFAULT_SECTION_ORDER
         return cls(
             edition_date=_parse_date(data.get("edition_date"), "edition_date"),
@@ -134,7 +134,7 @@ class RepoProfile:
     topics: tuple[str, ...] = ()
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "RepoProfile":
+    def from_dict(cls, data: Mapping[str, Any]) -> RepoProfile:
         full_name = _required_text(data, "full_name")
         if full_name.count("/") != 1:
             raise ValueError("repo full_name must have owner/name form")
@@ -166,7 +166,7 @@ class ExternalSignal:
     evidence_urls: tuple[str, ...]
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "ExternalSignal":
+    def from_dict(cls, data: Mapping[str, Any]) -> ExternalSignal:
         evidence = _text_tuple(data, "evidence_urls", required=True)
         return cls(
             id=_required_text(data, "id"),
@@ -198,7 +198,7 @@ class ImpactVerdict:
             raise ValueError("watch next_step must explicitly say do nothing")
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "ImpactVerdict":
+    def from_dict(cls, data: Mapping[str, Any]) -> ImpactVerdict:
         return cls(
             signal_id=_required_text(data, "signal_id"),
             relevance=int(data.get("relevance", -1)),
@@ -250,7 +250,7 @@ class BriefFixture:
     verdicts: tuple[ImpactVerdict, ...]
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "BriefFixture":
+    def from_dict(cls, data: Mapping[str, Any]) -> BriefFixture:
         for key in ("config", "repos", "signals", "verdicts"):
             if key not in data:
                 raise ValueError(f"fixture is missing {key}")

@@ -72,6 +72,7 @@ paperboy-research-digest = "paperboy.digest.research_digest:main"
 paperboy-daily-brief-sample = "paperboy.daily_brief.cli:main"
 paperboy-api = "paperboy.api.main:app"
 paperboy-scheduler = "paperboy.scheduler:main"
+paperboy-privacy = "paperboy.privacy:main"
 
 [tool.setuptools.packages.find]
 include = ["paperboy*"]

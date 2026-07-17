@@ -12,6 +12,38 @@ import os
 import sys
 from typing import Any
 
+_SAFE_EXTRA_FIELDS = (
+    "event",
+    "source",
+    "actor",
+    "stream",
+    "dry_run",
+    "elapsed_ms",
+    "elapsed_sec",
+    "method",
+    "path",
+    "status",
+    "job",
+    "ok",
+    "returncode",
+    "stderr_present",
+    "error_type",
+    "jobs",
+    "active",
+    "claimed",
+    "sent",
+    "failed",
+    "skipped",
+    "processed",
+    "retried",
+    "pending",
+    "forwarded",
+    "delivered",
+    "suppressed",
+    "pruned",
+    "verified",
+)
+
 
 class _JSONFormatter(logging.Formatter):
     """Emit log records as single-line JSON."""
@@ -25,8 +57,9 @@ class _JSONFormatter(logging.Formatter):
         }
         if record.exc_info:
             payload["exc"] = self.formatException(record.exc_info)
-        # merge extra fields
-        for key in ("event", "source", "actor", "stream", "dry_run", "elapsed_ms", "method", "path", "status", "job", "ok"):
+        # Preserve bounded operational diagnostics, but never raw command output,
+        # recipient addresses, subjects, tokens, or exception strings from extras.
+        for key in _SAFE_EXTRA_FIELDS:
             value = getattr(record, key, None)
             if value is not None:
                 payload[key] = value
