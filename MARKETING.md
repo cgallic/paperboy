@@ -5,7 +5,7 @@
 ## Product
 
 - **Name:** Paperboy
-- **One-liner:** Paperboy turns a user-built firehose of public feeds into a short, source-linked brief ranked around what matters to them.
+- **One-liner:** Paperboy turns a user-built firehose of public feeds into a short, source-linked daily or weekly rollup ranked around what matters to them.
 - **Category:** Personal relevance filter
 - **URL:** https://newpaperboy.com/
 
@@ -59,14 +59,14 @@
 
 ### User Segments
 
-- **Trial subscriber:** Chooses public RSS/Atom feeds and a relevance filter, confirms the email, and starts a card-required seven-day trial.
+- **Trial subscriber:** Chooses public RSS/Atom feeds, a relevance filter, and a daily or weekly cadence, confirms the email, and starts a card-required seven-day trial.
 - **Paid subscriber:** Keeps reading after the trial at the $5/month founding price.
 
 ## Value Prop
 
 - **Core transformation:** From scanning a self-built information firehose to reading only the few items connected to current work.
 - **Key actions:** Choose or paste public feeds; describe current interests; name what to ignore; preview matches; confirm the email; start hosted checkout; self-manage or unsubscribe.
-- **Activation moment:** Stripe confirms trialing or active billing and the management screen confirms daily delivery is active.
+- **Activation moment:** Stripe confirms trialing or active billing and the management screen confirms the selected daily or weekly delivery is active.
 - **Aha moment:** The reader opens an original source or changes a concrete next step because of the brief.
 
 ## Business Model

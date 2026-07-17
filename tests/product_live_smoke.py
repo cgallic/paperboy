@@ -24,9 +24,7 @@ def main() -> None:
         page = browser.new_page(viewport={"width": 1440, "height": 1000})
         page.on(
             "console",
-            lambda message: console_errors.append(message.text)
-            if message.type == "error"
-            else None,
+            lambda message: console_errors.append(message.text) if message.type == "error" else None,
         )
         page.on("pageerror", lambda error: console_errors.append(str(error)))
         response = page.goto(
@@ -37,18 +35,20 @@ def main() -> None:
         assert page.title() == "Paperboy — Your Own Filtered Firehose"
         assert page.locator('link[rel="canonical"]').get_attribute("href") == "https://newpaperboy.com/"
         assert page.locator(".trust-line").get_by_text("No Gmail access", exact=True).is_visible()
-        assert page.get_by_role("button", name="Start my daily brief").first.is_visible()
+        assert page.get_by_role("button", name="Start my rollup").first.is_visible()
         assert page.get_by_role("link", name="Privacy").is_visible()
         assert page.get_by_role("link", name="Terms").is_visible()
         page.wait_for_timeout(500)
         page.screenshot(path=str(ROOT / "paperboy-live-smoke.png"))
 
         if args.submit_test_subscription:
-            page.get_by_role("button", name="Start my daily brief").first.click()
+            page.get_by_role("button", name="Start my rollup").first.click()
             page.get_by_label("Email address").fill("paperboy-deploy-smoke@example.invalid")
             page.get_by_label("Public RSS or Atom feed URLs").fill("https://news.ycombinator.com/rss")
             page.get_by_label("What should make an item relevant?").fill("AI infrastructure and API pricing")
             page.get_by_label("What should Paperboy ignore?").fill("funding gossip")
+            page.get_by_label("Rollup frequency").select_option("weekly")
+            page.get_by_label("Weekly delivery day").select_option("4")
             page.get_by_label("I agree to receive the Paperboy brief and service emails.").check()
             page.locator("#subscription-submit").click()
             page.get_by_role("heading", name="Check your email.").wait_for(timeout=45_000)
@@ -58,7 +58,7 @@ def main() -> None:
         mobile = browser.new_page(viewport={"width": 390, "height": 844})
         mobile.goto("https://newpaperboy.com/", wait_until="networkidle")
         mobile.get_by_role("button", name="Toggle navigation").click()
-        assert mobile.locator("#mobile-nav").get_by_role("button", name="Start my daily brief", exact=True).is_visible()
+        assert mobile.locator("#mobile-nav").get_by_role("button", name="Start my rollup", exact=True).is_visible()
         assert mobile.evaluate("document.documentElement.scrollWidth <= document.documentElement.clientWidth")
 
         legal = browser.new_page(viewport={"width": 900, "height": 800})

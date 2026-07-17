@@ -17,6 +17,9 @@ function requireText(source, text, label) {
   ["Build your firehose. Read only what matters.", "filtered-firehose promise"],
   ["Hacker News", "Hacker News source"],
   ["Any public RSS or Atom feed", "open feed boundary"],
+  ["Rollup frequency", "cadence control"],
+  ["Daily", "daily cadence option"],
+  ["Weekly", "weekly cadence option"],
   ["Try your filtered firehose for seven days.", "trial offer"],
   ["$</span>5", "$5 founding price"],
   ["Card required for the seven-day trial", "card-required trial disclosure"],
@@ -36,7 +39,7 @@ function requireText(source, text, label) {
   ["https://newpaperboy.com/", "canonical product URL"],
   ["Build your firehose. Read only what matters.", "cold-traffic promise"],
   ["Try your filtered firehose for seven days.", "card-required trial offer"],
-  ["Start my daily brief", "single subscription CTA"]
+  ["Start my rollup", "single subscription CTA"]
 ].forEach(([text, label]) => requireText(html, text, label));
 
 [
@@ -48,6 +51,8 @@ function requireText(source, text, label) {
   ['parsed.hostname === "checkout.stripe.com"', "Stripe checkout URL allowlist"],
   ['fetch("/api/analytics/event"', "consented first-party analytics"],
   ["timezone: timezone", "browser timezone submission"],
+  ["cadence: cadence", "daily or weekly cadence submission"],
+  ["weekly_day: weeklyDay", "weekly delivery day submission"],
   ["consent: true", "email consent submission"],
   ["activeStatusUrl", "tokenized in-page management status"],
   ["activeUnsubscribeUrl", "tokenized unsubscribe action"],
@@ -81,7 +86,7 @@ if (html.includes("We’ll email you to collect a few sources")) {
   failures.push("Stale follow-up-only intake copy found.");
 }
 
-const primaryCtaMatches = html.match(/Start my daily brief/g) || [];
+const primaryCtaMatches = html.match(/Start my rollup/g) || [];
 if (primaryCtaMatches.length < 4) failures.push("Primary automatic-subscription CTA is not repeated consistently.");
 
 const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
@@ -138,4 +143,4 @@ console.log("- " + ids.length + " unique HTML ids");
 console.log("- no remote UI assets or form actions");
 console.log("- only expected same-origin lifecycle and consented analytics requests");
 console.log("- pending verification, Stripe-hosted checkout, and legal boundaries present");
-console.log("- required Daily Brief sections and demo boundaries present");
+console.log("- required rollup sections and demo boundaries present");

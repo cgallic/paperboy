@@ -1,4 +1,5 @@
 """Durable, verified subscriptions and delivery-support primitives."""
+
 from __future__ import annotations
 
 import hashlib
@@ -22,6 +23,8 @@ _ATTRIBUTION_KEYS = {"source", "page", "ref", "gclid", "fbclid"}
 _BILLING_STATUSES = {"unpaid", "trialing", "active", "past_due", "canceled"}
 _VERIFICATION_TTL = timedelta(hours=48)
 _DELIVERY_HOUR = 8
+_CADENCES = {"daily", "weekly"}
+_WEEKDAYS = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
 
 
 class SubscriptionValidationError(ValueError):
@@ -78,9 +81,25 @@ def _valid_timezone(value: Any) -> str:
     return timezone_name
 
 
+def _valid_cadence(value: Any) -> str:
+    if value is None or value == "":
+        return "daily"
+    if not isinstance(value, str) or value.casefold() not in _CADENCES:
+        raise SubscriptionValidationError("cadence must be daily or weekly")
+    return value.casefold()
+
+
+def _valid_weekly_day(value: Any) -> int:
+    if value is None or value == "":
+        return 0
+    if isinstance(value, bool) or not isinstance(value, int) or not 0 <= value <= 6:
+        raise SubscriptionValidationError("weekly_day must be an integer from 0 to 6")
+    return value
+
+
 def validate_subscription_payload(
     payload: Any,
-) -> tuple[str, list[str], str, list[str], dict[str, Any], str]:
+) -> tuple[str, list[str], str, list[str], dict[str, Any], str, str, int]:
     if not isinstance(payload, dict):
         raise SubscriptionValidationError("request body must be a JSON object")
     allowed = {
@@ -89,6 +108,8 @@ def validate_subscription_payload(
         "focus",
         "ignore",
         "timezone",
+        "cadence",
+        "weekly_day",
         "consent",
         "analytics_consent",
     } | _ATTRIBUTION_KEYS
@@ -106,14 +127,19 @@ def validate_subscription_payload(
         )
     except PreviewValidationError as exc:
         raise SubscriptionValidationError(str(exc)) from exc
-    attribution = {
-        key: value
-        for key, value in payload.items()
-        if key in _ATTRIBUTION_KEYS or key.startswith("utm_")
-    }
+    attribution = {key: value for key, value in payload.items() if key in _ATTRIBUTION_KEYS or key.startswith("utm_")}
     if "analytics_consent" in payload:
         attribution["_analytics_consent"] = bool(payload["analytics_consent"])
-    return email, sources, focus, ignore, attribution, _valid_timezone(payload.get("timezone"))
+    return (
+        email,
+        sources,
+        focus,
+        ignore,
+        attribution,
+        _valid_timezone(payload.get("timezone")),
+        _valid_cadence(payload.get("cadence")),
+        _valid_weekly_day(payload.get("weekly_day")),
+    )
 
 
 def _secret_path() -> Path:
@@ -150,9 +176,7 @@ def _token_for_nonce(nonce: str) -> str:
 
 
 def _verification_token_for_nonce(nonce: str) -> str:
-    signature = hmac.new(
-        _management_secret(), f"verify:{nonce}".encode("ascii"), hashlib.sha256
-    ).hexdigest()
+    signature = hmac.new(_management_secret(), f"verify:{nonce}".encode("ascii"), hashlib.sha256).hexdigest()
     return f"{nonce}.{signature}"
 
 
@@ -210,6 +234,8 @@ def _decode_subscription(row: sqlite3.Row) -> dict[str, Any]:
         "token_nonce": str(row["token_nonce"]),
         "active": bool(row["active"]),
         "timezone": str(row["timezone"]),
+        "cadence": str(row["cadence"]),
+        "weekly_day": int(row["weekly_day"]),
         "verification_status": str(row["verification_status"]),
         "verification_token_nonce": row["verification_token_nonce"],
         "verification_expires_at": row["verification_expires_at"],
@@ -248,11 +274,15 @@ def create_subscription(
     ignore: list[str],
     attribution: dict[str, Any] | None = None,
     timezone_name: str = "UTC",
+    cadence: str = "daily",
+    weekly_day: int = 0,
 ) -> tuple[dict[str, Any], str]:
     """Create/replace a pending subscription and queue a confirmation email."""
     init_schema()
     email = _valid_email(email)
     timezone_name = _valid_timezone(timezone_name)
+    cadence = _valid_cadence(cadence)
+    weekly_day = _valid_weekly_day(weekly_day)
     if is_suppressed(email):
         raise SubscriptionSuppressedError("email address is suppressed")
     management_token_value, management_nonce, management_hash = _new_token()
@@ -262,9 +292,7 @@ def create_subscription(
     expires_at = _iso(now_dt + _VERIFICATION_TTL)
     conn = connect()
     try:
-        row = conn.execute(
-            "SELECT id, created_at FROM firehose_subscriptions WHERE email = ?", (email,)
-        ).fetchone()
+        row = conn.execute("SELECT id, created_at FROM firehose_subscriptions WHERE email = ?", (email,)).fetchone()
         values = (
             json.dumps(sources),
             focus,
@@ -273,6 +301,8 @@ def create_subscription(
             management_hash,
             management_nonce,
             timezone_name,
+            cadence,
+            weekly_day,
             verification_hash,
             verification_nonce,
             expires_at,
@@ -282,11 +312,12 @@ def create_subscription(
                 """
                 INSERT INTO firehose_subscriptions
                     (email, sources_json, focus, ignore_json, attribution_json,
-                     token_hash, token_nonce, active, timezone, verification_status,
+                     token_hash, token_nonce, active, timezone, cadence, weekly_day,
+                     verification_status,
                      verification_token_hash, verification_token_nonce,
                      verification_expires_at, verification_attempts,
                      verification_next_attempt_at, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, 'pending', ?, ?, ?, 0, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, 'pending', ?, ?, ?, 0, ?, ?, ?)
                 """,
                 (email, *values, now, now, now),
             )
@@ -300,6 +331,7 @@ def create_subscription(
                 UPDATE firehose_subscriptions
                 SET sources_json = ?, focus = ?, ignore_json = ?, attribution_json = ?,
                     token_hash = ?, token_nonce = ?, active = 0, timezone = ?,
+                    cadence = ?, weekly_day = ?,
                     verification_status = 'pending', verification_token_hash = ?,
                     verification_token_nonce = ?, verification_expires_at = ?,
                     verification_sent_at = NULL, verification_attempts = 0,
@@ -377,8 +409,7 @@ def confirm_subscription(token: str, *, now: datetime | None = None) -> dict[str
             conn.commit()
             return None
         suppressed = conn.execute(
-            "SELECT 1 FROM firehose_suppressions WHERE email = "
-            "(SELECT email FROM firehose_subscriptions WHERE id = ?)",
+            "SELECT 1 FROM firehose_suppressions WHERE email = (SELECT email FROM firehose_subscriptions WHERE id = ?)",
             (row["id"],),
         ).fetchone()
         if suppressed is not None:
@@ -423,9 +454,7 @@ def _seed_legacy_confirmation_tokens(conn: sqlite3.Connection, now_dt: datetime)
         )
 
 
-def claim_pending_confirmations(
-    *, now: datetime | None = None, limit: int = 100
-) -> list[dict[str, Any]]:
+def claim_pending_confirmations(*, now: datetime | None = None, limit: int = 100) -> list[dict[str, Any]]:
     """Atomically claim pending confirmation sends for one worker lease."""
     if limit < 1 or limit > 500:
         raise ValueError("limit must be between 1 and 500")
@@ -468,9 +497,7 @@ def claim_pending_confirmations(
     return [subscription for item in ids if (subscription := get_subscription_by_id(item))]
 
 
-def finish_confirmation_attempt(
-    subscription_id: int, ok: bool, detail: str, *, now: datetime | None = None
-) -> None:
+def finish_confirmation_attempt(subscription_id: int, ok: bool, detail: str, *, now: datetime | None = None) -> None:
     now_dt = _utc_now(now)
     now_iso = _iso(now_dt)
     init_schema()
@@ -493,11 +520,7 @@ def finish_confirmation_attempt(
             )
         else:
             attempts = int(row["verification_attempts"])
-            next_attempt = (
-                _iso(now_dt + timedelta(minutes=15 * (2 ** max(0, attempts - 1))))
-                if attempts < 3
-                else None
-            )
+            next_attempt = _iso(now_dt + timedelta(minutes=15 * (2 ** max(0, attempts - 1)))) if attempts < 3 else None
             conn.execute(
                 """
                 UPDATE firehose_subscriptions
@@ -568,9 +591,7 @@ def suppress_email(email: str, reason: str, detail: str = "") -> None:
 def bounce_address(subscription: dict[str, Any]) -> str:
     """Return a signed, non-PII envelope sender for bounce correlation."""
     subscription_id = int(subscription["id"])
-    signature = hmac.new(
-        _management_secret(), f"bounce:{subscription_id}".encode(), hashlib.sha256
-    ).hexdigest()[:32]
+    signature = hmac.new(_management_secret(), f"bounce:{subscription_id}".encode(), hashlib.sha256).hexdigest()[:32]
     return f"paperboy-bounce+{subscription_id}.{signature}@{settings.bounce_domain}"
 
 
@@ -583,9 +604,7 @@ def suppress_from_bounce_address(address: str, detail: str = "hard bounce report
     if match is None:
         return False
     subscription_id = int(match.group(1))
-    expected = hmac.new(
-        _management_secret(), f"bounce:{subscription_id}".encode(), hashlib.sha256
-    ).hexdigest()[:32]
+    expected = hmac.new(_management_secret(), f"bounce:{subscription_id}".encode(), hashlib.sha256).hexdigest()[:32]
     if not hmac.compare_digest(match.group(2), expected):
         return False
     subscription = get_subscription_by_id(subscription_id)
@@ -612,9 +631,7 @@ def is_suppressed(email: str) -> bool:
     init_schema()
     conn = connect()
     try:
-        return conn.execute(
-            "SELECT 1 FROM firehose_suppressions WHERE email = ?", (normalized,)
-        ).fetchone() is not None
+        return conn.execute("SELECT 1 FROM firehose_suppressions WHERE email = ?", (normalized,)).fetchone() is not None
     finally:
         conn.close()
 
@@ -641,27 +658,44 @@ def active_subscriptions() -> list[dict[str, Any]]:
     return [_decode_subscription(row) for row in rows]
 
 
-def next_delivery_at(
-    subscription: dict[str, Any], *, now: datetime | None = None
-) -> datetime:
+def next_delivery_at(subscription: dict[str, Any], *, now: datetime | None = None) -> datetime:
     now_utc = _utc_now(now)
     zone = ZoneInfo(str(subscription.get("timezone") or "UTC"))
     local_now = now_utc.astimezone(zone)
-    candidate = datetime.combine(local_now.date(), time(_DELIVERY_HOUR), zone)
-    if candidate <= local_now:
-        candidate += timedelta(days=1)
+    cadence = str(subscription.get("cadence") or "daily")
+    if cadence == "weekly":
+        weekly_day = int(subscription.get("weekly_day", 0))
+        days_ahead = (weekly_day - local_now.weekday()) % 7
+        candidate = datetime.combine(local_now.date() + timedelta(days=days_ahead), time(_DELIVERY_HOUR), zone)
+        if candidate <= local_now:
+            candidate += timedelta(days=7)
+    else:
+        candidate = datetime.combine(local_now.date(), time(_DELIVERY_HOUR), zone)
+        if candidate <= local_now:
+            candidate += timedelta(days=1)
     return candidate.astimezone(timezone.utc)
 
 
-def delivery_date_if_due(
-    subscription: dict[str, Any], *, now: datetime | None = None
-) -> date | None:
+def delivery_date_if_due(subscription: dict[str, Any], *, now: datetime | None = None) -> date | None:
     now_utc = _utc_now(now)
     zone = ZoneInfo(str(subscription.get("timezone") or "UTC"))
     local_now = now_utc.astimezone(zone)
     if local_now.time().replace(tzinfo=None) < time(_DELIVERY_HOUR):
         return None
+    if str(subscription.get("cadence") or "daily") == "weekly":
+        weekly_day = int(subscription.get("weekly_day", 0))
+        if local_now.weekday() != weekly_day:
+            return None
     return local_now.date()
+
+
+def delivery_schedule_label(subscription: dict[str, Any]) -> str:
+    """Return a concise, user-facing schedule in the subscription timezone."""
+    timezone_name = str(subscription.get("timezone") or "UTC")
+    if str(subscription.get("cadence") or "daily") == "weekly":
+        weekly_day = int(subscription.get("weekly_day", 0))
+        return f"Weekly · {_WEEKDAYS[weekly_day]} at 8:00 AM · {timezone_name}"
+    return f"Daily · 8:00 AM · {timezone_name}"
 
 
 def set_billing_state(
@@ -703,14 +737,10 @@ def set_billing_state(
 
 
 def _rate_hash(kind: str, value: str) -> str:
-    return hmac.new(
-        _management_secret(), f"rate:{kind}:{value}".encode(), hashlib.sha256
-    ).hexdigest()
+    return hmac.new(_management_secret(), f"rate:{kind}:{value}".encode(), hashlib.sha256).hexdigest()
 
 
-def allow_subscription_attempt(
-    ip: str, email: str, *, now: datetime | None = None
-) -> bool:
+def allow_subscription_attempt(ip: str, email: str, *, now: datetime | None = None) -> bool:
     """Persistently limit subscribe attempts to 5/IP/hour and 3/email/hour."""
     normalized_email = _valid_email(email)
     normalized_ip = (ip or "unknown").strip()[:128]
@@ -724,28 +754,23 @@ def allow_subscription_attempt(
     conn = connect()
     try:
         conn.execute("BEGIN IMMEDIATE")
-        conn.execute(
-            "DELETE FROM firehose_subscription_attempts WHERE attempted_at < ?", (cleanup_before,)
-        )
+        conn.execute("DELETE FROM firehose_subscription_attempts WHERE attempted_at < ?", (cleanup_before,))
         ip_count = int(
             conn.execute(
-                "SELECT COUNT(*) FROM firehose_subscription_attempts "
-                "WHERE ip_hash = ? AND attempted_at > ?",
+                "SELECT COUNT(*) FROM firehose_subscription_attempts WHERE ip_hash = ? AND attempted_at > ?",
                 (ip_hash, hour_ago),
             ).fetchone()[0]
         )
         email_count = int(
             conn.execute(
-                "SELECT COUNT(*) FROM firehose_subscription_attempts "
-                "WHERE email_hash = ? AND attempted_at > ?",
+                "SELECT COUNT(*) FROM firehose_subscription_attempts WHERE email_hash = ? AND attempted_at > ?",
                 (email_hash, hour_ago),
             ).fetchone()[0]
         )
         allowed = ip_count < 5 and email_count < 3
         if allowed:
             conn.execute(
-                "INSERT INTO firehose_subscription_attempts(ip_hash, email_hash, attempted_at) "
-                "VALUES (?, ?, ?)",
+                "INSERT INTO firehose_subscription_attempts(ip_hash, email_hash, attempted_at) VALUES (?, ?, ?)",
                 (ip_hash, email_hash, now_iso),
             )
         conn.commit()
@@ -896,9 +921,7 @@ def claim_billing_webhook(event_id: str, event_type: str, *, now: datetime | Non
     conn = connect()
     try:
         conn.execute("BEGIN IMMEDIATE")
-        row = conn.execute(
-            "SELECT status FROM billing_webhook_events WHERE event_id = ?", (event_id,)
-        ).fetchone()
+        row = conn.execute("SELECT status FROM billing_webhook_events WHERE event_id = ?", (event_id,)).fetchone()
         received_at = _iso(_utc_now(now))
         if row is None:
             conn.execute(
@@ -928,9 +951,7 @@ def claim_billing_webhook(event_id: str, event_type: str, *, now: datetime | Non
         conn.close()
 
 
-def finish_billing_webhook(
-    event_id: str, status: str, detail: str = "", *, now: datetime | None = None
-) -> None:
+def finish_billing_webhook(event_id: str, status: str, detail: str = "", *, now: datetime | None = None) -> None:
     if status not in {"processed", "failed", "ignored"}:
         raise ValueError("invalid billing webhook status")
     init_schema()

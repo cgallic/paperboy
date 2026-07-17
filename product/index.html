@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Build a daily brief from Hacker News, RSS, research, and public sources. Paperboy filters the firehose around what matters to you and delivers the cut automatically.">
+  <meta name="description" content="Build a daily or weekly rollup from Hacker News, RSS, research, and public sources. Paperboy filters the firehose around what matters to you and delivers the cut automatically.">
   <meta name="theme-color" content="#f3eee3">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://newpaperboy.com/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Paperboy — Build your firehose. Read only what matters.">
-  <meta property="og:description" content="Add Hacker News, RSS, research, and public sources once. Paperboy filters them around your work and delivers a ranked, source-linked brief every day.">
+  <meta property="og:description" content="Add Hacker News, RSS, research, and public sources once. Paperboy filters them around your work and delivers a ranked, source-linked rollup daily or weekly.">
   <meta property="og:url" content="https://newpaperboy.com/">
   <title>Paperboy — Your Own Filtered Firehose</title>
   <link rel="stylesheet" href="styles.css">
@@ -20,8 +20,8 @@
 
   <div class="local-banner" role="status">
     <span class="status-dot" aria-hidden="true"></span>
-    <strong>Automatic daily delivery</strong>
-    <span>Add your feeds once. Confirm your email and start the trial, then Paperboy delivers what survives every day.</span>
+    <strong>Automatic daily or weekly delivery</strong>
+    <span>Add your feeds once. Confirm your email and start the trial, then choose a daily or weekly rollup.</span>
   </div>
 
   <header class="site-header" id="site-header">
@@ -40,7 +40,7 @@
     <nav class="site-nav" aria-label="Primary navigation">
       <a href="#how-it-works">How it works</a>
       <a href="#pricing">Pricing</a>
-      <button class="button button-small" type="button" data-start>Start my daily brief</button>
+      <button class="button button-small" type="button" data-start>Start my rollup</button>
     </nav>
 
     <button class="menu-button" type="button" aria-expanded="false" aria-controls="mobile-nav">
@@ -50,7 +50,7 @@
     <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation" hidden>
       <a href="#how-it-works">How it works</a>
       <a href="#pricing">Pricing</a>
-      <button class="button" type="button" data-start>Start my daily brief</button>
+      <button class="button" type="button" data-start>Start my rollup</button>
     </nav>
   </header>
 
@@ -62,7 +62,7 @@
           <h1>Build your firehose. Read only what matters.</h1>
           <p class="hero-lede">Add Hacker News, startup feeds, RSS, research, and other public sources. Paperboy ranks the stream against what you are building—and shows why each item made the cut.</p>
           <div class="hero-actions">
-            <button class="button button-large" type="button" data-start>Start my daily brief <span aria-hidden="true">→</span></button>
+            <button class="button button-large" type="button" data-start>Start my rollup <span aria-hidden="true">→</span></button>
             <a class="quiet-link" href="#example">See the filter work <span aria-hidden="true">↓</span></a>
           </div>
           <ul class="trust-line" aria-label="Product boundaries">
@@ -100,7 +100,7 @@
       <section class="signal-strip" aria-label="Product principle">
           <p><span>01</span> Choose the firehose.</p>
           <p><span>02</span> Define what deserves attention.</p>
-          <p><span>03</span> Get the daily cut automatically.</p>
+          <p><span>03</span> Get the rollup automatically.</p>
       </section>
 
       <section class="section example-section" id="example">
@@ -137,7 +137,7 @@
       <section class="section route-section" id="how-it-works">
         <div class="section-heading section-heading-narrow">
           <p class="eyebrow">How it works</p>
-          <h2>Three inputs. One automatic daily brief.</h2>
+          <h2>Three inputs. One automatic rollup.</h2>
         </div>
         <ol class="delivery-route">
           <li>
@@ -157,8 +157,8 @@
           </li>
           <li>
             <span class="route-number route-number-final">✓</span>
-            <h3>Wake up to the daily cut</h3>
-            <p>After you confirm the address and start the trial, your active filter refreshes the sources and sends the strongest matches every day.</p>
+            <h3>Get the cut on your schedule</h3>
+            <p>After you confirm the address and start the trial, your active filter refreshes the sources and sends the strongest matches daily or weekly.</p>
           </li>
         </ol>
       </section>
@@ -168,7 +168,7 @@
           <p class="eyebrow eyebrow-light">Automatic, without inbox access</p>
           <h2>Paste feeds. Paperboy does the setup.</h2>
           <p>Paperboy works from public RSS and Atom feeds. It validates each URL, reads a bounded set of recent items, removes duplicates, and ranks the result against your filter. No Gmail connection or manual concierge step is required.</p>
-          <button class="button button-paper" type="button" data-start>Start my daily brief</button>
+          <button class="button button-paper" type="button" data-start>Start my rollup</button>
         </div>
         <div class="permission-ledger" aria-label="Automatic setup steps">
           <div><span>Public feed validation</span><strong>Automatic</strong></div>
@@ -184,7 +184,7 @@
         <div class="section-heading section-heading-narrow">
           <p class="eyebrow">Founding offer</p>
           <h2>Try your filtered firehose for seven days.</h2>
-          <p>Preview the filter free. After email verification, start a card-required seven-day trial to activate daily delivery. Then pay $5 per month until canceled.</p>
+          <p>Preview the filter free. After email verification, start a card-required seven-day trial to activate daily or weekly delivery. Then pay $5 per month until canceled.</p>
         </div>
         <div class="pricing-grid">
           <article class="price-card price-card-primary">
@@ -201,7 +201,7 @@
                 <li>Cancel monthly</li>
               </ul>
             </div>
-            <button class="button button-wide" type="button" data-start>Start my daily brief</button>
+            <button class="button button-wide" type="button" data-start>Start my rollup</button>
           </article>
         </div>
       </section>
@@ -238,7 +238,7 @@
       <section class="final-cta">
         <p class="eyebrow eyebrow-light">Use your actual feeds</p>
         <h2>Turn your firehose into a short list of things worth reading.</h2>
-        <button class="button button-paper button-large" type="button" data-start>Start my daily brief <span aria-hidden="true">→</span></button>
+        <button class="button button-paper button-large" type="button" data-start>Start my rollup <span aria-hidden="true">→</span></button>
       </section>
     </section>
 
@@ -247,7 +247,7 @@
         <button class="back-link" type="button" data-route="home"><span aria-hidden="true">←</span> Back to home</button>
         <div class="flow-card">
           <p class="eyebrow">Automatic filter setup</p>
-          <h1>Start your automatic daily brief.</h1>
+          <h1>Start your automatic rollup.</h1>
           <p>Choose Hacker News or paste public RSS and Atom feeds. Tell Paperboy what matters once; it validates the filter and emails you a secure activation link.</p>
           <div class="guardrail">
             <strong>No human setup</strong>
@@ -257,7 +257,7 @@
             <div class="field">
               <label for="signin-email">Email address</label>
               <input id="signin-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby="email-help email-error">
-              <span class="field-help" id="email-help">Your daily brief is delivered here. No inbox access is required.</span>
+              <span class="field-help" id="email-help">Your rollup is delivered here. No inbox access is required.</span>
               <span class="field-error" id="email-error" role="alert"></span>
             </div>
             <div class="field">
@@ -282,16 +282,36 @@
               <input id="ignore-focus" name="ignore_focus" type="text" placeholder="Funding gossip, beginner tutorials, hardware news">
             </div>
             <div class="field">
+              <label for="intake-cadence">Rollup frequency</label>
+              <select id="intake-cadence" name="cadence" aria-describedby="cadence-help">
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+              </select>
+              <span class="field-help" id="cadence-help">Delivered at 8:00 AM in your time zone.</span>
+            </div>
+            <div class="field" id="weekly-day-field" hidden>
+              <label for="intake-weekly-day">Weekly delivery day</label>
+              <select id="intake-weekly-day" name="weekly_day">
+                <option value="0">Monday</option>
+                <option value="1">Tuesday</option>
+                <option value="2">Wednesday</option>
+                <option value="3">Thursday</option>
+                <option value="4">Friday</option>
+                <option value="5">Saturday</option>
+                <option value="6">Sunday</option>
+              </select>
+            </div>
+            <div class="field">
               <label for="intake-timezone">Your time zone</label>
               <input id="intake-timezone" name="timezone" type="text" autocomplete="off" required aria-describedby="timezone-help">
-              <span class="field-help" id="timezone-help">Detected from this browser. Edit it if you want the daily edition scheduled elsewhere.</span>
+              <span class="field-help" id="timezone-help">Detected from this browser. Edit it if the rollup should follow another time zone.</span>
             </div>
             <label class="consent-check" for="email-consent">
               <input id="email-consent" name="email_consent" type="checkbox" required>
               <span>I agree to receive the Paperboy brief and service emails. I can unsubscribe at any time. See the <a href="/privacy/">privacy notice</a>.</span>
             </label>
             <span class="form-error" id="intake-error" role="alert"></span>
-            <button class="button button-wide" type="submit" id="subscription-submit">Start my daily brief</button>
+            <button class="button button-wide" type="submit" id="subscription-submit">Start my rollup</button>
           </form>
           <div class="confirmation-panel" id="confirmation-panel" hidden>
             <p class="eyebrow">Confirm your email</p>
@@ -314,7 +334,7 @@
               <div class="preview-summary" id="preview-summary" aria-live="polite"></div>
               <div class="live-preview-list" id="live-preview-list"></div>
             </div>
-            <nav class="subscription-actions" id="subscription-actions" aria-label="Manage daily brief" hidden>
+            <nav class="subscription-actions" id="subscription-actions" aria-label="Manage rollup" hidden>
               <button class="button button-outline" id="manage-subscription" type="button">Refresh subscription status</button>
               <button class="button" id="start-checkout" type="button" hidden>Continue to founding checkout</button>
               <button class="button button-outline" id="manage-billing" type="button" hidden>Manage billing</button>
@@ -462,7 +482,7 @@
 
           <div class="setup-panel" data-step-panel="delivery" hidden>
             <p class="eyebrow">Setup 3 of 3</p>
-            <h1>When should your Daily Brief arrive?</h1>
+            <h1>When should your rollup arrive?</h1>
             <p class="setup-lede">The values below update a local sample. No schedule is created and no email is sent.</p>
             <div class="delivery-layout">
               <form id="delivery-form">
@@ -534,7 +554,7 @@
           </div>
           <aside class="order-summary">
             <p class="price-label">Plan summary</p>
-            <h2>Paperboy Daily Brief</h2>
+            <h2>Paperboy Rollup</h2>
             <p class="price"><span>$</span>5 <small>/ month</small></p>
             <p class="hypothesis">The founding price is $5/month after a card-required seven-day trial. The live flow repeats these terms before checkout.</p>
             <dl>
@@ -563,7 +583,7 @@
         <div class="account-title">
           <div>
             <p class="eyebrow">Local account state preview</p>
-            <h1>Your Daily Brief setup</h1>
+            <h1>Your Paperboy rollup setup</h1>
           </div>
           <span class="status-pill status-local">Local only</span>
         </div>
@@ -578,7 +598,7 @@
             <div class="account-card-heading">
               <div>
                 <p class="card-kicker">Subscription preview</p>
-                <h2>Paperboy Daily Brief</h2>
+                <h2>Paperboy Rollup</h2>
               </div>
               <span class="status-pill" id="billing-pill">Active preview</span>
             </div>
@@ -654,7 +674,7 @@
             <header class="email-header">
               <div class="email-brand-row">
                 <span class="email-brand">paperboy</span>
-                <span>Daily Brief</span>
+                <span>Paperboy Rollup</span>
               </div>
               <h1 id="email-brief-title">Changes worth checking for your repos.</h1>
               <p id="email-summary">Local sample · 3 items · 2 fixture repositories</p>

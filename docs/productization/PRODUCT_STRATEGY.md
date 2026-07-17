@@ -4,13 +4,13 @@
 
 **Active offer:** Card-required seven-day trial, then **$5/month** until canceled.
 
-**Product:** Working hosted self-serve daily brief at `https://newpaperboy.com/`.
+**Product:** Working hosted self-serve daily or weekly rollup at `https://newpaperboy.com/`.
 
 **Acquisition option:** Keep the self-hosted/open-source project free.
 
 ## Product truth
 
-Paperboy lets a user choose up to six public RSS or Atom feeds, describe what matters and what to ignore, confirm their email, and receive an automatically ranked and deduplicated daily brief. The live product includes feed validation, bounded scans, secure management links, scheduled email delivery, unsubscribe handling, Stripe Checkout/portal/webhook code, privacy, terms, and consent-based analytics.
+Paperboy lets a user choose up to six public RSS or Atom feeds, describe what matters and what to ignore, select daily or weekly delivery, confirm their email, and receive an automatically ranked and deduplicated rollup. The live product includes feed validation, bounded scans, secure management links, scheduled email delivery, unsubscribe handling, Stripe Checkout/portal/webhook code, privacy, terms, and consent-based analytics.
 
 Paperboy does not connect to Gmail or read an inbox. It is self-serve and does not include installation, research, or consulting labor.
 
@@ -31,7 +31,7 @@ The user controls the source list and relevance instructions. Paperboy produces 
 | Plan | Price | Purpose |
 |---|---:|---|
 | Paperboy OSS | Free | Acquisition, trust, and a buyer-managed self-hosted path |
-| Paperboy hosted | Seven-day card-required trial, then `$5/month` | Primary commercial offer with automatic daily delivery and self-service management |
+| Paperboy hosted | Seven-day card-required trial, then `$5/month` | Primary commercial offer with automatic daily or weekly delivery and self-service management |
 
 Do not create a one-time Starter Pack or a managed setup offer. Do not publish a separate Affiliate Factory page over the working application.
 
@@ -42,7 +42,7 @@ Do not create a one-time Starter Pack or a managed setup offer. Do not publish a
 3. Paperboy validates the public feeds and shows a ranked first cut.
 4. Visitor explicitly confirms through the emailed double-opt-in link.
 5. Verified user starts Stripe-hosted checkout and the seven-day trial.
-6. A successful webhook activates scheduled daily delivery.
+6. A successful webhook activates the selected scheduled delivery.
 7. Management, billing portal, unsubscribe, and suppression flows retain user control.
 
 ## Measurement

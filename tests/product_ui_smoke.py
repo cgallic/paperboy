@@ -31,6 +31,9 @@ def main() -> None:
         "focus": "API pricing and QA validation",
         "ignore": ["funding gossip"],
         "timezone": "America/New_York",
+        "cadence": "weekly",
+        "weekly_day": 4,
+        "delivery": "Weekly · Friday at 8:00 AM · America/New_York",
         "created_at": "2026-07-16T12:00:00Z",
         "last_sent_at": None,
         "next_delivery_at": None,
@@ -49,9 +52,7 @@ def main() -> None:
         page = context.new_page()
         page.on(
             "console",
-            lambda message: console_errors.append(message.text)
-            if message.type == "error"
-            else None,
+            lambda message: console_errors.append(message.text) if message.type == "error" else None,
         )
         page.on("pageerror", lambda error: console_errors.append(str(error)))
 
@@ -71,6 +72,8 @@ def main() -> None:
                         "ok": True,
                         "status": "pending_verification",
                         "confirmation_queued": True,
+                        "cadence": "weekly",
+                        "weekly_day": 4,
                         "manage_url": "/?manage=smoke-manage",
                         "status_url": "/api/firehose/subscriptions/smoke-manage",
                         "preview": {
@@ -101,6 +104,9 @@ def main() -> None:
                         "manage_url": "/?manage=smoke-manage",
                         "status_url": "/api/firehose/subscriptions/smoke-manage",
                         "unsubscribe_url": "/api/firehose/subscriptions/smoke-manage/unsubscribe",
+                        "cadence": "weekly",
+                        "weekly_day": 4,
+                        "delivery": "Weekly · Friday at 8:00 AM · America/New_York",
                     },
                 )
                 return
@@ -176,11 +182,14 @@ def main() -> None:
         page.screenshot(path=str(LANDING_SCREENSHOT))
 
         page.get_by_role("button", name="Allow product analytics").click()
-        page.get_by_role("button", name="Start my daily brief").first.click()
+        page.get_by_role("button", name="Start my rollup").first.click()
         page.get_by_label("Email address").fill("paperboy-smoke@example.invalid")
         page.get_by_label("Public RSS or Atom feed URLs").fill("https://news.ycombinator.com/rss")
         page.get_by_label("What should make an item relevant?").fill("API pricing and QA validation")
         page.get_by_label("What should Paperboy ignore?").fill("funding gossip")
+        page.get_by_label("Rollup frequency").select_option("weekly")
+        assert page.get_by_label("Weekly delivery day").is_visible()
+        page.get_by_label("Weekly delivery day").select_option("4")
         timezone = page.get_by_label("Your time zone").input_value()
         assert timezone
         page.get_by_label("I agree to receive the Paperboy brief and service emails.").check()
@@ -193,6 +202,8 @@ def main() -> None:
 
         assert len(subscription_payloads) == 1
         assert subscription_payloads[0]["timezone"] == timezone
+        assert subscription_payloads[0]["cadence"] == "weekly"
+        assert subscription_payloads[0]["weekly_day"] == 4
         assert subscription_payloads[0]["consent"] is True
         assert subscription_payloads[0]["utm_source"] == "smoke"
         assert unexpected_leads == []
@@ -221,7 +232,8 @@ def main() -> None:
             }
         )
         page.goto("http://newpaperboy.com:8123/?billing=success", wait_until="networkidle")
-        page.get_by_role("heading", name="Your daily brief is active.").wait_for()
+        page.get_by_role("heading", name="Your weekly rollup is active.").wait_for()
+        assert page.get_by_text("Weekly · Friday at 8:00 AM · America/New_York", exact=True).is_visible()
         assert status_requests
         assert page.get_by_text("7-day trial", exact=True).is_visible()
         page.wait_for_timeout(200)
@@ -235,6 +247,11 @@ def main() -> None:
             "purchase",
         ):
             assert expected in event_names
+        subscription_event = next(
+            payload for payload in analytics_payloads if payload["event"] == "subscription_requested"
+        )
+        assert subscription_event["properties"]["cadence"] == "weekly"
+        assert subscription_event["properties"]["weekly_day"] == 4
         serialized_analytics = json.dumps(analytics_payloads)
         assert "paperboy-smoke@example.invalid" not in serialized_analytics
         assert "smoke-manage" not in serialized_analytics
@@ -242,7 +259,7 @@ def main() -> None:
 
         page.get_by_role("button", name="Unsubscribe", exact=True).click()
         page.locator("#confirm-dialog").get_by_role("button", name="Unsubscribe").click()
-        page.get_by_role("heading", name="This daily brief is unsubscribed.").wait_for()
+        page.get_by_role("heading", name="This weekly rollup is unsubscribed.").wait_for()
         assert len(unsubscribe_requests) == 1
         page.screenshot(path=str(SCREENSHOT), full_page=True)
 
@@ -258,7 +275,7 @@ def main() -> None:
         subscribe_failure["enabled"] = True
         failure = context.new_page()
         failure.goto("http://newpaperboy.com:8123/", wait_until="networkidle")
-        failure.get_by_role("button", name="Start my daily brief").first.click()
+        failure.get_by_role("button", name="Start my rollup").first.click()
         failure.get_by_label("Email address").fill("paperboy-failure@example.invalid")
         failure.get_by_label("Public RSS or Atom feed URLs").fill("https://news.ycombinator.com/rss")
         failure.get_by_label("What should make an item relevant?").fill("API pricing")
@@ -271,7 +288,7 @@ def main() -> None:
         mobile.set_viewport_size({"width": 390, "height": 844})
         mobile.goto("http://newpaperboy.com:8123/", wait_until="networkidle")
         mobile.get_by_role("button", name="Toggle navigation").click()
-        assert mobile.locator("#mobile-nav").get_by_role("button", name="Start my daily brief", exact=True).is_visible()
+        assert mobile.locator("#mobile-nav").get_by_role("button", name="Start my rollup", exact=True).is_visible()
         assert mobile.evaluate("document.documentElement.scrollWidth <= document.documentElement.clientWidth")
 
         legal = context.new_page()

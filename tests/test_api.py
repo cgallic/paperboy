@@ -70,7 +70,7 @@ class APITests(unittest.TestCase):
             json={
                 "event": "begin_checkout",
                 "anonymous_id": "pb_1234567890abcdef",
-                "properties": {"currency": "USD", "value": 5},
+                "properties": {"currency": "USD", "value": 5, "cadence": "weekly", "weekly_day": 4},
             },
         )
         self.assertEqual(accepted.status_code, 204)
@@ -107,9 +107,7 @@ class APITests(unittest.TestCase):
             "--paperboy\r\nContent-Type: message/delivery-status\r\n\r\n"
             "Action: failed\r\nStatus: 5.1.1\r\n\r\n--paperboy--\r\n"
         )
-        response = self.client.post(
-            "/api/email/bounce", content=report, headers={"Content-Type": "message/rfc822"}
-        )
+        response = self.client.post("/api/email/bounce", content=report, headers={"Content-Type": "message/rfc822"})
         self.assertEqual(response.status_code, 204)
         updated = get_subscription_by_id(confirmed["id"])
         assert updated is not None
