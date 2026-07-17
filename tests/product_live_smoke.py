@@ -30,12 +30,12 @@ def main() -> None:
         )
         page.on("pageerror", lambda error: console_errors.append(str(error)))
         response = page.goto(
-            "https://paperboy.kaibuilds.com/?utm_source=deploy_smoke&utm_campaign=paperboy_kaibuilds_launch",
+            "https://newpaperboy.com/?utm_source=deploy_smoke&utm_campaign=paperboy_launch",
             wait_until="networkidle",
         )
         assert response is not None and response.ok
         assert page.title() == "Paperboy — Your Own Filtered Firehose"
-        assert page.locator('link[rel="canonical"]').get_attribute("href") == "https://paperboy.kaibuilds.com/"
+        assert page.locator('link[rel="canonical"]').get_attribute("href") == "https://newpaperboy.com/"
         assert page.locator(".trust-line").get_by_text("No Gmail access", exact=True).is_visible()
         assert page.get_by_role("button", name="Start my daily brief").first.is_visible()
         assert page.get_by_role("link", name="Privacy").is_visible()
@@ -56,16 +56,16 @@ def main() -> None:
             assert page.locator("#start-checkout").is_hidden()
 
         mobile = browser.new_page(viewport={"width": 390, "height": 844})
-        mobile.goto("https://paperboy.kaibuilds.com/", wait_until="networkidle")
+        mobile.goto("https://newpaperboy.com/", wait_until="networkidle")
         mobile.get_by_role("button", name="Toggle navigation").click()
         assert mobile.locator("#mobile-nav").get_by_role("button", name="Start my daily brief", exact=True).is_visible()
         assert mobile.evaluate("document.documentElement.scrollWidth <= document.documentElement.clientWidth")
 
         legal = browser.new_page(viewport={"width": 900, "height": 800})
-        privacy = legal.goto("https://paperboy.kaibuilds.com/privacy/", wait_until="networkidle")
+        privacy = legal.goto("https://newpaperboy.com/privacy/", wait_until="networkidle")
         assert privacy is not None and privacy.ok
         assert legal.get_by_role("heading", name="What Paperboy collects").is_visible()
-        terms = legal.goto("https://paperboy.kaibuilds.com/terms/", wait_until="networkidle")
+        terms = legal.goto("https://newpaperboy.com/terms/", wait_until="networkidle")
         assert terms is not None and terms.ok
         assert legal.get_by_role("heading", name="Trial and billing").is_visible()
         browser.close()

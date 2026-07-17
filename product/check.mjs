@@ -18,7 +18,7 @@ function requireText(source, text, label) {
   ["Hacker News", "Hacker News source"],
   ["Any public RSS or Atom feed", "open feed boundary"],
   ["Try your filtered firehose for seven days.", "trial offer"],
-  ["$</span>49", "$49 founding price"],
+  ["$</span>5", "$5 founding price"],
   ["Card required for the seven-day trial", "card-required trial disclosure"],
   ["Stripe-hosted checkout", "hosted checkout boundary"]
 ].forEach(([text, label]) => requireText(html, text, label));
@@ -33,7 +33,7 @@ function requireText(source, text, label) {
 ].forEach(([text, label]) => requireText(js, text, label));
 
 [
-  ["https://paperboy.kaibuilds.com/", "canonical KaiBuilds URL"],
+  ["https://newpaperboy.com/", "canonical product URL"],
   ["Build your firehose. Read only what matters.", "cold-traffic promise"],
   ["Try your filtered firehose for seven days.", "card-required trial offer"],
   ["Start my daily brief", "single subscription CTA"]
@@ -107,7 +107,7 @@ if (js.includes('/api/firehose/preview')) {
 [
   [privacy, "What Paperboy collects", "privacy data disclosure"],
   [privacy, "does not connect to Gmail", "privacy inbox boundary"],
-  [terms, "card-required seven-day trial followed by $49 per month", "terms billing disclosure"],
+  [terms, "card-required seven-day trial followed by $5 per month", "terms billing disclosure"],
   [terms, "as-available basis", "terms availability boundary"]
 ].forEach(([source, text, label]) => requireText(source, text, label));
 

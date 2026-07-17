@@ -1,7 +1,7 @@
 # Paperboy Filtered Firehose — validation surface
 
 This self-contained product surface is deployed at
-`https://paperboy.kaibuilds.com/`.
+`https://newpaperboy.com/`.
 
 The primary flow is real, bounded product behavior:
 
@@ -27,7 +27,7 @@ checkout and only claims delivery is active when server billing status is
 
 The automatic subscription supports public RSS and Atom feeds. It does not
 connect to an inbox or auto-subscribe a user to email-only newsletters. The
-live commercial offer is a card-required seven-day trial, then $49/month until
+live commercial offer is a card-required seven-day trial, then $5/month until
 canceled. Card details remain on Stripe-hosted checkout. The existing
 setup/account/checkout routes remain clearly labeled fixture previews and are
 not linked from the primary live flow.

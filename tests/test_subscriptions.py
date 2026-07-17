@@ -246,7 +246,7 @@ class FirehoseDeliveryTests(SubscriptionTestCase):
         self.assertEqual(second, {"active": 1, "sent": 0, "failed": 0, "skipped": 1})
         self.assertEqual(len(sent), 1)
         self.assertEqual(sent[0][1]["to"], "reader@example.com")
-        self.assertIn("https://paperboy.kaibuilds.com/?manage=", sent[0][0][1])
+        self.assertIn("https://newpaperboy.com/?manage=", sent[0][0][1])
         self.assertIn("/unsubscribe", sent[0][0][1])
         conn = connect()
         try:

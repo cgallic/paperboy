@@ -55,6 +55,7 @@ class APITests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertIn("version", data)
+        self.assertEqual(data["billing"]["monthly_price_cents"], 500)
         self.assertIn("fast_model", data)
         self.assertNotIn("smtp_pass", data)
         self.assertNotIn("discord_bot_token", data)
@@ -69,7 +70,7 @@ class APITests(unittest.TestCase):
             json={
                 "event": "begin_checkout",
                 "anonymous_id": "pb_1234567890abcdef",
-                "properties": {"currency": "USD", "value": 49},
+                "properties": {"currency": "USD", "value": 5},
             },
         )
         self.assertEqual(accepted.status_code, 204)

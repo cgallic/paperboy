@@ -62,7 +62,7 @@ def _claim_delivery(
         if row is None:
             message_id = make_msgid(
                 idstring=f"firehose-{subscription_id}-{delivery_date}",
-                domain="paperboy.kaibuilds.com",
+                domain="newpaperboy.com",
             )
             cursor = conn.execute(
                 """
@@ -93,7 +93,7 @@ def _claim_delivery(
         attempts += 1
         message_id = str(row["message_id"] or "") or make_msgid(
             idstring=f"firehose-{subscription_id}-{delivery_date}",
-            domain="paperboy.kaibuilds.com",
+            domain="newpaperboy.com",
         )
         conn.execute(
             """

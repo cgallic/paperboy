@@ -445,7 +445,7 @@
     var paymentLabels = {
       unpaid: "Checkout required",
       trialing: "7-day trial",
-      active: "$49/month",
+      active: "$5/month",
       past_due: "Payment past due",
       canceled: "Canceled"
     };
@@ -503,7 +503,7 @@
       : billingStatus === "past_due" ? "Delivery is paused until payment is updated. No new charge was attempted from this page."
         : billingStatus === "canceled" ? "Delivery is off. Your filter remains saved, and you can start a new hosted checkout when ready."
       : isDelivering ? "Paperboy will refresh the sources and deliver the strongest matches automatically."
-        : isVerified ? "Your filter is saved. Start the hosted seven-day trial checkout; then it is $49 per month until canceled."
+        : isVerified ? "Your filter is saved. Start the hosted seven-day trial checkout; then it is $5 per month until canceled."
           : "Paperboy saved the filter and sent a confirmation link. Nothing will be delivered until you confirm the address.";
     document.getElementById("unsubscribe-subscription").hidden = isUnsubscribed || !activeUnsubscribeUrl;
     document.getElementById("start-checkout").hidden = !canCheckout || !activeManagementToken || result.checkout_available === false;
@@ -520,7 +520,7 @@
       trackLifecycleOnce("purchase", "purchase", {
         billing_status: billingStatus,
         currency: details.currency || result.currency || "USD",
-        value: Number(details.value || result.value || 49),
+        value: Number(details.value || result.value || 5),
         transaction_id: details.transaction_id || result.transaction_id
       });
     }
@@ -1065,7 +1065,7 @@
     button.disabled = true;
     button.textContent = "Opening secure checkout…";
     fallback.hidden = true;
-    trackProductEvent("begin_checkout", { currency: "USD", value: 49 });
+    trackProductEvent("begin_checkout", { currency: "USD", value: 5 });
     try {
       var response = await fetch("/api/billing/checkout", {
         method: "POST",

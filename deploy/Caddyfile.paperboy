@@ -1,4 +1,4 @@
-paperboy.kaibuilds.com {
+newpaperboy.com, paperboy.kaibuilds.com {
 	tls {
 		on_demand
 	}
@@ -18,4 +18,8 @@ paperboy.kaibuilds.com {
 		try_files {path} {path}.html {path}/index.html
 		file_server
 	}
+}
+
+www.newpaperboy.com {
+	redir https://newpaperboy.com{uri} permanent
 }

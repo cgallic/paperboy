@@ -5,7 +5,7 @@
 - **Target audience:** Technical founders and hands-on product/engineering leads
 - **Traffic source:** Cold paid traffic
 - **Goal:** Activate an automatic daily brief from public feeds
-- **Offer after value:** Card-required seven-day trial; then $49/month until canceled
+- **Offer after value:** Card-required seven-day trial; then $5/month until canceled
 - **Evidence tier:** Live bounded RSS/Atom filtering, double opt-in, hosted checkout, scheduled delivery, and self-service unsubscribe; pre-PMF demand hypothesis
 
 ## Wireframe
@@ -14,7 +14,7 @@
 2. Example: show one ranked item with its relevance explanation and original source
 3. How it works: sources, relevance, free preview, email confirmation, checkout, then daily delivery
 4. Automatic-setup boundary: public feeds only; no Gmail or human concierge step
-5. Pricing: disclose the card-required seven-day trial and $49/month renewal
+5. Pricing: disclose the card-required seven-day trial and $5/month renewal
 6. FAQ: source support, newsletter limits, automation, and delivery status
 7. Final CTA: repeat the automatic filter action
 
@@ -56,7 +56,7 @@ The live setup works from public RSS and Atom feeds. It does not connect to Gmai
 
 **Headline:** Try your filtered firehose for seven days.
 
-Preview your actual public feeds before checkout. Confirm your email, then start a card-required seven-day trial. Billing continues at $49/month until canceled.
+Preview your actual public feeds before checkout. Confirm your email, then start a card-required seven-day trial. Billing continues at $5/month until canceled.
 
 ### Final CTA
 

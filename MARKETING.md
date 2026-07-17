@@ -7,7 +7,7 @@
 - **Name:** Paperboy
 - **One-liner:** Paperboy turns a user-built firehose of public feeds into a short, source-linked brief ranked around what matters to them.
 - **Category:** Personal relevance filter
-- **URL:** https://paperboy.kaibuilds.com/
+- **URL:** https://newpaperboy.com/
 
 ## ICP (Ideal Customer Profile)
 
@@ -16,7 +16,7 @@
 - **Title/Role:** Technical founder or hands-on product/engineering operator
 - **Company size:** 1–20 people
 - **Industry:** AI, developer tools, and technical SaaS
-- **Budget authority:** Usually direct for a $49/month tool; hypothesis, not buyer-validated
+- **Budget authority:** Usually direct for a $5/month tool; hypothesis, not buyer-validated
 - **Trigger event:** Missing an API, pricing, dependency, or market change that affects active work
 - **Current solution:** Newsletters, RSS, GitHub notifications, bookmarks, and manual LLM summaries
 - **Pain severity:** Unknown; validate with preview-to-trial conversion and interviews
@@ -60,7 +60,7 @@
 ### User Segments
 
 - **Trial subscriber:** Chooses public RSS/Atom feeds and a relevance filter, confirms the email, and starts a card-required seven-day trial.
-- **Paid subscriber:** Keeps reading after the trial at the $49/month founding price.
+- **Paid subscriber:** Keeps reading after the trial at the $5/month founding price.
 
 ## Value Prop
 
@@ -72,7 +72,7 @@
 ## Business Model
 
 - **Monetization:** Card-required seven-day trial followed by a recurring subscription
-- **Pricing:** $49/month after the trial until canceled
+- **Pricing:** $5/month after the trial until canceled
 - **Stage:** Pre-PMF validation; the product measures preview, verification, checkout, paid activation, and retention as separate stages
 
 ## Current Marketing

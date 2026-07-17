@@ -41,7 +41,7 @@ def main() -> None:
         browser = playwright.chromium.launch(
             headless=True,
             args=[
-                "--host-resolver-rules=MAP paperboy.kaibuilds.com 127.0.0.1",
+                "--host-resolver-rules=MAP newpaperboy.com 127.0.0.1",
                 "--no-proxy-server",
             ],
         )
@@ -154,7 +154,7 @@ def main() -> None:
             else:
                 route.fulfill(status=404, body="Not found")
 
-        context.route("http://paperboy.kaibuilds.com:8123/**", serve_product)
+        context.route("http://newpaperboy.com:8123/**", serve_product)
         context.route(
             "https://checkout.stripe.com/**",
             lambda route: route.fulfill(
@@ -165,7 +165,7 @@ def main() -> None:
         )
 
         page.goto(
-            "http://paperboy.kaibuilds.com:8123/?utm_source=smoke&utm_campaign=paperboy_launch",
+            "http://newpaperboy.com:8123/?utm_source=smoke&utm_campaign=paperboy_launch",
             wait_until="networkidle",
         )
         assert page.title() == "Paperboy — Your Own Filtered Firehose", repr(page.title())
@@ -197,7 +197,7 @@ def main() -> None:
         assert subscription_payloads[0]["utm_source"] == "smoke"
         assert unexpected_leads == []
 
-        page.goto("http://paperboy.kaibuilds.com:8123/?confirm=verify-smoke", wait_until="networkidle")
+        page.goto("http://newpaperboy.com:8123/?confirm=verify-smoke", wait_until="networkidle")
         page.get_by_role("heading", name="Verify your email to continue.").wait_for()
         assert confirmation_requests == []
         page.get_by_role("button", name="Confirm my email").click()
@@ -217,10 +217,10 @@ def main() -> None:
                 "next_delivery_at": "2026-07-17T07:30:00-04:00",
                 "transaction_id": "cs_smoke_123",
                 "currency": "USD",
-                "value": 49,
+                "value": 5,
             }
         )
-        page.goto("http://paperboy.kaibuilds.com:8123/?billing=success", wait_until="networkidle")
+        page.goto("http://newpaperboy.com:8123/?billing=success", wait_until="networkidle")
         page.get_by_role("heading", name="Your daily brief is active.").wait_for()
         assert status_requests
         assert page.get_by_text("7-day trial", exact=True).is_visible()
@@ -249,7 +249,7 @@ def main() -> None:
         checkout_failure["enabled"] = True
         status_payload.update({"billing_status": "unpaid", "transaction_id": None})
         unavailable = context.new_page()
-        unavailable.goto("http://paperboy.kaibuilds.com:8123/?manage=smoke-manage", wait_until="networkidle")
+        unavailable.goto("http://newpaperboy.com:8123/?manage=smoke-manage", wait_until="networkidle")
         unavailable.get_by_role("heading", name="Email verified. Finish checkout to start delivery.").wait_for()
         unavailable.get_by_role("button", name="Continue to founding checkout").click()
         unavailable.get_by_text("Checkout is temporarily unavailable.", exact=False).wait_for()
@@ -257,7 +257,7 @@ def main() -> None:
 
         subscribe_failure["enabled"] = True
         failure = context.new_page()
-        failure.goto("http://paperboy.kaibuilds.com:8123/", wait_until="networkidle")
+        failure.goto("http://newpaperboy.com:8123/", wait_until="networkidle")
         failure.get_by_role("button", name="Start my daily brief").first.click()
         failure.get_by_label("Email address").fill("paperboy-failure@example.invalid")
         failure.get_by_label("Public RSS or Atom feed URLs").fill("https://news.ycombinator.com/rss")
@@ -269,16 +269,16 @@ def main() -> None:
 
         mobile = context.new_page()
         mobile.set_viewport_size({"width": 390, "height": 844})
-        mobile.goto("http://paperboy.kaibuilds.com:8123/", wait_until="networkidle")
+        mobile.goto("http://newpaperboy.com:8123/", wait_until="networkidle")
         mobile.get_by_role("button", name="Toggle navigation").click()
         assert mobile.locator("#mobile-nav").get_by_role("button", name="Start my daily brief", exact=True).is_visible()
         assert mobile.evaluate("document.documentElement.scrollWidth <= document.documentElement.clientWidth")
 
         legal = context.new_page()
-        legal.goto("http://paperboy.kaibuilds.com:8123/privacy/", wait_until="networkidle")
+        legal.goto("http://newpaperboy.com:8123/privacy/", wait_until="networkidle")
         assert legal.title() == "Privacy — Paperboy"
         assert legal.get_by_role("heading", name="What Paperboy collects").is_visible()
-        legal.goto("http://paperboy.kaibuilds.com:8123/terms/", wait_until="networkidle")
+        legal.goto("http://newpaperboy.com:8123/terms/", wait_until="networkidle")
         assert legal.title() == "Terms — Paperboy"
         assert legal.get_by_role("heading", name="Trial and billing").is_visible()
 

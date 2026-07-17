@@ -117,7 +117,7 @@ def _forward_verified_lead(subscription: dict) -> bool:
         "source": "paperboy_email_verified",
         "page": settings.public_url,
         "offer": "7-day trial",
-        "price": "$49/month",
+        "price": "$5/month",
         **{
             key: value
             for key, value in attribution.items()
