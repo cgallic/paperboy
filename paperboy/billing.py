@@ -49,6 +49,9 @@ def create_checkout(subscription: dict[str, Any]) -> str:
     billing_status = str(subscription.get("billing_status") or "unpaid")
     if billing_status in {"trialing", "active", "past_due"}:
         raise BillingStateError("manage the existing billing account instead")
+    price_id = settings.stripe_price_id
+    if not price_id:
+        raise BillingUnavailableError("checkout is temporarily unavailable")
 
     metadata = {"paperboy_subscription_id": str(subscription["id"])}
     customer_args: dict[str, Any]
@@ -59,7 +62,7 @@ def create_checkout(subscription: dict[str, Any]) -> str:
     session = stripe.checkout.Session.create(
         **customer_args,
         mode="subscription",
-        line_items=[{"price": settings.stripe_price_id, "quantity": 1}],
+        line_items=[{"price": price_id, "quantity": 1}],
         payment_method_collection="always",
         client_reference_id=str(subscription["id"]),
         metadata=metadata,

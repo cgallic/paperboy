@@ -44,7 +44,7 @@ def _sources_path() -> Path:
 
 def _load_sources() -> dict[str, list[str]]:
     try:
-        import yaml
+        import yaml  # type: ignore[import-untyped]
     except ImportError:
         print("[news_opinion] PyYAML not installed; run: pip install pyyaml", file=sys.stderr)
         return {}
@@ -53,7 +53,14 @@ def _load_sources() -> dict[str, list[str]]:
         print(f"[news_opinion] no sources file at {path}", file=sys.stderr)
         return {}
     with path.open(encoding="utf-8") as f:
-        return yaml.safe_load(f) or {}
+        loaded = yaml.safe_load(f) or {}
+    if not isinstance(loaded, dict):
+        return {}
+    return {
+        str(vertical): [str(url) for url in urls if isinstance(url, str)]
+        for vertical, urls in loaded.items()
+        if isinstance(urls, list)
+    }
 
 
 def _fetch_feed(url: str) -> list[dict]:
@@ -118,10 +125,13 @@ def _ollama_json(prompt: str) -> dict:
     )
     with urllib.request.urlopen(req, timeout=60) as resp:
         out = json.loads(resp.read())
+    if not isinstance(out, dict):
+        return {}
     try:
-        return json.loads(out.get("response", "{}"))
+        result = json.loads(out.get("response", "{}"))
     except json.JSONDecodeError:
         return {}
+    return result if isinstance(result, dict) else {}
 
 
 def llm_draft_prompt(vertical: str, item: dict) -> dict:

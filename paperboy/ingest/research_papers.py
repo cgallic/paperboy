@@ -27,6 +27,7 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 from xml.etree import ElementTree
 
 from paperboy.db import connect
@@ -171,7 +172,7 @@ def fetch_arxiv(cfg: dict, ua: str, timeout: int, verbose: bool) -> list[dict]:
     except ElementTree.ParseError as e:
         print(f"[arxiv] XML parse error: {e}", file=sys.stderr)
         return []
-    papers = []
+    papers: list[dict] = []
     for entry in root.findall(f"{ATOM_NS}entry"):
         id_text = (entry.findtext(f"{ATOM_NS}id") or "").strip()
         arxiv_id = canonicalize_arxiv_id(id_text)
@@ -222,7 +223,7 @@ def fetch_hf_papers(cfg: dict, ua: str, timeout: int, verbose: bool) -> list[dic
     except json.JSONDecodeError as e:
         print(f"[hf] JSON parse error: {e}", file=sys.stderr)
         return []
-    papers = []
+    papers: list[dict] = []
     max_n = int(cfg.get("max_per_run", 50))
     for item in (data if isinstance(data, list) else [])[:max_n]:
         paper = item.get("paper") if isinstance(item, dict) else None
@@ -261,7 +262,7 @@ def fetch_semantic_scholar(cfg: dict, ua: str, timeout: int, verbose: bool) -> l
     max_total = int(cfg.get("max_per_run", 120))
     queries = cfg.get("topic_queries", [])
     sleep_s = float(cfg.get("inter_request_sleep_sec", 1.5))
-    papers = []
+    papers: list[dict] = []
     for q in queries:
         if len(papers) >= max_total:
             break
@@ -342,7 +343,7 @@ def dedup_and_merge(raw_papers: list[dict]) -> dict[str, dict]:
 
 # ---------------------------------------------------------------------------
 
-def main():
+def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", default="all",
                     choices=["all", "arxiv", "hf", "s2"])
@@ -392,7 +393,7 @@ def main():
     existing = load_existing_actors()
     existing_payloads = load_existing_payloads(existing & set(merged.keys()))
 
-    stats = {
+    stats: dict[str, Any] = {
         "raw_total": len(raw_papers), "unique_total": len(merged),
         "new_ingested": 0, "updated_feed_list": 0, "skipped_existing": 0,
         "errors": 0, "would_ingest": 0, "per_feed_counts": per_feed_counts,

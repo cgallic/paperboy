@@ -56,7 +56,7 @@ def write_prompt_event(
             (actor,),
         ).fetchone()
         if existing:
-            return existing[0]
+            return int(existing[0])
         now = _now_iso()
         cur = conn.execute(
             "INSERT INTO events (ts, source, type, actor, payload_json, ingested_at) "
@@ -64,13 +64,15 @@ def write_prompt_event(
             (now, kind, actor, payload, now),
         )
         eid = cur.lastrowid
+        if eid is None:
+            raise RuntimeError("event insert did not return an id")
         tags = {f"stream:{stream}", *extra_tags}
         conn.executemany(
             "INSERT OR IGNORE INTO event_tags (event_id, tag) VALUES (?, ?)",
             [(eid, t) for t in tags],
         )
         conn.commit()
-        return eid
+        return int(eid)
     finally:
         conn.close()
 
@@ -85,7 +87,7 @@ def recent_actors_by_stream(stream: str, days: int = 14) -> list[str]:
             "WHERE source='pattern-scan' AND actor LIKE ? AND ts >= ?",
             (f"{stream}:%", cutoff),
         ).fetchall()
-        return [r[0] for r in rows]
+        return [str(r[0]) for r in rows]
     finally:
         conn.close()
 
@@ -112,7 +114,7 @@ def write_event(
                 (source, event_type, actor),
             ).fetchone()
             if existing:
-                return existing[0]
+                return int(existing[0])
         now = _now_iso()
         cur = conn.execute(
             "INSERT INTO events (ts, source, type, actor, payload_json, ingested_at) "
@@ -120,13 +122,15 @@ def write_event(
             (ts, source, event_type, actor, json.dumps(payload, ensure_ascii=False), now),
         )
         eid = cur.lastrowid
+        if eid is None:
+            raise RuntimeError("event insert did not return an id")
         if tags:
             conn.executemany(
                 "INSERT OR IGNORE INTO event_tags (event_id, tag) VALUES (?, ?)",
                 [(eid, t) for t in tags],
             )
         conn.commit()
-        return eid
+        return int(eid)
     finally:
         conn.close()
 

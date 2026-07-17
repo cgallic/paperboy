@@ -97,7 +97,7 @@ def batch_into_messages(lines: list[str], header: str) -> list[str]:
     return messages
 
 
-def main():
+def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--top", type=int, default=0)
     ap.add_argument("--min-relevance", type=int, default=5)

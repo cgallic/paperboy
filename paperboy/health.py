@@ -12,6 +12,7 @@ import sqlite3
 import time
 import urllib.error
 import urllib.request
+from collections.abc import Callable
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -122,7 +123,7 @@ def check_backup_recency(max_age_hours: int = 48) -> tuple[bool, str]:
 
 def run_all() -> dict[str, dict]:
     """Run every probe and return a structured report."""
-    probes = {
+    probes: dict[str, Callable[[], tuple[bool, str]]] = {
         "database": check_database,
         "ollama": check_ollama,
         "disk": check_disk,
