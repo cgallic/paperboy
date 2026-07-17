@@ -13,7 +13,8 @@ Schedule (UTC):
   11:10  today-briefing
   11:15  prompt-digest
   12:00  research-digest
-  every 5 minutes  confirmation queue + due 08:00-local firehose delivery
+  every minute     confirmation queue
+  every 5 minutes  due 08:00-local firehose delivery + lifecycle attribution
 """
 from __future__ import annotations
 
@@ -229,7 +230,7 @@ JOBS = [
 JOB_ARGS = {"paperboy.privacy": ("purge",)}
 
 INTERVAL_JOBS = [
-    ("paperboy.confirmation_delivery", 5),
+    ("paperboy.confirmation_delivery", 1),
     ("paperboy.firehose_delivery", 5),
     ("paperboy.lifecycle_delivery", 5),
 ]

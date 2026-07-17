@@ -585,7 +585,7 @@ class BillingPrimitiveTests(ReliabilityTestCase):
         self.assertEqual(caught.exception.code, 1)
 
     def test_scheduler_runs_confirmation_and_due_delivery_frequently(self) -> None:
-        self.assertIn(("paperboy.confirmation_delivery", 5), INTERVAL_JOBS)
+        self.assertIn(("paperboy.confirmation_delivery", 1), INTERVAL_JOBS)
         self.assertIn(("paperboy.firehose_delivery", 5), INTERVAL_JOBS)
 
 
