@@ -100,7 +100,7 @@ class APITests(unittest.TestCase):
         assert confirmed is not None
         address = bounce_address(confirmed)
         report = (
-            f"Delivered-To: {address}\r\n"
+            f"To: {address}\r\n"
             "Content-Type: multipart/report; boundary=paperboy\r\n\r\n"
             "--paperboy\r\nContent-Type: text/plain\r\n\r\nDelivery failed.\r\n"
             "--paperboy\r\nContent-Type: message/delivery-status\r\n\r\n"
