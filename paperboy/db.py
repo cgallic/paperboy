@@ -17,6 +17,7 @@ Two env vars control where the DB lives:
 For backwards compatibility with the source codebase, BRAIN_ROOT / BRAIN_DB
 are honored if PAPERBOY_* are unset.
 """
+
 from __future__ import annotations
 
 import os
@@ -84,6 +85,8 @@ CREATE TABLE IF NOT EXISTS firehose_subscriptions (
     token_nonce      TEXT    NOT NULL UNIQUE,
     active           INTEGER NOT NULL DEFAULT 0,
     timezone         TEXT    NOT NULL DEFAULT 'UTC',
+    cadence          TEXT    NOT NULL DEFAULT 'daily',
+    weekly_day       INTEGER NOT NULL DEFAULT 0,
     verification_status TEXT NOT NULL DEFAULT 'pending',
     verification_token_hash TEXT,
     verification_token_nonce TEXT,
@@ -207,6 +210,8 @@ CREATE TABLE IF NOT EXISTS email_provider_events (
 _ADDITIVE_COLUMNS = {
     "firehose_subscriptions": {
         "timezone": "TEXT NOT NULL DEFAULT 'UTC'",
+        "cadence": "TEXT NOT NULL DEFAULT 'daily'",
+        "weekly_day": "INTEGER NOT NULL DEFAULT 0",
         "verification_status": "TEXT NOT NULL DEFAULT 'pending'",
         "verification_token_hash": "TEXT",
         "verification_token_nonce": "TEXT",

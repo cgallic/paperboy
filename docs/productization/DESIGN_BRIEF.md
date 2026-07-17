@@ -1,6 +1,8 @@
 # Paperboy Daily Intelligence Brief — product design brief
 
-Status: locked local implementation direction
+> **Historical design record:** The implemented `product/` surface and current product strategy are authoritative. Price references below are superseded; the active hosted offer is `$5/month` after a seven-day trial.
+
+Status: historical reference; not current launch authority
 Updated: 2026-07-16 after product and commercial pivots
 Authority: cgallic/paperboy plus the operator's current product decision
 

@@ -10,6 +10,7 @@ Serves:
 
 Static files from product/ are served at / so the landing page works.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -58,6 +59,7 @@ from paperboy.subscriptions import (
     claim_billing_webhook,
     confirm_subscription,
     create_subscription,
+    delivery_schedule_label,
     finish_billing_webhook,
     get_subscription,
     get_subscription_by_email,
@@ -74,6 +76,7 @@ from paperboy.subscriptions import (
 )
 
 logger = get_logger("api")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -285,6 +288,7 @@ async def log_requests(
 # API routes
 # ---------------------------------------------------------------------------
 
+
 @app.get("/api/health")
 async def health() -> JSONResponse:
     report = run_all()
@@ -363,7 +367,13 @@ _ANALYTICS_EVENTS = {
     "begin_checkout",
     "trial_started",
 }
-_ANALYTICS_PROPERTIES = {"source_count", "billing_status", "currency", "value"}
+_ANALYTICS_PROPERTIES = {
+    "source_count",
+    "cadence",
+    "weekly_day",
+    "billing_status",
+    "currency",
+}
 _ANONYMOUS_ID = re.compile(r"^[A-Za-z0-9_-]{16,80}$")
 
 
@@ -385,6 +395,13 @@ async def capture_analytics_event(request: Request) -> Response:
     for key, value in raw_properties.items():
         if isinstance(value, str | int | float | bool) and len(str(value)) <= 120:
             properties[key] = value
+    if "cadence" in properties and properties["cadence"] not in {"daily", "weekly"}:
+        raise HTTPException(status_code=422, detail="invalid analytics cadence")
+    weekly_day = properties.get("weekly_day")
+    if weekly_day is not None and (
+        isinstance(weekly_day, bool) or not isinstance(weekly_day, int) or not 0 <= weekly_day <= 6
+    ):
+        raise HTTPException(status_code=422, detail="invalid analytics weekly day")
     _append_product_event(
         "analytics_event",
         {"event": body["event"], "anonymous_id": anonymous_id, "properties": properties},
@@ -399,8 +416,7 @@ async def capture_hard_bounce(request: Request) -> Response:
     message = BytesParser(policy=policy.default).parsebytes(raw)
     report_text = raw.decode("utf-8", errors="replace")
     is_delivery_report = (
-        message.get_content_type() == "multipart/report"
-        or "message/delivery-status" in report_text.casefold()
+        message.get_content_type() == "multipart/report" or "message/delivery-status" in report_text.casefold()
     )
     is_hard_failure = bool(
         re.search(r"(?im)^Action:\s*failed\s*$", report_text)
@@ -573,10 +589,19 @@ async def preview_firehose(request: Request) -> JSONResponse:
 
 @app.post("/api/firehose/subscribe")
 async def subscribe_firehose(request: Request) -> JSONResponse:
-    """Preview a firehose, then persist it for automatic daily delivery."""
+    """Preview a firehose, then persist it for automatic daily or weekly delivery."""
     payload = await _read_json_body(request, MAX_REQUEST_BYTES)
     try:
-        email, sources, focus, ignore, attribution, timezone_name = validate_subscription_payload(payload)
+        (
+            email,
+            sources,
+            focus,
+            ignore,
+            attribution,
+            timezone_name,
+            cadence,
+            weekly_day,
+        ) = validate_subscription_payload(payload)
     except SubscriptionValidationError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
@@ -605,6 +630,8 @@ async def subscribe_firehose(request: Request) -> JSONResponse:
             ignore,
             attribution,
             timezone_name,
+            cadence,
+            weekly_day,
         )
     except SubscriptionSuppressedError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
@@ -620,6 +647,8 @@ async def subscribe_firehose(request: Request) -> JSONResponse:
             "status": "pending_verification",
             "preview": preview,
             "confirmation_queued": True,
+            "cadence": cadence,
+            "weekly_day": weekly_day,
         }
     )
 
@@ -638,7 +667,9 @@ async def firehose_subscription_status(token: str) -> JSONResponse:
     status = (
         "unsubscribed"
         if subscription["unsubscribed_at"] or subscription["suppressed"]
-        else "active" if subscription["verification_status"] == "verified" else "pending_verification"
+        else "active"
+        if subscription["verification_status"] == "verified"
+        else "pending_verification"
     )
     return JSONResponse(
         {
@@ -649,6 +680,9 @@ async def firehose_subscription_status(token: str) -> JSONResponse:
             "focus": subscription["focus"],
             "ignore": subscription["ignore"],
             "timezone": subscription["timezone"],
+            "cadence": subscription["cadence"],
+            "weekly_day": subscription["weekly_day"],
+            "delivery": delivery_schedule_label(subscription),
             "billing_status": subscription["billing_status"],
             "created_at": subscription["created_at"],
             "last_sent_at": subscription["last_sent_at"],
@@ -697,6 +731,9 @@ async def confirm_firehose_subscription(token: str) -> JSONResponse:
             "checkout_available": settings.billing_enabled,
             "portal_available": False,
             "timezone": subscription["timezone"],
+            "cadence": subscription["cadence"],
+            "weekly_day": subscription["weekly_day"],
+            "delivery": delivery_schedule_label(subscription),
             "sources": subscription["sources"],
             "focus": subscription["focus"],
             "ignore": subscription["ignore"],
@@ -807,9 +844,7 @@ async def stripe_webhook(request: Request) -> JSONResponse:
     return JSONResponse({"ok": True, "status": outcome})
 
 
-_PIXEL = bytes.fromhex(
-    "47494638396101000100800000ffffff00000021f90401000000002c00000000010001000002024401003b"
-)
+_PIXEL = bytes.fromhex("47494638396101000100800000ffffff00000021f90401000000002c00000000010001000002024401003b")
 
 
 @app.get("/api/t/o/{token}.gif")

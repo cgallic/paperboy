@@ -3,6 +3,7 @@ paperboy.kaibuilds.com {
 		on_demand
 	}
 	encode gzip
+	import /opt/paperboy/deploy/caddy-security-headers.caddy
 
 	@kaibuilds_capture path /api/lead /api/hit /api/stats /api/sites
 	handle @kaibuilds_capture {
@@ -18,4 +19,28 @@ paperboy.kaibuilds.com {
 		try_files {path} {path}.html {path}/index.html
 		file_server
 	}
+}
+
+newpaperboy.com {
+	encode gzip
+	import /opt/paperboy/deploy/caddy-security-headers.caddy
+
+	@kaibuilds_capture path /api/lead /api/hit /api/stats /api/sites
+	handle @kaibuilds_capture {
+		reverse_proxy 127.0.0.1:9120
+	}
+
+	handle /api/* {
+		reverse_proxy 127.0.0.1:9122
+	}
+
+	handle {
+		root * /var/www/kaibuilds/sites/paperboy
+		try_files {path} {path}.html {path}/index.html
+		file_server
+	}
+}
+
+www.newpaperboy.com {
+	redir https://newpaperboy.com{uri} permanent
 }

@@ -69,7 +69,7 @@ class PaperboyConfig(BaseSettings):
     resend_webhook_secret: str | None = None
 
     # Hosted firehose
-    public_url: str = "https://paperboy.kaibuilds.com"
+    public_url: str = "https://newpaperboy.com"
     manage_secret: str | None = None
     tracking_secret: str | None = None
     kaibuilds_capture_url: str | None = None
@@ -79,7 +79,7 @@ class PaperboyConfig(BaseSettings):
     stripe_webhook_secret: str | None = None
     stripe_price_id: str | None = None
     stripe_trial_days: int = Field(default=7, ge=0, le=90)
-    stripe_monthly_price_cents: int = Field(default=4900, ge=50)
+    stripe_monthly_price_cents: int = Field(default=500, ge=50)
     stripe_currency: str = "usd"
 
     # API

@@ -1210,7 +1210,7 @@
    "background_color": "rgb(17, 22, 28)",
    "chars_per_line": 113,
    "is_large_text": false,
-   "sample_text": "Planned founding price: $49/month. No card or payment is collected yet."
+   "sample_text": "Founding price: $5/month after a seven-day trial. Card details stay on Stripe-hosted checkout."
   },
   {
    "selector": "article.price-card > div > ul > li",

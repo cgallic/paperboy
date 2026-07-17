@@ -1,4 +1,5 @@
-"""Timezone-aware daily firehose delivery with bounded retries."""
+"""Timezone-aware scheduled firehose delivery with bounded retries."""
+
 from __future__ import annotations
 
 import html
@@ -46,9 +47,7 @@ class DeliveryClaim:
     message_id: str
 
 
-def _claim_delivery(
-    subscription_id: int, delivery_date: str, *, now: datetime | None = None
-) -> DeliveryClaim | None:
+def _claim_delivery(subscription_id: int, delivery_date: str, *, now: datetime | None = None) -> DeliveryClaim | None:
     """Claim a new/retry attempt without ever reclaiming a successful send."""
     init_schema()
     now_dt = _utc_now(now)
@@ -64,7 +63,7 @@ def _claim_delivery(
         if row is None:
             message_id = make_msgid(
                 idstring=f"firehose-{subscription_id}-{delivery_date}",
-                domain="paperboy.kaibuilds.com",
+                domain="newpaperboy.com",
             )
             cursor = conn.execute(
                 """
@@ -95,7 +94,7 @@ def _claim_delivery(
         attempts += 1
         message_id = str(row["message_id"] or "") or make_msgid(
             idstring=f"firehose-{subscription_id}-{delivery_date}",
-            domain="paperboy.kaibuilds.com",
+            domain="newpaperboy.com",
         )
         conn.execute(
             """
@@ -201,7 +200,8 @@ def _render_digest(
     base = settings.public_url.rstrip("/")
     manage_url = f"{base}{manage_path}"
     unsubscribe_url = f"{base}{unsubscribe_path}"
-    subject = f"Paperboy: {len(items)} signal{'s' if len(items) != 1 else ''} for {delivery_date}"
+    cadence = "weekly" if subscription.get("cadence") == "weekly" else "daily"
+    subject = f"Paperboy {cadence} rollup: {len(items)} signal{'s' if len(items) != 1 else ''} for {delivery_date}"
 
     analytics_consent = bool(subscription.get("attribution", {}).get("_analytics_consent"))
     tracked_items: list[tuple[dict[str, Any], str]] = []
@@ -218,13 +218,10 @@ def _render_digest(
         tracked_items.append((item, item_url))
     open_markup = ""
     if analytics_consent:
-        open_token = create_tracking_token(
-            int(subscription["id"]), "open", delivery_id=delivery_id
-        )
+        open_token = create_tracking_token(int(subscription["id"]), "open", delivery_id=delivery_id)
         open_url = f"{base}/api/t/o/{open_token}.gif"
         open_markup = (
-            f'<img src="{html.escape(open_url, quote=True)}" width="1" height="1" '
-            'alt="" style="display:none">'
+            f'<img src="{html.escape(open_url, quote=True)}" width="1" height="1" alt="" style="display:none">'
         )
 
     lines = [subject, "", f"Your focus: {subscription['focus']}", ""]
@@ -271,7 +268,7 @@ def run_daily_deliveries(
     preview_builder: Callable[[list[str], str, list[str]], dict[str, Any]] | None = None,
     sender: Callable[..., dict[str, Any]] | None = None,
 ) -> dict[str, int]:
-    """Deliver due 08:00-local editions with at most three failed attempts."""
+    """Deliver due daily or weekly 08:00-local editions with bounded retries."""
     now_dt = _utc_now(now)
     build_preview = preview_builder or build_firehose_preview
     send = sender or send_raw
@@ -311,9 +308,7 @@ def run_daily_deliveries(
             preview = {**preview, "items": [item for item, _fingerprint in fresh_pairs]}
             item_fingerprints = tuple(fingerprint for _item, fingerprint in fresh_pairs)
             item_count = len(preview["items"])
-            subject, text, body_html, unsubscribe_url = _render_digest(
-                subscription, preview, day, claim.delivery_id
-            )
+            subject, text, body_html, unsubscribe_url = _render_digest(subscription, preview, day, claim.delivery_id)
             result = send(
                 subject,
                 text,
@@ -343,9 +338,7 @@ def run_daily_deliveries(
         )
         summary[status] += 1
 
-    logger.info(
-        "firehose_delivery_complete", extra={"event": "firehose_delivery_complete", **summary}
-    )
+    logger.info("firehose_delivery_complete", extra={"event": "firehose_delivery_complete", **summary})
     return summary
 
 

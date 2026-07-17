@@ -107,7 +107,7 @@ def send_raw(
     msg["Subject"] = subject
     msg["From"] = from_address
     msg["To"] = to_addr
-    outbound_message_id = message_id or make_msgid(domain="paperboy.kaibuilds.com")
+    outbound_message_id = message_id or make_msgid(domain="newpaperboy.com")
     msg["Message-ID"] = outbound_message_id
     if settings.email_reply_to:
         msg["Reply-To"] = settings.email_reply_to

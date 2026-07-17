@@ -1,4 +1,5 @@
 """Send queued double-opt-in confirmation messages with bounded retries."""
+
 from __future__ import annotations
 
 import html
@@ -14,6 +15,7 @@ from paperboy.subscriptions import (
     claim_pending_confirmations,
     confirmation_token,
     confirmation_url,
+    delivery_schedule_label,
     finish_confirmation_attempt,
 )
 
@@ -22,12 +24,14 @@ logger = get_logger("confirmation_delivery")
 
 def _render_confirmation(subscription: dict[str, Any]) -> tuple[str, str, str]:
     url = confirmation_url(confirmation_token(subscription))
+    schedule = delivery_schedule_label(subscription)
     subject = "Confirm your Paperboy firehose"
     text = "\n".join(
         [
             "Confirm your Paperboy firehose",
             "",
             f"Focus: {subscription['focus']}",
+            f"Schedule: {schedule}",
             "",
             f"Confirm: {url}",
             "",
@@ -38,6 +42,7 @@ def _render_confirmation(subscription: dict[str, Any]) -> tuple[str, str, str]:
         '<!doctype html><html><body style="font-family:Arial,sans-serif;max-width:640px;margin:32px auto;line-height:1.5">'
         "<h1>Confirm your Paperboy firehose</h1>"
         f"<p><strong>Focus:</strong> {html.escape(str(subscription['focus']))}</p>"
+        f"<p><strong>Schedule:</strong> {html.escape(schedule)}</p>"
         f'<p><a href="{html.escape(url, quote=True)}" style="display:inline-block;padding:12px 18px;'
         'background:#0b57d0;color:#fff;text-decoration:none;border-radius:6px">Confirm my email</a></p>'
         "<p>This link expires in 48 hours. Ignore this email if you did not request it.</p>"

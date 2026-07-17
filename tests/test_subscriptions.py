@@ -65,13 +65,21 @@ class SubscriptionTestCase(unittest.TestCase):
             os.environ["PAPERBOY_DB"] = self.old_db
         self.tempdir.cleanup()
 
-    def create(self, email: str = "reader@example.com") -> tuple[dict, str]:
+    def create(
+        self,
+        email: str = "reader@example.com",
+        cadence: str = "daily",
+        weekly_day: int = 0,
+    ) -> tuple[dict, str]:
         return create_subscription(
             email,
             ["https://example.com/feed"],
             "AI agent reliability",
             ["funding gossip"],
             {"utm_source": "smoke"},
+            "UTC",
+            cadence,
+            weekly_day,
         )
 
     def activate(self, email: str = "reader@example.com") -> tuple[dict, str]:
@@ -91,7 +99,16 @@ class SubscriptionTestCase(unittest.TestCase):
 
 class SubscriptionStorageTests(SubscriptionTestCase):
     def test_validation_reuses_preview_contract_and_accepts_attribution(self) -> None:
-        email, sources, focus, ignore, attribution, timezone_name = validate_subscription_payload(
+        (
+            email,
+            sources,
+            focus,
+            ignore,
+            attribution,
+            timezone_name,
+            cadence,
+            weekly_day,
+        ) = validate_subscription_payload(
             {
                 "email": " Reader@Example.com ",
                 "sources": ["https://example.com/feed"],
@@ -101,6 +118,8 @@ class SubscriptionStorageTests(SubscriptionTestCase):
                 "utm_campaign": "founding",
                 "consent": True,
                 "timezone": "America/New_York",
+                "cadence": "weekly",
+                "weekly_day": 4,
             }
         )
         self.assertEqual(email, "reader@example.com")
@@ -109,6 +128,8 @@ class SubscriptionStorageTests(SubscriptionTestCase):
         self.assertEqual(ignore, ["gossip"])
         self.assertEqual(attribution, {"source": "landing_page", "utm_campaign": "founding"})
         self.assertEqual(timezone_name, "America/New_York")
+        self.assertEqual(cadence, "weekly")
+        self.assertEqual(weekly_day, 4)
         with self.assertRaises(SubscriptionValidationError):
             validate_subscription_payload(
                 {
@@ -194,20 +215,22 @@ class SubscriptionEndpointTests(SubscriptionTestCase):
                     "utm_source": "unit",
                     "consent": True,
                     "timezone": "UTC",
+                    "cadence": "weekly",
+                    "weekly_day": 4,
                 },
             )
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(data["status"], "pending_verification")
+        self.assertEqual(data["cadence"], "weekly")
+        self.assertEqual(data["weekly_day"], 4)
         self.assertEqual(data["preview"]["items"][0]["score"], 88)
         self.assertTrue(data["confirmation_queued"])
         preview.assert_called_once()
 
         subscription = get_subscription_by_email("reader@example.com")
         assert subscription is not None
-        confirmed = self.client.post(
-            f"/api/firehose/subscriptions/{confirmation_token(subscription)}/confirm"
-        )
+        confirmed = self.client.post(f"/api/firehose/subscriptions/{confirmation_token(subscription)}/confirm")
         self.assertEqual(confirmed.status_code, 200)
         confirmed_data = confirmed.json()
         self.assertEqual(confirmed_data["status"], "active")
@@ -215,6 +238,9 @@ class SubscriptionEndpointTests(SubscriptionTestCase):
         self.assertEqual(status.status_code, 200)
         self.assertEqual(status.json()["email_masked"], "r***@example.com")
         self.assertEqual(status.json()["status"], "active")
+        self.assertEqual(status.json()["cadence"], "weekly")
+        self.assertEqual(status.json()["weekly_day"], 4)
+        self.assertEqual(status.json()["delivery"], "Weekly · Friday at 8:00 AM · UTC")
         self.assertIsNone(status.json()["next_delivery_at"])
         self.assertNotIn("email", status.json())
 
@@ -272,13 +298,11 @@ class FirehoseDeliveryTests(SubscriptionTestCase):
         self.assertEqual(second, {"active": 1, "sent": 0, "failed": 0, "skipped": 1})
         self.assertEqual(len(sent), 1)
         self.assertEqual(sent[0][1]["to"], "reader@example.com")
-        self.assertIn("https://paperboy.kaibuilds.com/?manage=", sent[0][0][1])
+        self.assertIn("https://newpaperboy.com/?manage=", sent[0][0][1])
         self.assertIn("/unsubscribe", sent[0][0][1])
         conn = connect()
         try:
-            status, item_count = conn.execute(
-                "SELECT status, item_count FROM firehose_deliveries"
-            ).fetchone()
+            status, item_count = conn.execute("SELECT status, item_count FROM firehose_deliveries").fetchone()
         finally:
             conn.close()
         self.assertEqual((status, item_count), ("sent", 1))

@@ -42,7 +42,8 @@ news/research/data, and optional selected GitHub repositories. Repo Radar is a
 section of that edition, not a separate product. Suggested actions remain inert
 text for human review.
 
-The public founding beta is at **[paperboy.kaibuilds.com](https://paperboy.kaibuilds.com/)**.
+The public founding beta is at **[newpaperboy.com](https://newpaperboy.com/)**. The original
+`paperboy.kaibuilds.com` host remains available for existing links and callbacks.
 Its live automatic intake is currently narrower than that product direction:
 it previews and saves user-selected public RSS/Atom feeds, verifies the delivery
 email, and activates scheduled delivery only after hosted checkout confirms a
