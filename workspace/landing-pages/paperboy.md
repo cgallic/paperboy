@@ -4,17 +4,17 @@
 
 - **Target audience:** Technical founders and hands-on product/engineering leads
 - **Traffic source:** Cold paid traffic
-- **Goal:** Activate an automatic daily brief from public feeds
-- **Offer after value:** Card-required seven-day trial; then $49/month until canceled
+- **Goal:** Activate an automatic daily or weekly rollup from public feeds
+- **Offer after value:** Card-required seven-day trial; then $5/month until canceled
 - **Evidence tier:** Live bounded RSS/Atom filtering, double opt-in, hosted checkout, scheduled delivery, and self-service unsubscribe; pre-PMF demand hypothesis
 
 ## Wireframe
 
 1. Hero: name the filtered-firehose outcome and show the many-to-few transformation
 2. Example: show one ranked item with its relevance explanation and original source
-3. How it works: sources, relevance, free preview, email confirmation, checkout, then daily delivery
+3. How it works: sources, relevance, cadence, free preview, email confirmation, checkout, then scheduled delivery
 4. Automatic-setup boundary: public feeds only; no Gmail or human concierge step
-5. Pricing: disclose the card-required seven-day trial and $49/month renewal
+5. Pricing: disclose the card-required seven-day trial and $5/month renewal
 6. FAQ: source support, newsletter limits, automation, and delivery status
 7. Final CTA: repeat the automatic filter action
 
@@ -28,7 +28,7 @@
 
 **Subhead:** Add Hacker News, startup feeds, RSS, research, and other public sources. Paperboy ranks the stream against what you are building—and shows why each item made the cut.
 
-**CTA:** Start my daily brief
+**CTA:** Build my rollup
 
 **Risk reversal:** Any public RSS or Atom feed. No Gmail access. Preview the filter before checkout.
 
@@ -56,13 +56,13 @@ The live setup works from public RSS and Atom feeds. It does not connect to Gmai
 
 **Headline:** Try your filtered firehose for seven days.
 
-Preview your actual public feeds before checkout. Confirm your email, then start a card-required seven-day trial. Billing continues at $49/month until canceled.
+Preview your actual public feeds before checkout. Confirm your email, then start a card-required seven-day trial. Billing continues at $5/month until canceled.
 
 ### Final CTA
 
 **Headline:** Turn your firehose into a short list of things worth reading.
 
-**CTA:** Start my daily brief
+**CTA:** Build my rollup
 
 ## Quality Gate Results
 

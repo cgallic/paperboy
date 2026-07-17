@@ -70,7 +70,7 @@ not guess or embed offsite credentials.
 ## Operational checks
 
 ```bash
-curl -fsS https://paperboy.kaibuilds.com/api/health
+curl -fsS https://newpaperboy.com/api/health
 docker compose ps
 docker compose logs --since 30m paperboy-scheduler
 ```

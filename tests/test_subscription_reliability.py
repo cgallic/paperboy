@@ -79,7 +79,13 @@ class ReliabilityTestCase(unittest.TestCase):
                 os.environ[key] = value
         self.tempdir.cleanup()
 
-    def create(self, email: str = "reader@example.com", timezone_name: str = "UTC") -> tuple[dict, str]:
+    def create(
+        self,
+        email: str = "reader@example.com",
+        timezone_name: str = "UTC",
+        cadence: str = "daily",
+        weekly_day: int = 0,
+    ) -> tuple[dict, str]:
         return create_subscription(
             email,
             ["https://example.com/feed"],
@@ -87,6 +93,8 @@ class ReliabilityTestCase(unittest.TestCase):
             ["gossip"],
             {"utm_source": "test"},
             timezone_name,
+            cadence,
+            weekly_day,
         )
 
     def confirm_and_entitle(self) -> tuple[dict, str]:
@@ -140,9 +148,7 @@ class SchemaMigrationTests(unittest.TestCase):
                 init_schema()
                 migrated = connect()
                 try:
-                    columns = {
-                        row[1] for row in migrated.execute("PRAGMA table_info(firehose_subscriptions)")
-                    }
+                    columns = {row[1] for row in migrated.execute("PRAGMA table_info(firehose_subscriptions)")}
                     active = migrated.execute(
                         "SELECT active FROM firehose_subscriptions WHERE email='legacy@example.com'"
                     ).fetchone()[0]
@@ -159,6 +165,8 @@ class SchemaMigrationTests(unittest.TestCase):
             self.assertIn("verification_status", columns)
             self.assertIn("billing_status", columns)
             self.assertIn("timezone", columns)
+            self.assertIn("cadence", columns)
+            self.assertIn("weekly_day", columns)
             self.assertEqual(active, 0)
             self.assertEqual(stopped_status, "expired")
 
@@ -176,6 +184,8 @@ class VerificationTests(ReliabilityTestCase):
         )
         self.assertEqual(result[0], "reader@example.com")
         self.assertEqual(result[5], "America/New_York")
+        self.assertEqual(result[6], "daily")
+        self.assertEqual(result[7], 0)
         with self.assertRaises(SubscriptionValidationError):
             validate_subscription_payload(
                 {
@@ -192,6 +202,16 @@ class VerificationTests(ReliabilityTestCase):
                     "focus": "agents",
                     "consent": True,
                     "timezone": "Mars/Olympus_Mons",
+                }
+            )
+        with self.assertRaises(SubscriptionValidationError):
+            validate_subscription_payload(
+                {
+                    "email": "reader@example.com",
+                    "sources": ["https://example.com/feed"],
+                    "focus": "agents",
+                    "consent": True,
+                    "cadence": "monthly",
                 }
             )
 
@@ -246,12 +266,8 @@ class VerificationTests(ReliabilityTestCase):
 
     def test_expired_confirmation_cannot_activate(self) -> None:
         subscription, _token = self.create()
-        expiry = datetime.fromisoformat(
-            str(subscription["verification_expires_at"]).replace("Z", "+00:00")
-        )
-        result = confirm_subscription(
-            confirmation_token(subscription), now=expiry + timedelta(seconds=1)
-        )
+        expiry = datetime.fromisoformat(str(subscription["verification_expires_at"]).replace("Z", "+00:00"))
+        result = confirm_subscription(confirmation_token(subscription), now=expiry + timedelta(seconds=1))
         self.assertIsNone(result)
 
     def test_confirmation_failure_retries_stop_after_three_attempts(self) -> None:
@@ -272,21 +288,14 @@ class VerificationTests(ReliabilityTestCase):
 class ConsentAndAbuseTests(ReliabilityTestCase):
     def test_subscription_attempt_limits_store_only_hmac_hashes(self) -> None:
         start = datetime(2026, 7, 16, 12, tzinfo=timezone.utc)
-        results = [
-            allow_subscription_attempt("203.0.113.7", "reader@example.com", now=start)
-            for _ in range(4)
-        ]
+        results = [allow_subscription_attempt("203.0.113.7", "reader@example.com", now=start) for _ in range(4)]
         self.assertEqual(results, [True, True, True, False])
         self.assertTrue(
-            allow_subscription_attempt(
-                "203.0.113.7", "other@example.com", now=start + timedelta(hours=1, seconds=1)
-            )
+            allow_subscription_attempt("203.0.113.7", "other@example.com", now=start + timedelta(hours=1, seconds=1))
         )
         conn = connect()
         try:
-            rows = conn.execute(
-                "SELECT ip_hash, email_hash FROM firehose_subscription_attempts"
-            ).fetchall()
+            rows = conn.execute("SELECT ip_hash, email_hash FROM firehose_subscription_attempts").fetchall()
         finally:
             conn.close()
         self.assertTrue(rows)
@@ -316,6 +325,90 @@ class TimezoneAndDeliveryTests(ReliabilityTestCase):
         self.assertEqual(next_delivery_at(subscription, now=before).hour, 12)
         self.assertEqual(delivery_date_if_due(subscription, now=after), date(2026, 7, 16))
         self.assertEqual(next_delivery_at(subscription, now=after).date(), date(2026, 7, 17))
+
+    def test_weekly_cadence_targets_selected_weekday_at_0800(self) -> None:
+        subscription, _token = self.create(cadence="weekly", weekly_day=0)
+        sunday = datetime(2026, 7, 19, 9, 0, tzinfo=timezone.utc)
+        monday_before = datetime(2026, 7, 20, 7, 59, tzinfo=timezone.utc)
+        monday_after = datetime(2026, 7, 20, 8, 1, tzinfo=timezone.utc)
+        tuesday = datetime(2026, 7, 21, 8, 1, tzinfo=timezone.utc)
+
+        self.assertEqual(next_delivery_at(subscription, now=sunday), datetime(2026, 7, 20, 8, tzinfo=timezone.utc))
+        self.assertIsNone(delivery_date_if_due(subscription, now=monday_before))
+        self.assertEqual(delivery_date_if_due(subscription, now=monday_after), date(2026, 7, 20))
+        self.assertEqual(
+            next_delivery_at(subscription, now=monday_after), datetime(2026, 7, 27, 8, tzinfo=timezone.utc)
+        )
+        self.assertIsNone(delivery_date_if_due(subscription, now=tuesday))
+
+    def test_weekly_cadence_preserves_0800_local_across_dst(self) -> None:
+        subscription, _token = self.create(
+            timezone_name="America/New_York", cadence="weekly", weekly_day=6
+        )
+        before_fall_back = datetime(2026, 10, 31, 12, 0, tzinfo=timezone.utc)
+        after_sunday_delivery = datetime(2026, 11, 1, 13, 1, tzinfo=timezone.utc)
+
+        self.assertEqual(
+            next_delivery_at(subscription, now=before_fall_back),
+            datetime(2026, 11, 1, 13, 0, tzinfo=timezone.utc),
+        )
+        self.assertEqual(
+            delivery_date_if_due(subscription, now=after_sunday_delivery),
+            date(2026, 11, 1),
+        )
+        self.assertEqual(
+            next_delivery_at(subscription, now=after_sunday_delivery),
+            datetime(2026, 11, 8, 13, 0, tzinfo=timezone.utc),
+        )
+
+    def test_corrupt_stored_schedule_falls_back_to_daily(self) -> None:
+        subscription, token = self.create()
+        conn = connect()
+        try:
+            conn.execute(
+                "UPDATE firehose_subscriptions SET cadence='monthly', weekly_day=99 WHERE id=?",
+                (subscription["id"],),
+            )
+            conn.commit()
+        finally:
+            conn.close()
+
+        decoded = get_subscription(token)
+        assert decoded is not None
+        self.assertEqual(decoded["cadence"], "daily")
+        self.assertEqual(decoded["weekly_day"], 0)
+
+    def test_weekly_scheduler_skips_other_days_and_sends_selected_day(self) -> None:
+        pending, _token = self.create(cadence="weekly", weekly_day=0)
+        confirmed = confirm_subscription(confirmation_token(pending))
+        assert confirmed is not None
+        entitled = set_billing_state(
+            int(confirmed["id"]),
+            "trialing",
+            trial_ends_at="2026-07-27T08:00:00Z",
+        )
+        assert entitled is not None
+        sent: list[tuple[tuple, dict]] = []
+
+        def sender(*args, **kwargs) -> dict:
+            sent.append((args, kwargs))
+            return {"ok": True, "detail": "sent", "message_id": None}
+
+        sunday = run_daily_deliveries(
+            now=datetime(2026, 7, 19, 9, 0, tzinfo=timezone.utc),
+            preview_builder=lambda *_: _preview(),
+            sender=sender,
+        )
+        monday = run_daily_deliveries(
+            now=datetime(2026, 7, 20, 8, 1, tzinfo=timezone.utc),
+            preview_builder=lambda *_: _preview(),
+            sender=sender,
+        )
+
+        self.assertEqual(sunday["skipped"], 1)
+        self.assertEqual(monday["sent"], 1)
+        self.assertEqual(len(sent), 1)
+        self.assertIn("Paperboy weekly rollup", sent[0][0][0])
 
     def test_delivery_retries_three_times_then_never_duplicates_success(self) -> None:
         self.confirm_and_entitle()
@@ -358,9 +451,7 @@ class TimezoneAndDeliveryTests(ReliabilityTestCase):
             return {"ok": True, "detail": "sent", "message_id": kwargs["message_id"]}
 
         next_day = start + timedelta(days=1)
-        sent_once = run_daily_deliveries(
-            now=next_day, preview_builder=lambda *_: _preview(), sender=sent
-        )
+        sent_once = run_daily_deliveries(now=next_day, preview_builder=lambda *_: _preview(), sender=sent)
         duplicate = run_daily_deliveries(
             now=next_day + timedelta(hours=1), preview_builder=lambda *_: _preview(), sender=sent
         )
@@ -405,9 +496,7 @@ class TrackingAndEmailTests(ReliabilityTestCase):
 
     def test_tracking_tokens_are_hashed_and_click_target_is_server_side(self) -> None:
         subscription, _token = self.create()
-        click = create_tracking_token(
-            int(subscription["id"]), "click", target_url="https://example.com/story"
-        )
+        click = create_tracking_token(int(subscription["id"]), "click", target_url="https://example.com/story")
         opened = create_tracking_token(int(subscription["id"]), "open")
         self.assertEqual(resolve_click_target(click), "https://example.com/story")
         self.assertIsNone(resolve_click_target(opened))
@@ -427,9 +516,7 @@ class TrackingAndEmailTests(ReliabilityTestCase):
         self.assertNotEqual(stored_hash, click)
         self.assertEqual(events, 2)
         with self.assertRaises(ValueError):
-            create_tracking_token(
-                int(subscription["id"]), "click", target_url="javascript:alert(1)"
-            )
+            create_tracking_token(int(subscription["id"]), "click", target_url="javascript:alert(1)")
 
     def test_send_raw_emits_one_click_unsubscribe_and_stable_message_id(self) -> None:
         connection = MagicMock()
@@ -440,14 +527,14 @@ class TrackingAndEmailTests(ReliabilityTestCase):
                 "Text",
                 "<p>HTML</p>",
                 to="reader@example.com",
-                unsubscribe_url="https://paperboy.kaibuilds.com/api/unsubscribe/token",
-                message_id="<stable@paperboy.kaibuilds.com>",
+                unsubscribe_url="https://newpaperboy.com/api/unsubscribe/token",
+                message_id="<stable@newpaperboy.com>",
             )
         message = connection.sendmail.call_args.args[2]
-        self.assertIn("List-Unsubscribe: <https://paperboy.kaibuilds.com/api/unsubscribe/token>", message)
+        self.assertIn("List-Unsubscribe: <https://newpaperboy.com/api/unsubscribe/token>", message)
         self.assertIn("List-Unsubscribe-Post: List-Unsubscribe=One-Click", message)
-        self.assertIn("Message-ID: <stable@paperboy.kaibuilds.com>", message)
-        self.assertEqual(result["message_id"], "<stable@paperboy.kaibuilds.com>")
+        self.assertIn("Message-ID: <stable@newpaperboy.com>", message)
+        self.assertEqual(result["message_id"], "<stable@newpaperboy.com>")
 
 
 class BillingPrimitiveTests(ReliabilityTestCase):

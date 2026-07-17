@@ -60,6 +60,7 @@ class APITests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertIn("version", data)
+        self.assertEqual(data["billing"]["monthly_price_cents"], 500)
         self.assertIn("fast_model", data)
         self.assertNotIn("smtp_pass", data)
         self.assertNotIn("discord_bot_token", data)
@@ -74,10 +75,19 @@ class APITests(unittest.TestCase):
             json={
                 "event": "begin_checkout",
                 "anonymous_id": "pb_1234567890abcdef",
-                "properties": {"currency": "USD", "value": 49},
+                "properties": {"currency": "USD", "cadence": "weekly", "weekly_day": 4},
             },
         )
         self.assertEqual(accepted.status_code, 204)
+        bad_cadence = self.client.post(
+            "/api/analytics/event",
+            json={
+                "event": "subscription_requested",
+                "anonymous_id": "pb_1234567890abcdef",
+                "properties": {"cadence": "monthly", "weekly_day": 9},
+            },
+        )
+        self.assertEqual(bad_cadence.status_code, 422)
         rejected = self.client.post(
             "/api/analytics/event",
             json={
@@ -152,9 +162,7 @@ class APITests(unittest.TestCase):
             "--paperboy\r\nContent-Type: message/delivery-status\r\n\r\n"
             "Action: failed\r\nStatus: 5.1.1\r\n\r\n--paperboy--\r\n"
         )
-        response = self.client.post(
-            "/api/email/bounce", content=report, headers={"Content-Type": "message/rfc822"}
-        )
+        response = self.client.post("/api/email/bounce", content=report, headers={"Content-Type": "message/rfc822"})
         self.assertEqual(response.status_code, 204)
         updated = get_subscription_by_id(confirmed["id"])
         assert updated is not None

@@ -107,6 +107,8 @@
       email: "",
       time: "07:30",
       timezone: "America/New_York",
+      cadence: "daily",
+      weeklyDay: 0,
       days: ["Mon", "Tue", "Wed", "Thu", "Fri"]
     },
     billingState: "active",
@@ -121,6 +123,7 @@
   var activeStatusUrl = "";
   var activeUnsubscribeUrl = "";
   var activeManagementToken = "";
+  var activeCadence = "daily";
   var confirmationToken = "";
 
   var screens = Array.prototype.slice.call(document.querySelectorAll("[data-screen]"));
@@ -178,7 +181,7 @@
     window.dataLayer = window.dataLayer || [];
     var event = { event: name, product: "paperboy" };
     var safe = properties || {};
-    ["source_count", "billing_status", "currency"].forEach(function (key) {
+    ["source_count", "cadence", "weekly_day", "billing_status", "currency"].forEach(function (key) {
       if (safe[key] !== undefined && safe[key] !== null) event[key] = safe[key];
     });
     window.dataLayer.push(event);
@@ -225,13 +228,13 @@
       if (!response.ok || !result || !result.billing || typeof result.billing.enabled !== "boolean") return;
       document.body.setAttribute("data-billing-available", result.billing.enabled ? "true" : "false");
       if (result.billing.enabled) {
-        title.textContent = "Automatic daily delivery";
-        copy.textContent = "Add your feeds once. Confirm your email and start the hosted trial, then Paperboy delivers what survives every day.";
+        title.textContent = "Automatic daily or weekly delivery";
+        copy.textContent = "Add your feeds once. Confirm your email and start the hosted trial, then Paperboy delivers on your chosen schedule.";
         note.querySelector("strong").textContent = "Hosted checkout available";
-        note.querySelector("span").textContent = "Email verification comes first. Stripe confirms the trial before daily delivery becomes active.";
+        note.querySelector("span").textContent = "Email verification comes first. Stripe confirms the trial before scheduled delivery becomes active.";
       } else {
         title.textContent = "Preview and email verification are live";
-        copy.textContent = "Checkout is temporarily unavailable, so paid daily delivery cannot activate yet. No card will be requested or charged.";
+        copy.textContent = "Checkout is temporarily unavailable, so paid delivery cannot activate yet. No card will be requested or charged.";
         note.querySelector("strong").textContent = "Checkout temporarily unavailable";
         note.querySelector("span").textContent = "You can preview the filter and verify your email, but delivery will not start until hosted checkout is enabled.";
       }
@@ -318,7 +321,7 @@
     if (result && typeof result.detail === "string") return result.detail;
     if (result && result.detail && typeof result.detail.message === "string") return result.detail.message;
     if (result && typeof result.message === "string") return result.message;
-    return "Paperboy could not save the daily brief request. Check the feeds and try again.";
+    return "Paperboy could not save the rollup request. Check the feeds and try again.";
   }
 
   function renderLivePreview(result) {
@@ -461,7 +464,9 @@
     if (!details) return;
     var status = String(details.status || result.status || "pending_verification").toLowerCase();
     var billingStatus = String(details.billing_status || result.billing_status || "unpaid").toLowerCase();
-    var delivery = details.delivery || details.schedule || "Daily · automatic";
+    if (details.cadence === "weekly" || details.cadence === "daily") activeCadence = details.cadence;
+    var cadenceLabel = activeCadence === "weekly" ? "weekly" : "daily";
+    var delivery = details.delivery || details.schedule || (cadenceLabel === "weekly" ? "Weekly · automatic" : "Daily · automatic");
     var isVerified = status === "active" || status === "confirmed";
     var isUnsubscribed = status === "unsubscribed";
     var isDelivering = isVerified && (billingStatus === "trialing" || billingStatus === "active");
@@ -470,7 +475,7 @@
     var paymentLabels = {
       unpaid: "Checkout required",
       trialing: "7-day trial",
-      active: "$49/month",
+      active: "$5/month",
       past_due: "Payment past due",
       canceled: "Canceled"
     };
@@ -509,6 +514,11 @@
       timezone.textContent = "Time zone: " + details.timezone;
       summary.appendChild(timezone);
     }
+    if (details.cadence) {
+      var cadence = document.createElement("p");
+      cadence.textContent = "Frequency: " + (details.cadence === "weekly" ? "Weekly" : "Daily");
+      summary.appendChild(cadence);
+    }
     if (details.next_delivery_at && isDelivering) {
       var next = document.createElement("p");
       next.textContent = "Next delivery: " + details.next_delivery_at;
@@ -517,10 +527,10 @@
     summary.hidden = !summary.childElementCount;
 
     document.getElementById("subscription-success-title").textContent = isUnsubscribed
-      ? "This daily brief is unsubscribed."
+      ? "This " + cadenceLabel + " rollup is unsubscribed."
       : billingStatus === "past_due" ? "Payment needs attention."
         : billingStatus === "canceled" ? "Your paid delivery is canceled."
-      : isDelivering ? "Your daily brief is active."
+      : isDelivering ? "Your " + cadenceLabel + " rollup is active."
         : isVerified ? "Email verified. Finish checkout to start delivery."
           : "Check your email.";
     document.getElementById("subscription-success-copy").textContent = isUnsubscribed
@@ -528,7 +538,7 @@
       : billingStatus === "past_due" ? "Delivery is paused until payment is updated. No new charge was attempted from this page."
         : billingStatus === "canceled" ? "Delivery is off. Your filter remains saved, and you can start a new hosted checkout when ready."
       : isDelivering ? "Paperboy will refresh the sources and deliver the strongest matches automatically."
-        : isVerified ? "Your filter is saved. Start the hosted seven-day trial checkout; then it is $49 per month until canceled."
+        : isVerified ? "Your filter is saved. Start the hosted seven-day trial checkout; then it is $5 per month until canceled."
           : "Paperboy saved the filter and sent a confirmation link. Nothing will be delivered until you confirm the address.";
     document.getElementById("unsubscribe-subscription").hidden = isUnsubscribed || !activeUnsubscribeUrl;
     document.getElementById("start-checkout").hidden = !canCheckout || !activeManagementToken || result.checkout_available === false;
@@ -706,14 +716,29 @@
     var time = document.getElementById("delivery-time");
     var timezone = document.getElementById("delivery-zone");
     var intakeTimezone = document.getElementById("intake-timezone");
+    var intakeCadence = document.getElementById("intake-cadence");
+    var intakeWeeklyDay = document.getElementById("intake-weekly-day");
     if (email && document.activeElement !== email) email.value = state.delivery.email || state.email;
     if (time && document.activeElement !== time) time.value = state.delivery.time;
     if (timezone) timezone.value = state.delivery.timezone;
     if (intakeTimezone && document.activeElement !== intakeTimezone) intakeTimezone.value = state.delivery.timezone || "UTC";
+    if (intakeCadence) intakeCadence.value = state.delivery.cadence || "daily";
+    if (intakeWeeklyDay) intakeWeeklyDay.value = String(state.delivery.weeklyDay || 0);
+    renderCadenceFields();
     document.querySelectorAll('input[name="days"]').forEach(function (input) {
       input.checked = state.delivery.days.indexOf(input.value) >= 0;
     });
     renderMiniEmail();
+  }
+
+  function renderCadenceFields() {
+    var cadence = document.getElementById("intake-cadence");
+    var weeklyField = document.getElementById("weekly-day-field");
+    var weeklyDay = document.getElementById("intake-weekly-day");
+    if (!cadence || !weeklyField || !weeklyDay) return;
+    var isWeekly = cadence.value === "weekly";
+    weeklyField.hidden = !isWeekly;
+    weeklyDay.disabled = !isWeekly;
   }
 
   function renderMiniEmail() {
@@ -947,6 +972,8 @@
     var workFocus = document.getElementById("work-focus").value.trim();
     var ignoreFocus = document.getElementById("ignore-focus").value.trim();
     var timezone = document.getElementById("intake-timezone").value.trim();
+    var cadence = document.getElementById("intake-cadence").value;
+    var weeklyDay = Number(document.getElementById("intake-weekly-day").value);
     var consent = document.getElementById("email-consent").checked;
     if (!isValidEmail(input.value.trim())) {
       error.textContent = "Enter a valid email address.";
@@ -973,7 +1000,7 @@
       return;
     }
     if (!timezone) {
-      intakeError.textContent = "Confirm the time zone for the daily edition.";
+      intakeError.textContent = "Confirm the time zone for the rollup.";
       document.getElementById("intake-timezone").focus();
       return;
     }
@@ -987,6 +1014,8 @@
     state.email = email;
     state.delivery.email = state.email;
     state.delivery.timezone = timezone;
+    state.delivery.cadence = cadence;
+    state.delivery.weeklyDay = weeklyDay;
     saveState();
 
     var subscribeResult;
@@ -1000,6 +1029,8 @@
           focus: workFocus,
           ignore: ignoreFocus ? ignoreFocus.split(",").map(function (term) { return term.trim(); }).filter(Boolean) : [],
           timezone: timezone,
+          cadence: cadence,
+          weekly_day: weeklyDay,
           consent: true,
           analytics_consent: analyticsAllowed()
         }, {
@@ -1012,13 +1043,17 @@
         throw new Error(subscriptionErrorMessage(subscribeResponse, subscribeResult));
       }
     } catch (subscriptionError) {
-      intakeError.textContent = subscriptionError && subscriptionError.message ? subscriptionError.message : "Paperboy could not save the daily brief request. Try again.";
+      intakeError.textContent = subscriptionError && subscriptionError.message ? subscriptionError.message : "Paperboy could not save the rollup request. Try again.";
       submit.disabled = false;
-      submit.textContent = "Start my daily brief";
+      submit.textContent = "Build my rollup";
       return;
     }
 
-    trackProductEvent("subscription_requested", { source_count: sourceUrls.length });
+    trackProductEvent("subscription_requested", {
+      source_count: sourceUrls.length,
+      cadence: cadence,
+      weekly_day: weeklyDay
+    });
     document.getElementById("subscription-success-title").textContent = "Check your email.";
     document.getElementById("subscription-success-copy").textContent = "Paperboy saved your filter and sent a confirmation link. Nothing will be delivered until you confirm the address and finish checkout.";
     document.getElementById("subscription-status").textContent = "Awaiting confirmation";
@@ -1038,7 +1073,7 @@
     document.getElementById("magic-link-form").hidden = false;
     var submit = document.getElementById("subscription-submit");
     submit.disabled = false;
-    submit.textContent = "Start my daily brief";
+    submit.textContent = "Build my rollup";
     document.getElementById("source-urls").focus();
   });
 
@@ -1134,7 +1169,7 @@
   document.getElementById("unsubscribe-subscription").addEventListener("click", function () {
     if (!activeUnsubscribeUrl) return;
     openConfirm(
-      "Stop this daily brief?",
+      "Stop this rollup?",
       "Paperboy will stop automatic delivery. Your existing source links are not deleted by this action.",
       "Unsubscribe",
       async function () {
@@ -1150,7 +1185,7 @@
             throw new Error(subscriptionErrorMessage(response, result));
           }
           renderManagedSubscription(result);
-          toast("Daily delivery stopped.");
+          toast("Scheduled delivery stopped.");
         } catch (error) {
           document.getElementById("subscription-success-copy").textContent = error && error.message
             ? error.message
@@ -1213,6 +1248,17 @@
       }
       input.value = sources.join("\n");
     });
+  });
+
+  document.getElementById("intake-cadence").addEventListener("change", function (event) {
+    state.delivery.cadence = event.target.value === "weekly" ? "weekly" : "daily";
+    saveState();
+    renderCadenceFields();
+  });
+
+  document.getElementById("intake-weekly-day").addEventListener("change", function (event) {
+    state.delivery.weeklyDay = Number(event.target.value);
+    saveState();
   });
 
   document.getElementById("source-forwarding").addEventListener("change", function (event) {
@@ -1378,7 +1424,7 @@
     document.getElementById("magic-link-form").hidden = true;
     document.getElementById("confirmation-panel").hidden = true;
     document.getElementById("magic-success").hidden = false;
-    document.getElementById("subscription-success-title").textContent = "Loading your daily brief…";
+    document.getElementById("subscription-success-title").textContent = "Loading your rollup…";
     document.getElementById("subscription-success-copy").textContent = "Paperboy is checking the current subscription status.";
     document.getElementById("subscription-status").textContent = "Checking";
     document.getElementById("preview-results").hidden = true;
@@ -1391,7 +1437,7 @@
     try {
       await refreshManagedSubscription(activeStatusUrl);
     } catch (error) {
-      document.getElementById("subscription-success-title").textContent = "Paperboy could not open this daily brief.";
+      document.getElementById("subscription-success-title").textContent = "Paperboy could not open this rollup.";
       document.getElementById("subscription-success-copy").textContent = error && error.message
         ? error.message
         : "The management link may be invalid or expired.";
