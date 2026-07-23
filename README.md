@@ -216,3 +216,8 @@ See [docs/ROADMAP.md](docs/ROADMAP.md). The full planned stack:
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+
+---
+
+*Built and maintained by [Connor Gallic](https://pr.linkedin.com/in/cgallic) — connect on LinkedIn.*
