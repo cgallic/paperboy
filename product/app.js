@@ -1268,6 +1268,9 @@
         throw new Error(subscriptionErrorMessage(response, result));
       }
       confirmationToken = "";
+      if (analyticsAllowed() && typeof window.gtag === "function") {
+        window.gtag("event", "signup_complete", { product: "paperboy" });
+      }
       history.replaceState(null, "", window.location.pathname + "#signin");
       document.getElementById("confirmation-panel").hidden = true;
       document.getElementById("magic-success").hidden = false;
