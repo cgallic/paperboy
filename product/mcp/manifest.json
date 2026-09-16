@@ -1,0 +1,11 @@
+{
+  "name": "product-landing-page-mcp",
+  "title": "daily intelligence brief for technical founders",
+  "description": "Forward the sources you trust, select public repos, and get one concise evidence-linked morning edition: what changed, why it matters, and what to inspect next.",
+  "mcp_version": "2025-06-18",
+  "capabilities": {
+    "resources": {}
+  },
+  "resources": "https://paperboy.kaibuilds.com/mcp/resources.json",
+  "okf_bundle": "https://paperboy.kaibuilds.com/okf/index.md"
+}

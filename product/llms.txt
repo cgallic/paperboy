@@ -1,0 +1,32 @@
+# Paperboy — Your Own Filtered Firehose
+
+Build a daily or weekly rollup from Hacker News, RSS, research, and public sources. Paperboy filters the firehose around what matters to you and delivers the cut automatically.
+
+Canonical: https://newpaperboy.com/
+Markdown: https://newpaperboy.com/index.md
+
+## Page sections
+- Build your firehose. Read only what matters.
+- A provider changed the pricing behind your fallback route
+- Every signal earns its place.
+- A model provider changed the pricing behind your fallback route
+- Three inputs. One automatic rollup.
+- Build your firehose
+- Define relevance
+- Let Paperboy set it up
+- Get the cut on your schedule
+- Paste feeds. Paperboy does the setup.
+- Try your filtered firehose for seven days.
+- Paperboy Filtered Firehose
+- What does automatic setup actually do?
+- Turn your firehose into a short list of things worth reading.
+- Start your automatic rollup.
+- Verify your email to continue.
+- Check your email.
+- Choose what belongs in your morning edition.
+- Exact planned permission explanation
+- Choose 1–5 public repositories
+- What deserves your attention right now?
+- When should your rollup arrive?
+- Your first brief will look like this.
+- Hosted checkout keeps card details off Paperboy.

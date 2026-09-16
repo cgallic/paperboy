@@ -9,15 +9,22 @@
   <link rel="canonical" href="https://newpaperboy.com/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Paperboy">
-  <meta property="og:title" content="Paperboy — Build your firehose. Read only what matters.">
-  <meta property="og:description" content="Add Hacker News, RSS, research, and public sources once. Paperboy filters them around your work and delivers a ranked, source-linked rollup daily or weekly.">
+  <meta property="og:title" content="Paperboy — Your Own Filtered Firehose">
+  <meta property="og:description" content="Build a daily or weekly rollup from Hacker News, RSS, research, and public sources. Paperboy filters the firehose around what matters to you and delivers the cut automatically.">
   <meta property="og:url" content="https://newpaperboy.com/">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Paperboy — Build your firehose. Read only what matters.">
   <meta name="twitter:description" content="Preview a ranked, source-linked brief from the public feeds you choose.">
   <title>Paperboy — Your Own Filtered Firehose</title>
+  <link rel="icon" href="/favicon.svg">
   <link rel="stylesheet" href="styles.css">
   <script src="app.js" defer></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBMJNN0PPH"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-MBMJNN0PPH");</script>
+  <meta property="og:image" content="https://newpaperboy.com/og.svg">
+  <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM summary">
+  <link rel="alternate" type="text/markdown" href="/index.md" title="Markdown mirror">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","name":"Paperboy — Your Own Filtered Firehose","description":"Build a daily or weekly rollup from Hacker News, RSS, research, and public sources. Paperboy filters the firehose around what matters to you and delivers the cut automatically.","url":"https://newpaperboy.com/"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Do I need to connect Gmail?","acceptedAnswer":{"@type":"Answer","text":"No. Paste public RSS or Atom feed URLs. Paperboy reads only those URLs."}},{"@type":"Question","name":"Does Paperboy auto-subscribe me to newsletters?","acceptedAnswer":{"@type":"Answer","text":"No. Many newsletters require email confirmation or expose no public feed. Use a public newsletter archive/feed when available; email-only ingestion is not part of the live preview."}},{"@type":"Question","name":"Which sources work right now?","acceptedAnswer":{"@type":"Answer","text":"Public RSS and Atom feeds, including Hacker News and many blogs, release feeds, and research feeds."}},{"@type":"Question","name":"Is the first brief automated?","acceptedAnswer":{"@type":"Answer","text":"Yes. Paperboy validates the feeds, scans recent items, removes duplicates, and ranks them against your filter. Delivery starts only after email confirmation and hosted trial checkout."}},{"@type":"Question","name":"Do I need to wait for someone to set it up?","acceptedAnswer":{"@type":"Answer","text":"No. Paperboy validates and saves the filter automatically, then asks you to confirm the email address. No operator needs to approve it."}}]}]}</script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -206,9 +213,9 @@
               <ul>
                 <li>Your chosen public RSS and Atom feeds</li>
                 <li>A relevance filter built around your work</li>
-                <li>One ranked morning edition</li>
+                <li>One ranked edition on your chosen schedule</li>
                 <li>Links to every original source</li>
-                <li>Cancel monthly</li>
+                <li>Cancel recurring billing through Stripe</li>
               </ul>
             </div>
             <button class="button button-wide" type="button" data-start>Build my rollup</button>
@@ -264,7 +271,7 @@
             <strong>No human setup</strong>
             <span>Paperboy validates and saves your public feeds automatically. Confirm your email, then start the hosted trial checkout to turn on delivery. It does not connect to an inbox.</span>
           </div>
-          <form id="magic-link-form" novalidate>
+          <form data-primary-conversion="true" id="magic-link-form" novalidate>
             <div class="field">
               <label for="signin-email">Email address</label>
               <input id="signin-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby="email-help email-error">
@@ -341,18 +348,23 @@
               <div><span>Payment</span><strong id="subscription-payment">Checkout required</strong></div>
             </div>
             <div class="management-summary" id="management-summary" hidden></div>
+            <div class="subscription-actions" id="edition-analytics-actions" aria-label="Edition analytics preference" hidden>
+              <span id="edition-analytics-note">Edition open and source-link analytics are off.</span>
+              <button class="text-button" id="allow-edition-analytics" type="button">Allow edition analytics</button>
+              <button class="text-button" id="decline-edition-analytics" type="button">Turn off edition analytics</button>
+            </div>
             <div id="preview-results" hidden>
               <div class="preview-summary" id="preview-summary" aria-live="polite"></div>
               <div class="live-preview-list" id="live-preview-list"></div>
             </div>
             <nav class="subscription-actions" id="subscription-actions" aria-label="Manage rollup" hidden>
               <button class="button button-outline" id="manage-subscription" type="button">Refresh subscription status</button>
-              <button class="button" id="start-checkout" type="button" hidden>Continue to founding checkout</button>
+              <button class="button" id="start-checkout" type="button" hidden>Continue to secure checkout</button>
               <button class="button button-outline" id="manage-billing" type="button" hidden>Manage billing</button>
-              <button class="text-button" id="unsubscribe-subscription" type="button">Unsubscribe</button>
+              <button class="text-button" id="unsubscribe-subscription" type="button">Stop delivery only</button>
             </nav>
             <p class="billing-fallback" id="billing-fallback" role="status" hidden></p>
-            <button class="text-button button-wide" type="button" id="change-email">Change the filter</button>
+            <button class="text-button button-wide" type="button" id="change-email">Start over with another email</button>
           </div>
         </div>
       </div>
@@ -567,7 +579,7 @@
             <p class="price-label">Plan summary</p>
             <h2>Paperboy Rollup</h2>
             <p class="price"><span>$</span>5 <small>/ month</small></p>
-            <p class="hypothesis">The founding price is $5/month after a card-required seven-day trial. The live flow repeats these terms before checkout.</p>
+            <p class="hypothesis">The price is $5/month after a card-required seven-day trial. The live flow repeats these terms before checkout.</p>
             <dl>
               <div><dt>Repositories</dt><dd id="checkout-repo-count">0 selected</dd></div>
               <div><dt>Delivery</dt><dd id="checkout-delivery">Not set</dd></div>
@@ -716,11 +728,13 @@
       <nav class="footer-links" aria-label="Legal and privacy">
         <a href="/privacy/">Privacy</a>
         <a href="/terms/">Terms</a>
+        <a href="mailto:paperboy@kaibuilds.com">Contact</a>
         <a href="https://github.com/cgallic/paperboy" target="_blank" rel="noreferrer">GitHub</a>
         <button class="text-button" id="allow-analytics" type="button">Allow product analytics</button>
         <button class="text-button" id="decline-analytics" type="button">Decline analytics</button>
       </nav>
       <small id="analytics-note">Optional analytics stays off unless you allow it. No advertising tracker is loaded.</small>
+      <small>Paperboy is sold and operated by MEET KAI LLC, Puerto Rico.</small>
     </div>
   </footer>
 
@@ -741,5 +755,8 @@
   <noscript>
     <div class="noscript">Paperboy needs JavaScript to validate and save your filter, confirm your email, and open secure checkout. No Gmail or GitHub connection is made.</div>
   </noscript>
+<script id="agentic-attribution-contract">
+(function(){var keys=["ref","utm_source","utm_medium","utm_campaign","utm_term","utm_content","gclid","fbclid"],q=new URLSearchParams(location.search),v={};keys.forEach(function(k){var x=q.get(k);if(x)v[k]=x;});document.querySelectorAll("form").forEach(function(f){keys.forEach(function(k){if(!v[k])return;var i=f.querySelector('input[name="'+k+'"]');if(!i){i=document.createElement("input");i.type="hidden";i.name=k;f.appendChild(i);}i.value=v[k];});});document.querySelectorAll("a[href]").forEach(function(a){var h=a.getAttribute("href")||"";if(!h||h[0]==="#"||h.indexOf("mailto:")===0||h.indexOf("tel:")===0)return;try{var u=new URL(h,location.href);keys.forEach(function(k){if(v[k]&&!u.searchParams.has(k))u.searchParams.set(k,v[k]);});a.href=u.toString();}catch(e){}});})();
+</script>
 </body>
 </html>

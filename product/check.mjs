@@ -21,7 +21,7 @@ function requireText(source, text, label) {
   ["Daily", "daily cadence option"],
   ["Weekly", "weekly cadence option"],
   ["Try your filtered firehose for seven days.", "trial offer"],
-  ["$</span>5", "$5 founding price"],
+  ["$</span>5", "$5 monthly price"],
   ["Card required for the seven-day trial", "card-required trial disclosure"],
   ["Stripe-hosted checkout", "hosted checkout boundary"]
 ].forEach(([text, label]) => requireText(html, text, label));
@@ -49,8 +49,11 @@ function requireText(source, text, label) {
   ['/api/firehose/subscriptions/" + encoded + "/confirm', "explicit confirmation endpoint"],
   ['fetch("/api/billing/checkout"', "hosted checkout handoff"],
   ['fetch("/api/billing/portal"', "hosted billing management"],
+  ["does not cancel Stripe billing", "delivery-only unsubscribe boundary"],
+  ['document.getElementById("change-email").hidden = isVerified || isUnsubscribed', "verified setup overwrite guard"],
   ['parsed.hostname === "checkout.stripe.com"', "Stripe checkout URL allowlist"],
   ['fetch("/api/analytics/event"', "consented first-party analytics"],
+  ["/analytics-consent", "revocable edition analytics consent"],
   ["timezone: timezone", "browser timezone submission"],
   ["cadence: cadence", "daily or weekly cadence submission"],
   ["weekly_day: weeklyDay", "weekly delivery day submission"],
@@ -102,7 +105,7 @@ if (/<form[^>]+action=/i.test(html)) {
   failures.push("A form action could submit data outside the local preview.");
 }
 
-if ((js.match(/fetch\(/g) || []).length !== 8 || !js.includes('fetch("/api/firehose/subscribe"') || !js.includes("refreshManagedSubscription(activeStatusUrl)") || !js.includes("fetch(activeUnsubscribeUrl")) {
+if ((js.match(/fetch\(/g) || []).length !== 9 || !js.includes('fetch("/api/firehose/subscribe"') || !js.includes("refreshManagedSubscription(activeStatusUrl)") || !js.includes("fetch(activeUnsubscribeUrl")) {
   failures.push("Expected same-origin lifecycle fetches are missing or an unexpected fetch was added.");
 }
 
@@ -117,7 +120,11 @@ if (js.includes('/api/firehose/preview')) {
 [
   [privacy, "What Paperboy collects", "privacy data disclosure"],
   [privacy, "does not connect to Gmail", "privacy inbox boundary"],
+  [privacy, "MEET KAI LLC", "legal seller identity"],
   [terms, "card-required seven-day trial followed by $5 per month", "terms billing disclosure"],
+  [terms, "Cancellation and refunds", "cancellation and refund policy"],
+  [terms, "Stopping or unsubscribing from rollup delivery does not cancel Stripe billing", "billing cancellation boundary"],
+  [terms, "MEET KAI LLC", "terms seller identity"],
   [terms, "as-available basis", "terms availability boundary"]
 ].forEach(([source, text, label]) => requireText(source, text, label));
 
