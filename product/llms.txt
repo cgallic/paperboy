@@ -30,3 +30,8 @@ Markdown: https://newpaperboy.com/index.md
 - When should your rollup arrive?
 - Your first brief will look like this.
 - Hosted checkout keeps card details off Paperboy.
+
+## Guides
+- RSS to Email Digest: https://newpaperboy.com/rss-to-email-digest/
+- Hacker News Digest: https://newpaperboy.com/hacker-news-digest/
+- Automated Research Feed: https://newpaperboy.com/automated-research-feed/

@@ -108,6 +108,13 @@ Is the first brief automated?
 Yes. Paperboy validates the feeds, scans recent items, removes duplicates, and ranks them against your filter. Delivery starts only after email confirmation and hosted trial checkout.
 Do I need to wait for someone to set it up?
 No. Paperboy validates and saves the filter automatically, then asks you to confirm the email address. No operator needs to approve it.
+
+Filtering guides
+How to tame the developer firehose
+- [RSS to Email Digest: Turn Raw Feeds into a Filtered Rollup](/rss-to-email-digest/)
+- [Hacker News Digest: Filter HN for Signal Without Doomscrolling](/hacker-news-digest/)
+- [How to Build an Automated Research & Tech News Filter](/automated-research-feed/)
+
 Use your actual feeds
 Turn your firehose into a short list of things worth reading.
 Build my rollup →

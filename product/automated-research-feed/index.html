@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A blueprint for technical founders and engineers to track arXiv papers, GitHub releases, and engineering blogs without feed fatigue.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://newpaperboy.com/automated-research-feed/">
+  <title>How to Build an Automated Research & Tech News Filter — Paperboy</title>
+  <link rel="icon" href="/favicon.svg">
+  <link rel="stylesheet" href="/styles.css">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBMJNN0PPH"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-MBMJNN0PPH");</script>
+  <meta property="og:title" content="How to Build an Automated Research & Tech News Filter — Paperboy">
+  <meta property="og:description" content="A blueprint for technical founders and engineers to track arXiv papers, GitHub releases, and engineering blogs without feed fatigue.">
+  <meta property="og:url" content="https://newpaperboy.com/automated-research-feed/">
+  <meta property="og:image" content="https://newpaperboy.com/og.svg">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Article","headline":"How to Build an Automated Research & Tech News Filter","description":"A blueprint for engineers and researchers to automate technical paper and release tracking without cognitive overload.","url":"https://newpaperboy.com/automated-research-feed/","author":{"@type":"Organization","name":"Paperboy"},"publisher":{"@type":"Organization","name":"MEET KAI LLC","url":"https://newpaperboy.com/"}}]}</script>
+</head>
+<body class="legal-page">
+  <header class="legal-header">
+    <a class="brand" href="/" aria-label="Paperboy home">
+      <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true"><circle cx="7" cy="7" r="2"></circle><circle cx="18" cy="7" r="2"></circle><circle cx="29" cy="7" r="2"></circle><path d="M7 10c0 6 11 6 11 13M18 10v13M29 10c0 6-11 6-11 13"></path><path class="brand-route" d="M18 23v6"></path><circle cx="18" cy="31" r="2"></circle></svg>
+      <span>paperboy</span>
+    </a>
+    <a href="/">Back to Paperboy</a>
+  </header>
+  <main class="legal-shell">
+    <p class="eyebrow">Engineering Systems Blueprint</p>
+    <h1>How to Build an Automated Research & Tech News Filter</h1>
+    <p class="legal-updated">Published October 2026 · 7 min read</p>
+
+    <section>
+      <h2>The velocity problem in modern technical research</h2>
+      <p>The pace of technical innovation across machine learning, distributed systems, and systems infrastructure presents a severe information retrieval challenge. On open access repositories such as arXiv, dozens of preprints are submitted daily across categories like Artificial Intelligence (cs.AI), Computation and Language (cs.CL), and Distributed, Parallel, and Cluster Computing (cs.DC). Simultaneously, critical upstream software dependencies continuously publish breaking changes, deprecation notices, and performance patches across GitHub release tags and corporate engineering engineering blogs.</p>
+      <p>For engineering leads and technical architects, remaining ignorant of upstream breakthroughs risks building on obsolete abstractions or incurring unnecessary infrastructure costs. Conversely, attempting to manually review arXiv listings and dozens of RSS feeds each morning consumes multiple hours of peak cognitive energy, leaving engineering teams depleted before primary development begins. Building an automated, noise-resistant research filter is essential for sustaining technical leverage.</p>
+    </section>
+
+    <section>
+      <h2>Mapping authoritative sources: Where technical signal originates</h2>
+      <p>An effective automated research filter aggregates directly from primary distribution points rather than secondary media aggregators. A well-designed stack balances three distinct publication layers:</p>
+
+      <h3>1. Primary Academic and Research Repositories</h3>
+      <p>Research preprints provide early warnings of algorithmic and systems breakthroughs before commercial packaging. High-value public endpoints include:</p>
+      <ul>
+        <li><strong>arXiv Category Feeds:</strong> RSS endpoints such as <code>https://rss.arxiv.org/rss/cs.AI</code> or <code>https://rss.arxiv.org/rss/cs.DC</code> that publish newly announced preprints with abstracts and author metadata.</li>
+        <li><strong>Open Research Repositories:</strong> Open-access conference proceedings and institutional repositories that distribute machine-readable Atom feeds.</li>
+      </ul>
+
+      <h3>2. Code Repository Releases and Changelogs</h3>
+      <p>While research papers provide theoretical models, production code repositories reflect practical deployment reality. Monitoring releases reveals breaking API shifts, performance fixes, and security patches:</p>
+      <ul>
+        <li><strong>GitHub Release Feeds:</strong> Every public GitHub repository provides an automated Atom feed for tagged releases via the pattern: <code>https://github.com/{owner}/{repo}/releases.atom</code>.</li>
+        <li><strong>Package Registry Security Bulletins:</strong> Official feed notices from package ecosystems (PyPI, Crates.io, npm) detailing vulnerability remediations and dependency deprecations.</li>
+      </ul>
+
+      <h3>3. First-Party Technical Engineering Blogs</h3>
+      <p>The most instructive systems engineering insights rarely appear in generic tech press; they appear on engineering blogs written by practicing infrastructure teams explaining production incidents and scaling solutions. High-signal feeds include engineering publications from distributed infrastructure providers, database engine teams, and browser engine developers.</p>
+
+      <div class="article-callout">
+        <strong>The Source Hierarchy Principle</strong>
+        <p>Prioritize primary sources over secondary commentary. A post-mortem written by the engineering team who resolved an incident contains ten times the actionable detail of a summary article written by an outside observer. Subscribe directly to the primary feed.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Technical components of an automated triage pipeline</h2>
+      <p>Constructing an automated research filter requires four core subsystems: ingestion, semantic evaluation, deduplication, and capped delivery.</p>
+
+      <h3>Subsystem 1: Resilient Feed Ingestion</h3>
+      <p>Feed ingestion must operate cleanly without triggering rate limits or overwhelming target servers:</p>
+      <ul>
+        <li><strong>HTTP Conditional Requests:</strong> The fetcher must cache and send <code>If-None-Match</code> (ETag) and <code>If-Modified-Since</code> headers. When a feed has not published new items, the server returns an HTTP 304 Not Modified response, preserving network bandwidth and server resources.</li>
+        <li><strong>Robust Parsing:</strong> Feeds in the wild vary significantly in adherence to RSS 2.0 and Atom 1.0 specifications. Ingestion workers must safely parse malformed XML, normalize date stamps across time zones, and handle missing summary fields gracefully.</li>
+      </ul>
+
+      <h3>Subsystem 2: Semantic Relevance Evaluation</h3>
+      <p>Traditional keyword regex matching fails in technical research because terminology is highly polysemic. For instance, querying the term "agent" returns articles ranging from insurance underwriting algorithms to macroeconomics and autonomous software tooling.</p>
+      <p>A semantic filter evaluates the complete paper abstract or release changelog against a structured domain profile. The evaluation system compares the submission against concrete architectural requirements:</p>
+      <ul>
+        <li>Does the paper propose specific memory optimizations or latency reductions for local model execution?</li>
+        <li>Does the release introduce breaking database schema migrations or changes to consensus protocols?</li>
+        <li>Does the article address production observability or telemetry in constrained environments?</li>
+      </ul>
+
+      <h3>Subsystem 3: Multi-Source Deduplication</h3>
+      <p>When a significant paper or release occurs, it is common for the preprint, a companion GitHub repository, an explanatory blog post, and a discussion thread to appear within forty-eight hours. A naive aggregator produces redundant notices. The deduplication layer canonicalizes target URLs, tracks preprint DOI identifiers, and detects title clusters to deliver a unified signal rather than fragmented repetitions.</p>
+
+      <h3>Subsystem 4: Capped Delivery</h3>
+      <p>The final stage enforces strict editorial discipline. An automated system that forwards fifty papers a day simply shifts cognitive fatigue from the browser to the inbox. Capping output to three to five high-scoring items ensures that every delivered signal warrants immediate attention.</p>
+    </section>
+
+    <section>
+      <h2>Configuring positive focus and negative noise filters</h2>
+      <p>The quality of your research feed depends directly on how precisely you articulate boundaries:</p>
+
+      <h3>Defining High-Leverage Positive Filters</h3>
+      <p>Express focus terms in operational sentences rather than isolated keywords:</p>
+      <ul>
+        <li><em>Effective:</em> "Quantization techniques (4-bit/8-bit), KV cache compression, speculative decoding, and inference latency optimizations for edge hardware."</li>
+        <li><em>Ineffective:</em> "AI, machine learning, tech."</li>
+      </ul>
+
+      <h3>Establishing Negative Noise Filters</h3>
+      <p>Explicitly exclude recurring categories that do not contribute to implementation decisions:</p>
+      <ul>
+        <li>Exclude speculative benchmarks conducted without open-source weights or reproduction code.</li>
+        <li>Exclude high-level industry thought leadership devoid of architectural diagrams or benchmark data.</li>
+        <li>Exclude funding milestones, corporate acquisitions, and executive appointments.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Operationalizing your automated brief</h2>
+      <p>To integrate an automated research filter into your professional routine:</p>
+      <ol>
+        <li><strong>Select your delivery anchor:</strong> Configure your rollup to arrive thirty minutes before your core daily planning block, giving you an uninterrupted window to scan key breakthroughs.</li>
+        <li><strong>Read the relevance reasoning first:</strong> Inspect the explanation of why each item cleared your filter before diving into thirty-page preprint PDFs.</li>
+        <li><strong>Iterate on your topical map:</strong> As project phases conclude, retire completed topics and add incoming technical dependencies to maintain sharp alignment.</li>
+      </ol>
+
+      <div class="article-cta-box">
+        <h3>Deploy an automated research brief with Paperboy</h3>
+        <p>Paperboy provides a pre-built, production-tested pipeline for Hacker News, arXiv AI preprints, GitHub releases, and custom RSS feeds. Define your filter once and receive a capped, ranked rollup with source citations.</p>
+        <a class="button button-small" href="/">Build my rollup →</a>
+      </div>
+    </section>
+
+    <section>
+      <h2>Related guides</h2>
+      <ul>
+        <li><a href="/rss-to-email-digest/">RSS to Email Digest: Turn Raw Feeds into a Filtered Rollup</a></li>
+        <li><a href="/hacker-news-digest/">Hacker News Digest: Filter HN for Signal Without Doomscrolling</a></li>
+        <li><a href="/privacy/">Paperboy Privacy Notice</a></li>
+        <li><a href="/terms/">Paperboy Terms of Service</a></li>
+      </ul>
+    </section>
+  </main>
+  <footer class="legal-footer">
+    <a href="/terms/">Terms</a>
+    <a href="/privacy/">Privacy</a>
+    <a href="/rss-to-email-digest/">RSS Digest</a>
+    <a href="/hacker-news-digest/">HN Digest</a>
+    <a href="/">Build your firehose</a>
+  </footer>
+</body>
+</html>

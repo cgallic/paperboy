@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A guide to converting noisy RSS and Atom feeds into a curated email digest. Compare raw feed forwarding, RSS readers, and semantic relevance filters.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://newpaperboy.com/rss-to-email-digest/">
+  <title>RSS to Email Digest: Turn Raw Feeds into a Filtered Rollup — Paperboy</title>
+  <link rel="icon" href="/favicon.svg">
+  <link rel="stylesheet" href="/styles.css">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MBMJNN0PPH"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-MBMJNN0PPH");</script>
+  <meta property="og:title" content="RSS to Email Digest: Turn Raw Feeds into a Filtered Rollup — Paperboy">
+  <meta property="og:description" content="A guide to converting noisy RSS and Atom feeds into a curated email digest. Compare raw feed forwarding, RSS readers, and semantic relevance filters.">
+  <meta property="og:url" content="https://newpaperboy.com/rss-to-email-digest/">
+  <meta property="og:image" content="https://newpaperboy.com/og.svg">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Article","headline":"RSS to Email Digest: Turn Raw Feeds into a Filtered Rollup","description":"How to convert high-volume RSS feeds into a curated, noise-filtered email rollup for engineering and technical teams.","url":"https://newpaperboy.com/rss-to-email-digest/","author":{"@type":"Organization","name":"Paperboy"},"publisher":{"@type":"Organization","name":"MEET KAI LLC","url":"https://newpaperboy.com/"}}]}</script>
+</head>
+<body class="legal-page">
+  <header class="legal-header">
+    <a class="brand" href="/" aria-label="Paperboy home">
+      <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true"><circle cx="7" cy="7" r="2"></circle><circle cx="18" cy="7" r="2"></circle><circle cx="29" cy="7" r="2"></circle><path d="M7 10c0 6 11 6 11 13M18 10v13M29 10c0 6-11 6-11 13"></path><path class="brand-route" d="M18 23v6"></path><circle cx="18" cy="31" r="2"></circle></svg>
+      <span>paperboy</span>
+    </a>
+    <a href="/">Back to Paperboy</a>
+  </header>
+  <main class="legal-shell">
+    <p class="eyebrow">Technical Architecture Guide</p>
+    <h1>RSS to Email Digest: Turn Raw Feeds into a Filtered Rollup</h1>
+    <p class="legal-updated">Published October 2026 · 7 min read</p>
+
+    <section>
+      <h2>The syndication dilemma: Signal buried under feed volume</h2>
+      <p>Really Simple Syndication (RSS) and Atom feeds remain the open web's most durable distribution protocol. Unlike algorithmic social feeds designed to optimize user engagement and time on platform, RSS feeds publish items in strict chronological order without intermediaries manipulating visibility. For software developers, technical founders, and infrastructure engineers, subscribing directly to vendor changelogs, research preprints, security CVE advisories, and technical engineering blogs is the most reliable way to stay informed about upstream software dependencies.</p>
+      <p>However, chronological distribution has a structural flaw: it treats every publication event equally. A major architecture breakdown explaining a distributed database outage shares the exact same prominence as a minor typo correction, a corporate executive hire, or an introductory tutorial aimed at novices. When an engineer subscribes to twenty high-signal engineering blogs and changelogs, the cumulative output quickly produces tens of updates every day. The sheer volume makes manual review unsustainable.</p>
+    </section>
+
+    <section>
+      <h2>Three generations of feed consumption models</h2>
+      <p>Over the past two decades, developers and researchers have adopted three distinct architectural patterns to manage feed consumption:</p>
+
+      <h3>1. The Inbox Reader (Google Reader, Feedly, Inoreader)</h3>
+      <p>The traditional reader model treats feeds as a second inbox. Unread counts accumulate in sidebars, creating an artificial sense of administrative obligation. Readers must dedicate 30 to 60 minutes daily triaging unread lists, clicking "Mark all as read," and scanning headline lists. While valuable for archival research and power users who categorize hundreds of publications into nested folders, this workflow introduces high context switching and feed triage fatigue for engineers with active delivery responsibilities.</p>
+
+      <h3>2. Naive Forwarding and Digest Batchers (Blogtrottr, Zapier, Mailbrew)</h3>
+      <p>The second model attempts to eliminate reader app maintenance by forwarding feed items directly to email. In its simplest form—immediate forwarding—every published article triggers an individual email notification, fragmenting the recipient's primary inbox and disrupting focused work. Digest batchers improved on this by grouping new items into a single daily or weekly email dispatch. However, naive batchers lack filtering intelligence: they include every published item indiscriminately. If a publication releases five minor marketing announcements in a week, all five occupy space in the digest, crowding out substantive technical disclosures.</p>
+
+      <h3>3. Semantic Relevance Rollups (Paperboy)</h3>
+      <p>The third generation shifts the paradigm from passive forwarding to active editorial filtering. Rather than forwarding raw feed streams, a semantic relevance filter ingests items from public RSS and Atom endpoints, scores each article against explicit focus parameters defined by the subscriber, drops off-topic items based on a negative ignore list, and produces a strictly capped brief. The resulting brief explains precisely why each surviving item made the cut, linking directly to the primary source.</p>
+
+      <div class="article-callout">
+        <strong>The Capped Brief Principle</strong>
+        <p>An unbounded feed demands infinite attention. A capped brief delivers completion. By constraining output to a fixed maximum number of ranked signals per edition, the system forces ranking competition among incoming items.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>How relevance scoring and noise rejection work</h2>
+      <p>Constructing a high-utility RSS-to-email rollup requires two complementary filtering vectors: positive relevance criteria and negative rejection criteria.</p>
+
+      <h3>Positive relevance vectors</h3>
+      <p>Rather than relying on basic keyword searches that produce false positives, modern feed filters analyze the technical substance of each article against explicit work themes. For example, an infrastructure engineer might configure relevance around:</p>
+      <ul>
+        <li>Distributed database consistency models, replication lag, and snapshot isolation.</li>
+        <li>Cloud provider API deprecations, breaking billing model changes, and rate limit updates.</li>
+        <li>Memory management in systems languages (Rust, Go, C++), garbage collection pauses, and allocator performance.</li>
+        <li>Linux kernel networking optimizations (eBPF, XDP) and container runtime isolation.</li>
+      </ul>
+
+      <h3>Negative noise rejection</h3>
+      <p>Equally critical is the ability to purge predictable feed noise that dilutes technical signal. Effective exclusion filters target categories such as:</p>
+      <ul>
+        <li>Venture funding rounds, valuations, and investor announcements.</li>
+        <li>Introductory "Getting Started" tutorials and repetitive syntax overviews.</li>
+        <li>Marketing collateral, corporate partnership press releases, and executive hiring notices.</li>
+        <li>Speculative commentary lacking reproducible code or benchmarks.</li>
+      </ul>
+      <p>When an article matches both a positive interest and an exclusion pattern, the exclusion rule takes precedence, keeping the final delivery free of recurring distractions.</p>
+    </section>
+
+    <section>
+      <h2>Cross-feed deduplication: The syndication echo chamber</h2>
+      <p>A frequent challenge with technical news is cross-syndication. When a critical zero-day vulnerability or major framework upgrade occurs, it is simultaneously posted across Hacker News, specialized subreddits, official security advisories, and multiple individual engineering blogs. A naive RSS-to-email digest often presents the same underlying news event three or four times under different headlines.</p>
+      <p>An intelligent rollup pipeline normalizes incoming URLs, strips tracking parameters (such as UTM tags and referral markers), inspects target canonical URLs, and evaluates title similarities. When multiple incoming items reference the same upstream event, the pipeline collapses them into a single primary entry, citing the authoritative original source rather than secondary commentary aggregators.</p>
+    </section>
+
+    <section>
+      <h2>Choosing the right cadence: Daily vs. Weekly</h2>
+      <p>Delivery frequency should reflect the operational tempo of the underlying technical signals:</p>
+      <ul>
+        <li><strong>Daily Delivery:</strong> Suited for fast-moving infrastructure alerts, zero-day security advisories, major cloud service incidents, and active dependency releases. Receiving a daily brief at a consistent morning hour (such as 8:00 AM in your local time zone) enables engineers to review necessary shifts before beginning focused design and implementation blocks.</li>
+        <li><strong>Weekly Delivery:</strong> Optimal for deep research preprints, architectural case studies, long-form engineering essays, and high-level ecosystem shifts. A weekly Monday rollup provides strategic context for upcoming sprint planning without disrupting mid-week execution.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Step-by-step framework to audit and rebuild your feeds</h2>
+      <p>To establish a durable, noise-resistant feed pipeline, follow this four-step audit framework:</p>
+      <ol>
+        <li><strong>Inventory your existing subscriptions:</strong> Export your current OPML feed lists or bookmarks. Identify which sources consistently deliver actionable technical depth versus those that publish promotional filler.</li>
+        <li><strong>Locate direct upstream feeds:</strong> Seek out direct RSS or Atom endpoints for core tools. Most major code repositories expose release feeds (for example, GitHub releases atom feeds), and technical engineering teams publish dedicated blogs without marketing cross-talk.</li>
+        <li><strong>Formulate explicit filtering boundaries:</strong> Write down two or three concrete architectural priorities currently relevant to your roadmap, alongside five specific topics you never want to see in your inbox.</li>
+        <li><strong>Enforce delivery caps:</strong> Avoid any configuration that allows unlimited messages to reach your primary email address. Ensure your system caps editions to a readable number of items with direct source links.</li>
+      </ol>
+
+      <div class="article-cta-box">
+        <h3>Build your personal filtered rollup with Paperboy</h3>
+        <p>Paperboy automates this exact pipeline. Connect public RSS feeds, Hacker News, or research sources, specify what matters to your stack, and receive a capped, ranked brief with source links and relevance explanations.</p>
+        <a class="button button-small" href="/">Build my rollup →</a>
+      </div>
+    </section>
+
+    <section>
+      <h2>Related guides</h2>
+      <ul>
+        <li><a href="/hacker-news-digest/">Hacker News Digest: Filter HN for Signal Without Doomscrolling</a></li>
+        <li><a href="/automated-research-feed/">How to Build an Automated Research &amp; Tech News Filter</a></li>
+        <li><a href="/privacy/">Paperboy Privacy Notice</a></li>
+        <li><a href="/terms/">Paperboy Terms of Service</a></li>
+      </ul>
+    </section>
+  </main>
+  <footer class="legal-footer">
+    <a href="/terms/">Terms</a>
+    <a href="/privacy/">Privacy</a>
+    <a href="/hacker-news-digest/">HN Digest</a>
+    <a href="/automated-research-feed/">Research Feed</a>
+    <a href="/">Build your firehose</a>
+  </footer>
+</body>
+</html>

@@ -97,7 +97,7 @@ const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
 const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
 if (duplicates.length) failures.push("Duplicate HTML ids: " + [...new Set(duplicates)].join(", "));
 
-if (/<script[^>]+src="https?:/i.test(html) || /<link(?=[^>]+rel="stylesheet")(?=[^>]+href="https?:)[^>]*>/i.test(html)) {
+if (/<script[^>]+src="https?:(?!\/\/www\.googletagmanager\.com)/i.test(html) || /<link(?=[^>]+rel="stylesheet")(?=[^>]+href="https?:)[^>]*>/i.test(html)) {
   failures.push("Remote script or stylesheet dependency found.");
 }
 
