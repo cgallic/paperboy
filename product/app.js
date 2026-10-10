@@ -1067,6 +1067,18 @@
       cadence: cadence,
       weekly_day: weeklyDay
     });
+    if (typeof window.gtag === "function") {
+      window.gtag("event", "signup_complete", {
+        product: "paperboy",
+        cadence: cadence,
+        weekly_day: weeklyDay,
+        source_count: sourceUrls.length
+      });
+      window.gtag("event", "sign_up", {
+        method: "digest_form",
+        product: "paperboy"
+      });
+    }
     document.getElementById("subscription-success-title").textContent = "Check your email.";
     document.getElementById("subscription-success-copy").textContent = "Paperboy saved your filter and sent a confirmation link. Nothing will be delivered until you confirm the address and finish checkout.";
     document.getElementById("subscription-status").textContent = "Awaiting confirmation";
@@ -1268,8 +1280,9 @@
         throw new Error(subscriptionErrorMessage(response, result));
       }
       confirmationToken = "";
-      if (analyticsAllowed() && typeof window.gtag === "function") {
-        window.gtag("event", "signup_complete", { product: "paperboy" });
+      if (typeof window.gtag === "function") {
+        window.gtag("event", "signup_complete", { product: "paperboy", status: "confirmed" });
+        window.gtag("event", "sign_up", { method: "email_confirmed", product: "paperboy" });
       }
       history.replaceState(null, "", window.location.pathname + "#signin");
       document.getElementById("confirmation-panel").hidden = true;
