@@ -37,7 +37,7 @@ class SubscriptionSuppressedError(SubscriptionValidationError):
 
 
 class ExistingSubscriptionError(SubscriptionSuppressedError):
-    """An existing verified subscription must be changed through its private link."""
+    """An existing subscription must be changed through its private link."""
 
 
 def _utc_now(now: datetime | None = None) -> datetime:
@@ -310,7 +310,7 @@ def create_subscription(
     conn = connect()
     try:
         row = conn.execute(
-            "SELECT id, created_at, active, verification_status, billing_status "
+            "SELECT id, created_at, active, verification_status, verification_expires_at, billing_status "
             "FROM firehose_subscriptions WHERE email = ?",
             (email,),
         ).fetchone()
@@ -321,6 +321,15 @@ def create_subscription(
         ):
             raise ExistingSubscriptionError(
                 "this email already has a verified subscription; use its private management link"
+            )
+        if (
+            row is not None
+            and str(row["verification_status"]) == "pending"
+            and row["verification_expires_at"]
+            and _parse_iso(str(row["verification_expires_at"])) >= now_dt
+        ):
+            raise ExistingSubscriptionError(
+                "a confirmation for this email is already pending; use the existing email link or wait for it to expire"
             )
         values = (
             json.dumps(sources),
@@ -584,6 +593,27 @@ def unsubscribe(token: str) -> dict[str, Any] | None:
             SET active = 0, updated_at = ?, unsubscribed_at = ? WHERE id = ?
             """,
             (now, now, subscription["id"]),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    return get_subscription_by_id(int(subscription["id"]))
+
+
+def set_analytics_consent(token: str, allowed: bool) -> dict[str, Any] | None:
+    """Update edition open/click analytics consent through a private management token."""
+    if not isinstance(allowed, bool):
+        raise ValueError("analytics consent must be true or false")
+    subscription = get_subscription(token)
+    if subscription is None:
+        return None
+    attribution = dict(subscription.get("attribution") or {})
+    attribution["_analytics_consent"] = allowed
+    conn = connect()
+    try:
+        conn.execute(
+            "UPDATE firehose_subscriptions SET attribution_json = ?, updated_at = ? WHERE id = ?",
+            (json.dumps(attribution, ensure_ascii=False), _now(), subscription["id"]),
         )
         conn.commit()
     finally:
@@ -1062,12 +1092,20 @@ def record_tracking_event(
     try:
         row = conn.execute(
             """
-            SELECT id, subscription_id, delivery_id FROM firehose_tracking_tokens
-            WHERE token_hash = ? AND kind = ? AND expires_at > ?
+            SELECT token.id, token.subscription_id, token.delivery_id, subscription.attribution_json
+            FROM firehose_tracking_tokens AS token
+            JOIN firehose_subscriptions AS subscription ON subscription.id = token.subscription_id
+            WHERE token.token_hash = ? AND token.kind = ? AND token.expires_at > ?
             """,
             (token_hash, event, now_iso),
         ).fetchone()
         if row is None:
+            return False
+        try:
+            analytics_allowed = bool(json.loads(str(row["attribution_json"])).get("_analytics_consent"))
+        except (AttributeError, json.JSONDecodeError, TypeError):
+            analytics_allowed = False
+        if not analytics_allowed:
             return False
         conn.execute(
             """

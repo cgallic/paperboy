@@ -10,6 +10,7 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 
 from paperboy.api.main import app
+from paperboy.config import settings
 from paperboy.db import connect, init_schema
 from paperboy.firehose_delivery import run_daily_deliveries
 from paperboy.subscriptions import (
@@ -21,6 +22,7 @@ from paperboy.subscriptions import (
     create_subscription,
     get_subscription,
     get_subscription_by_email,
+    management_token,
     set_billing_state,
     unsubscribe,
     validate_subscription_payload,
@@ -156,8 +158,32 @@ class SubscriptionStorageTests(SubscriptionTestCase):
         self.assertFalse(unsubscribe(token)["active"])
         self.assertIsNone(get_subscription(token + "x"))
 
-    def test_resubscribing_replaces_config_and_invalidates_old_token(self) -> None:
+    def test_unexpired_pending_setup_cannot_be_overwritten(self) -> None:
+        first, old_token = self.create()
+        with self.assertRaises(ExistingSubscriptionError):
+            create_subscription(
+                "reader@example.com",
+                ["https://example.org/rss"],
+                "developer tools",
+                [],
+            )
+        preserved = get_subscription(old_token)
+        assert preserved is not None
+        self.assertEqual(preserved["focus"], first["focus"])
+        self.assertEqual(preserved["sources"], first["sources"])
+
+    def test_expired_pending_setup_can_be_replaced(self) -> None:
         _first, old_token = self.create()
+        conn = connect()
+        try:
+            conn.execute(
+                "UPDATE firehose_subscriptions SET verification_status = 'expired', "
+                "verification_expires_at = '2026-01-01T00:00:00Z' WHERE email = ?",
+                ("reader@example.com",),
+            )
+            conn.commit()
+        finally:
+            conn.close()
         second, new_token = create_subscription(
             "reader@example.com",
             ["https://example.org/rss"],
@@ -246,11 +272,44 @@ class SubscriptionEndpointTests(SubscriptionTestCase):
         # Weekly is the free plan: verified and unpaid still has a next delivery.
         self.assertTrue(status.json()["delivery_entitled"])
         self.assertTrue(status.json()["next_delivery_at"].endswith("08:00:00Z"))
+        self.assertFalse(status.json()["analytics_consent"])
         self.assertNotIn("email", status.json())
 
+        token = management_token(subscription)
+        opt_in = self.client.post(
+            f"/api/firehose/subscriptions/{token}/analytics-consent",
+            json={"allowed": True},
+        )
+        self.assertEqual(opt_in.json(), {"ok": True, "analytics_consent": True})
+        self.assertTrue(self.client.get(confirmed_data["status_url"]).json()["analytics_consent"])
+        invalid_consent = self.client.post(
+            f"/api/firehose/subscriptions/{token}/analytics-consent",
+            json={"allowed": "yes"},
+        )
+        self.assertEqual(invalid_consent.status_code, 422)
+        opt_out = self.client.post(
+            f"/api/firehose/subscriptions/{token}/analytics-consent",
+            json={"allowed": False},
+        )
+        self.assertEqual(opt_out.json(), {"ok": True, "analytics_consent": False})
+
+        entitled = set_billing_state(
+            int(subscription["id"]),
+            "active",
+            customer_id="cus_test",
+            billing_subscription_id="sub_test",
+        )
+        assert entitled is not None
         stopped = self.client.post(confirmed_data["unsubscribe_url"])
-        self.assertEqual(stopped.json(), {"ok": True, "status": "unsubscribed"})
-        self.assertEqual(self.client.get(confirmed_data["status_url"]).json()["status"], "unsubscribed")
+        stopped_data = stopped.json()
+        self.assertEqual(stopped_data["status"], "unsubscribed")
+        self.assertEqual(stopped_data["billing_status"], "active")
+        self.assertFalse(stopped_data["analytics_consent"])
+        self.assertFalse(stopped_data["checkout_available"])
+        self.assertEqual(stopped_data["portal_available"], settings.billing_enabled)
+        stopped_status = self.client.get(confirmed_data["status_url"]).json()
+        self.assertEqual(stopped_status["status"], "unsubscribed")
+        self.assertEqual(stopped_status["billing_status"], "active")
 
     def test_unreachable_preview_is_not_persisted(self) -> None:
         failed_preview = {
