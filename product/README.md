@@ -20,16 +20,17 @@ The primary flow is real, bounded product behavior:
 The subscription API first returns `{ok: true, status: "pending_verification"}`.
 The page says **Check your email** and never claims delivery is active. The
 emailed `?confirm=` link renders an explicit confirmation button; it does not
-confirm on page load. After confirmation, the management screen requires hosted
-checkout and only claims delivery is active when server billing status is
-`trialing` or `active`.
+confirm on page load. After confirmation, a weekly subscription is active on the free plan with no
+card. A daily subscription requires hosted checkout, and the management screen
+only claims daily delivery is active when server billing status is `trialing`
+or `active`. Starting a paid plan switches a weekly subscription to daily.
 
 ## Product boundary
 
 The automatic subscription supports public RSS and Atom feeds. It does not
 connect to an inbox or auto-subscribe a user to email-only newsletters. The
-live commercial offer is a card-required seven-day trial, then $5/month until
-canceled. Card details remain on Stripe-hosted checkout. The existing
+live offer is a free weekly rollup with no card, or daily delivery on a
+card-required seven-day trial, then $5/month until canceled. Card details remain on Stripe-hosted checkout. The existing
 setup/account/checkout routes remain clearly labeled fixture previews and are
 not linked from the primary live flow.
 
@@ -63,7 +64,7 @@ git diff --check
 6. Choose daily delivery or a weekly delivery day and confirm the time zone.
 7. Request the subscription and inspect the first ranked, source-linked results.
 8. Open the emailed link and explicitly confirm the address.
-9. Start the card-required seven-day trial through hosted checkout.
+9. Weekly: delivery is free from here. Daily: start the card-required seven-day trial through hosted checkout.
 10. Use the returned management controls to refresh status or unsubscribe.
 
 ## Acceptance checklist

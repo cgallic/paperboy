@@ -230,13 +230,13 @@ def main() -> None:
         page.get_by_role("heading", name="Verify your email to continue.").wait_for()
         assert confirmation_requests == []
         page.get_by_role("button", name="Confirm my email").click()
-        page.get_by_role("heading", name="Email verified. Finish checkout to start delivery.").wait_for()
+        page.get_by_role("heading", name="Your free weekly rollup is active.").wait_for()
         assert len(confirmation_requests) == 1
         assert "confirm=" not in page.url
-        assert page.get_by_text("Checkout required", exact=True).count() >= 1
+        assert page.get_by_text("Free weekly plan", exact=True).count() >= 1
         assert unexpected_leads == []
 
-        page.get_by_role("button", name="Continue to founding checkout").click()
+        page.get_by_role("button", name="Upgrade to daily · 7-day trial").click()
         page.wait_for_url("https://checkout.stripe.com/**")
         assert checkout_payloads == [{"token": "smoke-manage"}]
 
@@ -283,10 +283,10 @@ def main() -> None:
         status_payload.update({"billing_status": "unpaid"})
         unavailable = context.new_page()
         unavailable.goto("http://newpaperboy.com:8123/?manage=smoke-manage", wait_until="networkidle")
-        unavailable.get_by_role("heading", name="Email verified. Finish checkout to start delivery.").wait_for()
-        unavailable.get_by_role("button", name="Continue to founding checkout").click()
+        unavailable.get_by_role("heading", name="Your free weekly rollup is active.").wait_for()
+        unavailable.get_by_role("button", name="Upgrade to daily · 7-day trial").click()
         unavailable.get_by_text("Checkout is temporarily unavailable.", exact=False).wait_for()
-        assert unavailable.get_by_text("delivery has not started", exact=False).is_visible()
+        assert unavailable.get_by_text("your plan has not changed", exact=False).is_visible()
 
         subscribe_failure["enabled"] = True
         failure = context.new_page()
@@ -318,7 +318,7 @@ def main() -> None:
         billing_config["enabled"] = False
         unavailable_launch = context.new_page()
         unavailable_launch.goto("http://newpaperboy.com:8123/", wait_until="networkidle")
-        assert unavailable_launch.get_by_text("Preview and email verification are live", exact=True).is_visible()
+        assert unavailable_launch.get_by_text("Free weekly rollup is live", exact=True).is_visible()
         assert unavailable_launch.get_by_text("No card will be requested or charged.", exact=False).is_visible()
         assert unavailable_launch.get_by_text("Checkout temporarily unavailable", exact=True).is_visible()
 

@@ -658,7 +658,7 @@ def unsuppress_email(email: str) -> bool:
                 UPDATE firehose_subscriptions
                 SET active = CASE
                         WHEN verification_status = 'verified'
-                         AND billing_status IN ('trialing', 'active')
+                         AND (billing_status IN ('trialing', 'active') OR cadence = 'weekly')
                          AND unsubscribed_at IS NULL THEN 1
                         ELSE active
                     END,
@@ -693,7 +693,7 @@ def active_subscriptions() -> list[dict[str, Any]]:
             + """
             WHERE s.active = 1 AND s.verification_status = 'verified'
               AND s.verified_at IS NOT NULL
-              AND s.billing_status IN ('trialing', 'active')
+              AND (s.billing_status IN ('trialing', 'active') OR s.cadence = 'weekly')
               AND NOT EXISTS (
                   SELECT 1 FROM firehose_suppressions suppression WHERE suppression.email = s.email
               )
@@ -705,8 +705,20 @@ def active_subscriptions() -> list[dict[str, Any]]:
     return [
         subscription
         for row in rows
-        if billing_entitled(subscription := _decode_subscription(row))
+        if delivery_entitled(subscription := _decode_subscription(row))
     ]
+
+
+def free_tier(subscription: dict[str, Any]) -> bool:
+    """Return whether the subscription is on the free, no-card weekly plan."""
+    return str(subscription.get("cadence") or "daily") == "weekly"
+
+
+def delivery_entitled(
+    subscription: dict[str, Any], *, now: datetime | None = None
+) -> bool:
+    """Return whether the plan permits delivery: weekly is free, daily needs billing."""
+    return free_tier(subscription) or billing_entitled(subscription, now=now)
 
 
 def billing_entitled(
@@ -723,6 +735,36 @@ def billing_entitled(
     except (TypeError, ValueError):
         return False
     return trial_end > _utc_now(now)
+
+
+def switch_to_daily(subscription_id: int) -> None:
+    """Move a free weekly subscription to daily delivery once it starts a paid plan."""
+    init_schema()
+    conn = connect()
+    try:
+        conn.execute(
+            "UPDATE firehose_subscriptions SET cadence = 'daily', weekly_day = 0, updated_at = ? "
+            "WHERE id = ? AND cadence = 'weekly'",
+            (_now(), subscription_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def switch_to_weekly(subscription_id: int) -> None:
+    """Drop a canceled paid subscription back to the free weekly plan (Mondays)."""
+    init_schema()
+    conn = connect()
+    try:
+        conn.execute(
+            "UPDATE firehose_subscriptions SET cadence = 'weekly', weekly_day = 0, updated_at = ? "
+            "WHERE id = ? AND cadence = 'daily'",
+            (_now(), subscription_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def next_delivery_at(subscription: dict[str, Any], *, now: datetime | None = None) -> datetime:

@@ -149,8 +149,47 @@ class BillingTests(unittest.TestCase):
         self.assertEqual(apply_event(deleted)[0], "processed")
         self.assertEqual(get_subscription_by_id(self.subscription["id"])["billing_status"], "canceled")
         self.assertEqual(apply_event(stale_update)[0], "ignored")
-        self.assertEqual(get_subscription_by_id(self.subscription["id"])["billing_status"], "canceled")
-        self.assertEqual(active_subscriptions(), [])
+        restored = get_subscription_by_id(self.subscription["id"])
+        self.assertEqual(restored["billing_status"], "canceled")
+        # Canceling the paid plan falls back to the free weekly rollup, not to daily.
+        self.assertEqual(restored["cadence"], "weekly")
+        self.assertEqual([s["cadence"] for s in active_subscriptions()], ["weekly"])
+
+
+    def test_trial_start_upgrades_free_weekly_subscription_to_daily(self) -> None:
+        pending, _token = create_subscription(
+            "weekly@example.com",
+            ["https://example.com/feed"],
+            "agent reliability",
+            [],
+            cadence="weekly",
+            weekly_day=3,
+        )
+        weekly = confirm_subscription(confirmation_token(pending))
+        assert weekly is not None
+        self.assertEqual(weekly["cadence"], "weekly")
+        outcome, subscription_id = apply_event(
+            {
+                "id": "evt_weekly_upgrade",
+                "created": 100,
+                "type": "customer.subscription.created",
+                "data": {
+                    "object": {
+                        "id": "sub_weekly",
+                        "status": "trialing",
+                        "customer": "cus_weekly",
+                        "trial_end": 9999999999,
+                        "metadata": {"paperboy_subscription_id": str(weekly["id"])},
+                    }
+                },
+            }
+        )
+        self.assertEqual((outcome, subscription_id), ("processed", weekly["id"]))
+        upgraded = get_subscription_by_id(weekly["id"])
+        assert upgraded is not None
+        self.assertEqual(upgraded["billing_status"], "trialing")
+        self.assertEqual(upgraded["cadence"], "daily")
+        self.assertEqual(upgraded["weekly_day"], 0)
 
 
 if __name__ == "__main__":
