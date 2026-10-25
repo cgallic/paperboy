@@ -149,8 +149,11 @@ class BillingTests(unittest.TestCase):
         self.assertEqual(apply_event(deleted)[0], "processed")
         self.assertEqual(get_subscription_by_id(self.subscription["id"])["billing_status"], "canceled")
         self.assertEqual(apply_event(stale_update)[0], "ignored")
-        self.assertEqual(get_subscription_by_id(self.subscription["id"])["billing_status"], "canceled")
-        self.assertEqual(active_subscriptions(), [])
+        restored = get_subscription_by_id(self.subscription["id"])
+        self.assertEqual(restored["billing_status"], "canceled")
+        # Canceling the paid plan falls back to the free weekly rollup, not to daily.
+        self.assertEqual(restored["cadence"], "weekly")
+        self.assertEqual([s["cadence"] for s in active_subscriptions()], ["weekly"])
 
 
     def test_trial_start_upgrades_free_weekly_subscription_to_daily(self) -> None:

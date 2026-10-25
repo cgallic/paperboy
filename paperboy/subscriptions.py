@@ -752,6 +752,21 @@ def switch_to_daily(subscription_id: int) -> None:
         conn.close()
 
 
+def switch_to_weekly(subscription_id: int) -> None:
+    """Drop a canceled paid subscription back to the free weekly plan (Mondays)."""
+    init_schema()
+    conn = connect()
+    try:
+        conn.execute(
+            "UPDATE firehose_subscriptions SET cadence = 'weekly', weekly_day = 0, updated_at = ? "
+            "WHERE id = ? AND cadence = 'daily'",
+            (_now(), subscription_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def next_delivery_at(subscription: dict[str, Any], *, now: datetime | None = None) -> datetime:
     now_utc = _utc_now(now)
     zone = ZoneInfo(str(subscription.get("timezone") or "UTC"))
