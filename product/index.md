@@ -5,7 +5,7 @@ Canonical: https://newpaperboy.com/
 Paperboy — Your Own Filtered Firehose
 Skip to content
 Founding beta
-Preview your filter and verify your email. Paid daily or weekly delivery starts only after hosted checkout confirms a trial.
+Preview your filter and verify your email. The weekly rollup is free with no card. Daily delivery starts after hosted checkout confirms a trial.
 paperboy
 How it works
 Pricing
@@ -69,7 +69,7 @@ Let Paperboy set it up
 Paperboy validates the feeds, scans recent items, ranks the best matches, saves the filter, and emails a secure confirmation link.
 ✓
 Get the cut on your schedule
-After you confirm the address and start the trial, your active filter refreshes the sources and sends the strongest matches daily or weekly.
+After you confirm the address, your filter refreshes the sources and sends the strongest matches every week for free. Start the trial to get it daily.
 Automatic, without inbox access
 Paste feeds. Paperboy does the setup.
 Paperboy works from public RSS and Atom feeds. It validates each URL, reads a bounded set of recent items, removes duplicates, and ranks the result against your filter. No Gmail connection or manual concierge step is required.
@@ -81,17 +81,27 @@ Duplicate removal Automatic
 Inbox access None
 Private feeds, paywalled sources, and email-only newsletters are not fetched by the live preview.
 Founding beta
-Try your filtered firehose for seven days.
-Preview the filter free. After email verification, start a card-required seven-day trial to activate daily or weekly delivery. Then pay $5 per month until canceled.
-Seven-day trial
-Paperboy Filtered Firehose
-$ 5 / month
+Free every week. Daily for $5 a month.
+Preview the filter free. Confirm your email and the weekly rollup is free, with no card. For daily delivery, start a card-required seven-day trial, then pay $5 per month until canceled.
+Free
+Weekly rollup
+Free No card required.
+One edition a week after you confirm your email. No checkout.
+Your chosen public RSS and Atom feeds
+A relevance filter built around your work
+One ranked edition each week
+Links to every original source
+Upgrade to daily any time
+Build my rollup
+Daily · seven-day trial
+Daily rollup
+$ 5 / month after 7-day trial
 Card required for the seven-day trial. Billing starts after the trial unless you cancel.
 Founding beta
 Checkout availability is checked live. A preview or verified email is not a paid subscription.
 Your chosen public RSS and Atom feeds
 A relevance filter built around your work
-One ranked edition on your chosen schedule
+One ranked edition every day
 Links to every original source
 Cancel recurring billing through Stripe
 Build my rollup
@@ -105,7 +115,7 @@ No. Many newsletters require email confirmation or expose no public feed. Use a 
 Which sources work right now?
 Public RSS and Atom feeds, including Hacker News and many blogs, release feeds, and research feeds.
 Is the first brief automated?
-Yes. Paperboy validates the feeds, scans recent items, removes duplicates, and ranks them against your filter. Delivery starts only after email confirmation and hosted trial checkout.
+Yes. Paperboy validates the feeds, scans recent items, removes duplicates, and ranks them against your filter. Weekly delivery starts after email confirmation, free with no card. Daily delivery also needs the hosted trial checkout.
 Do I need to wait for someone to set it up?
 No. Paperboy validates and saves the filter automatically, then asks you to confirm the email address. No operator needs to approve it.
 
@@ -123,7 +133,7 @@ Automatic filter setup
 Start your automatic rollup.
 Choose Hacker News or paste public RSS and Atom feeds. Tell Paperboy what matters once; it validates the filter and emails you a secure activation link.
 No human setup
-Paperboy validates and saves your public feeds automatically. Confirm your email, then start the hosted trial checkout to turn on delivery. It does not connect to an inbox.
+Paperboy validates and saves your public feeds automatically. Confirm your email to start the free weekly rollup; daily delivery also needs the hosted trial checkout. It does not connect to an inbox.
 Email address
 Your rollup is delivered here. No inbox access is required.
 Quick-start sources optional
@@ -152,11 +162,11 @@ I agree to receive the Paperboy brief and service emails. I can unsubscribe at a
 Build my rollup
 Confirm your email
 Verify your email to continue.
-This link verifies the address. Delivery starts only after Stripe confirms the trial is active.
+This link verifies the address. A weekly rollup starts right away, free. Daily delivery starts after Stripe confirms the trial is active.
 Confirm my email
 ✓
 Check your email.
-Paperboy saved your filter and sent a confirmation link. Nothing will be delivered until you confirm the address and finish checkout.
+Paperboy saved your filter and sent a confirmation link. Nothing will be delivered until you confirm the address.
 Status Awaiting confirmation
 Delivery Not started
 Payment Checkout required
@@ -253,9 +263,9 @@ Demo boundary
 Preview successful setup
 Return to setup
 Plan summary
-Paperboy Rollup
+Paperboy Daily Rollup
 $ 5 / month
-The price is $5/month after a card-required seven-day trial. The live flow repeats these terms before checkout.
+Daily delivery is $5/month after a card-required seven-day trial. The weekly rollup is free with no card. The live flow repeats these terms before checkout.
 Repositories 0 selected
 Delivery Not set
 Trial terms 7 days, then $5/month
@@ -312,7 +322,7 @@ Change delivery
 Privacy and billing
 paperboy
 Build a public-source firehose. Read only what survives your filter.
-Seven-day card-required trial · then $5/month until canceled
+Weekly rollup free, no card · Daily: seven-day card-required trial, then $5/month until canceled
 Privacy
 Terms
 Contact

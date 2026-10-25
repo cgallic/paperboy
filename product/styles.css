@@ -865,7 +865,7 @@ p {
   display: grid;
   align-items: stretch;
   gap: 22px;
-  grid-template-columns: minmax(0, 760px);
+  grid-template-columns: repeat(2, minmax(0, 420px));
   justify-content: center;
 }
 

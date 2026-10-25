@@ -14,7 +14,7 @@ import stripe
 
 from paperboy.config import settings
 from paperboy.db import connect
-from paperboy.subscriptions import get_subscription_by_id, set_billing_state
+from paperboy.subscriptions import get_subscription_by_id, set_billing_state, switch_to_daily
 
 
 class BillingUnavailableError(RuntimeError):
@@ -218,6 +218,13 @@ def apply_event(event: Any) -> tuple[str, int | None]:
             billing_subscription_id=external_subscription,
             trial_ends_at=trial_ends_at,
         )
+        if (
+            applied
+            and mapped in {"trialing", "active"}
+            and subscription["billing_status"] in {"unpaid", "canceled"}
+        ):
+            # Weekly is the free plan; starting a paid plan is the upgrade to daily.
+            switch_to_daily(int(subscription["id"]))
         return ("processed" if applied else "ignored"), int(subscription["id"])
 
     if event_type in {"invoice.paid", "invoice.payment_failed"}:

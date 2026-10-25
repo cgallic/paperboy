@@ -5,16 +5,16 @@
 - **Target audience:** Technical founders and hands-on product/engineering leads
 - **Traffic source:** Cold paid traffic
 - **Goal:** Activate an automatic daily or weekly rollup from public feeds
-- **Offer after value:** Card-required seven-day trial; then $5/month until canceled
+- **Offer after value:** Free weekly rollup with no card; daily delivery is a card-required seven-day trial, then $5/month until canceled
 - **Evidence tier:** Live bounded RSS/Atom filtering, double opt-in, hosted checkout, scheduled delivery, and self-service unsubscribe; pre-PMF demand hypothesis
 
 ## Wireframe
 
 1. Hero: name the filtered-firehose outcome and show the many-to-few transformation
 2. Example: show one ranked item with its relevance explanation and original source
-3. How it works: sources, relevance, cadence, free preview, email confirmation, checkout, then scheduled delivery
+3. How it works: sources, relevance, cadence, free preview, email confirmation, then scheduled delivery (weekly free; daily after checkout)
 4. Automatic-setup boundary: public feeds only; no Gmail or human concierge step
-5. Pricing: disclose the card-required seven-day trial and $5/month renewal
+5. Pricing: two cards — Free weekly rollup (no card) and Daily ($5/month after a card-required seven-day trial)
 6. FAQ: source support, newsletter limits, automation, and delivery status
 7. Final CTA: repeat the automatic filter action
 
@@ -43,20 +43,23 @@ Paperboy ranks each item against the user’s stated focus, links the original s
 1. Start with Hacker News or paste up to six public RSS/Atom feed URLs.
 2. Describe what should be relevant and what Paperboy should ignore.
 3. Paperboy validates the feeds, scans recent items, deduplicates them, and ranks the strongest matches automatically.
-4. Confirm the email and start the card-required trial through Stripe-hosted checkout.
-5. Paperboy delivers one ranked edition each day while billing is trialing or active.
+4. Confirm the email. A weekly rollup is free with no card; daily delivery needs the card-required trial through Stripe-hosted checkout.
+5. Paperboy delivers one ranked edition each week for free, or each day while billing is trialing or active. Starting the trial switches a weekly rollup to daily.
 
 ### Automatic Setup Boundary
 
 **Headline:** Paste feeds. Paperboy does the setup.
 
-The live setup works from public RSS and Atom feeds. It does not connect to Gmail or auto-subscribe the user to email-only newsletters. It saves a pending subscription and sends a confirmation link. Verified users start a card-required trial in Stripe-hosted checkout; delivery remains off until billing is trialing or active.
+The live setup works from public RSS and Atom feeds. It does not connect to Gmail or auto-subscribe the user to email-only newsletters. It saves a pending subscription and sends a confirmation link. Verified weekly subscribers get the free weekly rollup with no card. Daily subscribers start a card-required trial in Stripe-hosted checkout; daily delivery remains off until billing is trialing or active.
 
 ### Pricing
 
-**Headline:** Try your filtered firehose for seven days.
+**Headline:** Free every week. Daily for $5 a month.
 
-Preview your actual public feeds before checkout. Confirm your email, then start a card-required seven-day trial. Billing continues at $5/month until canceled.
+- **Free — weekly rollup, no card.** Confirm your email and get one ranked edition a week.
+- **Daily — $5/month after 7-day trial.** Card required for the trial; billing continues at $5/month until canceled.
+
+Preview your actual public feeds before choosing either.
 
 ### Final CTA
 
