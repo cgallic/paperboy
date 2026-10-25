@@ -20,7 +20,8 @@ function requireText(source, text, label) {
   ["Rollup frequency", "cadence control"],
   ["Daily", "daily cadence option"],
   ["Weekly", "weekly cadence option"],
-  ["Try your filtered firehose for seven days.", "trial offer"],
+  ["Free every week. Daily for $5 a month.", "free weekly and daily trial offer"],
+  ["No card required.", "free weekly plan disclosure"],
   ["$</span>5", "$5 monthly price"],
   ["Card required for the seven-day trial", "card-required trial disclosure"],
   ["Stripe-hosted checkout", "hosted checkout boundary"]
@@ -38,7 +39,7 @@ function requireText(source, text, label) {
 [
   ["https://newpaperboy.com/", "canonical product URL"],
   ["Build your firehose. Read only what matters.", "cold-traffic promise"],
-  ["Try your filtered firehose for seven days.", "card-required trial offer"],
+  ["Free every week. Daily for $5 a month.", "free weekly and card-required daily offer"],
   ["Build my rollup", "single subscription CTA"]
 ].forEach(([text, label]) => requireText(html, text, label));
 
@@ -97,7 +98,7 @@ const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
 const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
 if (duplicates.length) failures.push("Duplicate HTML ids: " + [...new Set(duplicates)].join(", "));
 
-if (/<script[^>]+src="https?:/i.test(html) || /<link(?=[^>]+rel="stylesheet")(?=[^>]+href="https?:)[^>]*>/i.test(html)) {
+if (/<script[^>]+src="https?:(?!\/\/www\.googletagmanager\.com)/i.test(html) || /<link(?=[^>]+rel="stylesheet")(?=[^>]+href="https?:)[^>]*>/i.test(html)) {
   failures.push("Remote script or stylesheet dependency found.");
 }
 

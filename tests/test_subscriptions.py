@@ -260,6 +260,8 @@ class SubscriptionEndpointTests(SubscriptionTestCase):
         self.assertEqual(confirmed.status_code, 200)
         confirmed_data = confirmed.json()
         self.assertEqual(confirmed_data["status"], "active")
+        self.assertEqual(confirmed_data["billing_status"], "unpaid")
+        self.assertTrue(confirmed_data["delivery_entitled"])
         status = self.client.get(confirmed_data["status_url"])
         self.assertEqual(status.status_code, 200)
         self.assertEqual(status.json()["email_masked"], "r***@example.com")
@@ -267,7 +269,9 @@ class SubscriptionEndpointTests(SubscriptionTestCase):
         self.assertEqual(status.json()["cadence"], "weekly")
         self.assertEqual(status.json()["weekly_day"], 4)
         self.assertEqual(status.json()["delivery"], "Weekly · Friday at 8:00 AM · UTC")
-        self.assertIsNone(status.json()["next_delivery_at"])
+        # Weekly is the free plan: verified and unpaid still has a next delivery.
+        self.assertTrue(status.json()["delivery_entitled"])
+        self.assertTrue(status.json()["next_delivery_at"].endswith("08:00:00Z"))
         self.assertFalse(status.json()["analytics_consent"])
         self.assertNotIn("email", status.json())
 

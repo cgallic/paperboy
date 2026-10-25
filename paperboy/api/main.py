@@ -59,6 +59,7 @@ from paperboy.subscriptions import (
     claim_billing_webhook,
     confirm_subscription,
     create_subscription,
+    delivery_entitled,
     delivery_schedule_label,
     finish_billing_webhook,
     get_subscription,
@@ -665,7 +666,8 @@ async def firehose_subscription_status(token: str) -> JSONResponse:
     subscription = await asyncio.to_thread(get_subscription, token)
     if subscription is None:
         raise HTTPException(status_code=404, detail="subscription not found")
-    entitled = billing_entitled(subscription)
+    paid = billing_entitled(subscription)
+    entitled = delivery_entitled(subscription)
     status = (
         "unsubscribed"
         if subscription["unsubscribed_at"] or subscription["suppressed"]
@@ -694,7 +696,8 @@ async def firehose_subscription_status(token: str) -> JSONResponse:
                 if status == "active" and entitled
                 else None
             ),
-            "checkout_available": settings.billing_enabled and status == "active" and not entitled,
+            "delivery_entitled": status == "active" and entitled,
+            "checkout_available": settings.billing_enabled and status == "active" and not paid,
             "portal_available": settings.billing_enabled and bool(subscription["billing_customer_id"]),
             "paid_at": subscription["paid_at"],
         }
@@ -732,6 +735,7 @@ async def confirm_firehose_subscription(token: str) -> JSONResponse:
             "manage_url": manage_url,
             "status_url": status_url,
             "unsubscribe_url": unsubscribe_url,
+            "delivery_entitled": delivery_entitled(subscription),
             "checkout_available": settings.billing_enabled,
             "portal_available": False,
             "timezone": subscription["timezone"],

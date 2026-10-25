@@ -9,15 +9,22 @@
   <link rel="canonical" href="https://newpaperboy.com/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Paperboy">
-  <meta property="og:title" content="Paperboy — Build your firehose. Read only what matters.">
-  <meta property="og:description" content="Add Hacker News, RSS, research, and public sources once. Paperboy filters them around your work and delivers a ranked, source-linked rollup daily or weekly.">
+  <meta property="og:title" content="Paperboy — Your Own Filtered Firehose">
+  <meta property="og:description" content="Build a daily or weekly rollup from Hacker News, RSS, research, and public sources. Paperboy filters the firehose around what matters to you and delivers the cut automatically.">
   <meta property="og:url" content="https://newpaperboy.com/">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Paperboy — Build your firehose. Read only what matters.">
   <meta name="twitter:description" content="Preview a ranked, source-linked brief from the public feeds you choose.">
   <title>Paperboy — Your Own Filtered Firehose</title>
+  <link rel="icon" href="/favicon.svg">
   <link rel="stylesheet" href="styles.css">
   <script src="app.js" defer></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MBMJNN0PPH"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-MBMJNN0PPH");</script>
+  <meta property="og:image" content="https://newpaperboy.com/og.svg">
+  <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM summary">
+  <link rel="alternate" type="text/markdown" href="/index.md" title="Markdown mirror">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","name":"Paperboy — Your Own Filtered Firehose","description":"Build a daily or weekly rollup from Hacker News, RSS, research, and public sources. Paperboy filters the firehose around what matters to you and delivers the cut automatically.","url":"https://newpaperboy.com/"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Do I need to connect Gmail?","acceptedAnswer":{"@type":"Answer","text":"No. Paste public RSS or Atom feed URLs. Paperboy reads only those URLs."}},{"@type":"Question","name":"Does Paperboy auto-subscribe me to newsletters?","acceptedAnswer":{"@type":"Answer","text":"No. Many newsletters require email confirmation or expose no public feed. Use a public newsletter archive/feed when available; email-only ingestion is not part of the live preview."}},{"@type":"Question","name":"Which sources work right now?","acceptedAnswer":{"@type":"Answer","text":"Public RSS and Atom feeds, including Hacker News and many blogs, release feeds, and research feeds."}},{"@type":"Question","name":"Is the first brief automated?","acceptedAnswer":{"@type":"Answer","text":"Yes. Paperboy validates the feeds, scans recent items, removes duplicates, and ranks them against your filter. Weekly delivery starts after email confirmation, free with no card. Daily delivery also needs the hosted trial checkout."}},{"@type":"Question","name":"Do I need to wait for someone to set it up?","acceptedAnswer":{"@type":"Answer","text":"No. Paperboy validates and saves the filter automatically, then asks you to confirm the email address. No operator needs to approve it."}}]}]}</script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -25,7 +32,7 @@
   <div class="local-banner" role="status" aria-live="polite">
     <span class="status-dot" aria-hidden="true"></span>
     <strong id="launch-status-title">Founding beta</strong>
-    <span id="launch-status-copy">Preview your filter and verify your email. Paid daily or weekly delivery starts only after hosted checkout confirms a trial.</span>
+    <span id="launch-status-copy">Preview your filter and verify your email. The weekly rollup is free with no card. Daily delivery starts after hosted checkout confirms a trial.</span>
   </div>
 
   <header class="site-header" id="site-header">
@@ -164,7 +171,7 @@
           <li>
             <span class="route-number route-number-final">✓</span>
             <h3>Get the cut on your schedule</h3>
-            <p>After you confirm the address and start the trial, your active filter refreshes the sources and sends the strongest matches daily or weekly.</p>
+            <p>After you confirm the address, your filter refreshes the sources and sends the strongest matches every week for free. Start the trial to get it daily.</p>
           </li>
         </ol>
       </section>
@@ -189,15 +196,31 @@
       <section class="section pricing-section" id="pricing">
         <div class="section-heading section-heading-narrow">
           <p class="eyebrow">Founding beta</p>
-          <h2>Try your filtered firehose for seven days.</h2>
-          <p>Preview the filter free. After email verification, start a card-required seven-day trial to activate daily or weekly delivery. Then pay $5 per month until canceled.</p>
+          <h2>Free every week. Daily for $5 a month.</h2>
+          <p>Preview the filter free. Confirm your email and the weekly rollup is free, with no card. For daily delivery, start a card-required seven-day trial, then pay $5 per month until canceled.</p>
         </div>
         <div class="pricing-grid">
+          <article class="price-card price-card-oss">
+            <div>
+              <p class="price-label">Free</p>
+              <h3>Weekly rollup</h3>
+              <p class="price price-free">Free <small>No card required.</small></p>
+              <p class="hypothesis">One edition a week after you confirm your email. No checkout.</p>
+              <ul>
+                <li>Your chosen public RSS and Atom feeds</li>
+                <li>A relevance filter built around your work</li>
+                <li>One ranked edition each week</li>
+                <li>Links to every original source</li>
+                <li>Upgrade to daily any time</li>
+              </ul>
+            </div>
+            <button class="button button-wide button-outline" type="button" data-start>Build my rollup</button>
+          </article>
           <article class="price-card price-card-primary">
             <div>
-              <p class="price-label">Seven-day trial</p>
-              <h3>Paperboy Filtered Firehose</h3>
-              <p class="price"><span>$</span>5 <small>/ month</small></p>
+              <p class="price-label">Daily · seven-day trial</p>
+              <h3>Daily rollup</h3>
+              <p class="price"><span>$</span>5 <small>/ month after 7-day trial</small></p>
               <p class="hypothesis">Card required for the seven-day trial. Billing starts after the trial unless you cancel.</p>
               <div class="validation-offer" id="checkout-availability-note" role="status" aria-live="polite">
                 <strong>Founding beta</strong>
@@ -206,7 +229,7 @@
               <ul>
                 <li>Your chosen public RSS and Atom feeds</li>
                 <li>A relevance filter built around your work</li>
-                <li>One ranked edition on your chosen schedule</li>
+                <li>One ranked edition every day</li>
                 <li>Links to every original source</li>
                 <li>Cancel recurring billing through Stripe</li>
               </ul>
@@ -237,12 +260,36 @@
           </details>
           <details>
             <summary>Is the first brief automated?</summary>
-            <p>Yes. Paperboy validates the feeds, scans recent items, removes duplicates, and ranks them against your filter. Delivery starts only after email confirmation and hosted trial checkout.</p>
+            <p>Yes. Paperboy validates the feeds, scans recent items, removes duplicates, and ranks them against your filter. Weekly delivery starts after email confirmation, free with no card. Daily delivery also needs the hosted trial checkout.</p>
           </details>
           <details>
             <summary>Do I need to wait for someone to set it up?</summary>
             <p>No. Paperboy validates and saves the filter automatically, then asks you to confirm the email address. No operator needs to approve it.</p>
           </details>
+        </div>
+      </section>
+
+      <section class="section guide-links-section" id="guides">
+        <div class="section-heading section-heading-narrow">
+          <p class="eyebrow">Filtering guides</p>
+          <h2>How to tame the developer firehose</h2>
+        </div>
+        <div class="guide-grid">
+          <article class="guide-card">
+            <h3><a href="/rss-to-email-digest/">RSS to Email Digest: Turn Raw Feeds into a Filtered Rollup</a></h3>
+            <p>Why raw feed alerts flood your inbox, how relevance scoring eliminates feed fatigue, and how to build a high-signal daily or weekly brief.</p>
+            <a class="quiet-link" href="/rss-to-email-digest/">Read guide <span aria-hidden="true">→</span></a>
+          </article>
+          <article class="guide-card">
+            <h3><a href="/hacker-news-digest/">Hacker News Digest: Filter HN for Signal Without Doomscrolling</a></h3>
+            <p>How to isolate critical releases, infrastructure post-mortems, and tooling updates from front-page drama and funding noise.</p>
+            <a class="quiet-link" href="/hacker-news-digest/">Read guide <span aria-hidden="true">→</span></a>
+          </article>
+          <article class="guide-card">
+            <h3><a href="/automated-research-feed/">How to Build an Automated Research &amp; Tech News Filter</a></h3>
+            <p>A practical architecture for monitoring arXiv preprints, GitHub releases, and engineering blogs tailored to your production stack.</p>
+            <a class="quiet-link" href="/automated-research-feed/">Read guide <span aria-hidden="true">→</span></a>
+          </article>
         </div>
       </section>
 
@@ -262,9 +309,9 @@
           <p>Choose Hacker News or paste public RSS and Atom feeds. Tell Paperboy what matters once; it validates the filter and emails you a secure activation link.</p>
           <div class="guardrail">
             <strong>No human setup</strong>
-            <span>Paperboy validates and saves your public feeds automatically. Confirm your email, then start the hosted trial checkout to turn on delivery. It does not connect to an inbox.</span>
+            <span>Paperboy validates and saves your public feeds automatically. Confirm your email to start the free weekly rollup; daily delivery also needs the hosted trial checkout. It does not connect to an inbox.</span>
           </div>
-          <form id="magic-link-form" novalidate>
+          <form data-primary-conversion="true" id="magic-link-form" novalidate>
             <div class="field">
               <label for="signin-email">Email address</label>
               <input id="signin-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby="email-help email-error">
@@ -298,7 +345,7 @@
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
               </select>
-              <span class="field-help" id="cadence-help">Delivered at 8:00 AM in your time zone.</span>
+              <span class="field-help" id="cadence-help">Delivered at 8:00 AM in your time zone. Weekly is free; daily is $5/month after a 7-day trial.</span>
             </div>
             <div class="field" id="weekly-day-field" hidden>
               <label for="intake-weekly-day">Weekly delivery day</label>
@@ -327,14 +374,14 @@
           <div class="confirmation-panel" id="confirmation-panel" hidden>
             <p class="eyebrow">Confirm your email</p>
             <h2>Verify your email to continue.</h2>
-            <p>This link verifies the address. Delivery starts only after Stripe confirms the trial is active.</p>
+            <p>This link verifies the address. A weekly rollup starts right away, free. Daily delivery starts after Stripe confirms the trial is active.</p>
             <span class="form-error" id="confirmation-error" role="alert"></span>
             <button class="button button-wide" id="confirm-subscription" type="button">Confirm my email</button>
           </div>
           <div class="magic-success" id="magic-success" hidden>
             <div class="success-mark" aria-hidden="true">✓</div>
             <h2 id="subscription-success-title">Check your email.</h2>
-            <p id="subscription-success-copy">Paperboy saved your filter and sent a confirmation link. Nothing will be delivered until you confirm the address and finish checkout.</p>
+            <p id="subscription-success-copy">Paperboy saved your filter and sent a confirmation link. Nothing will be delivered until you confirm the address.</p>
             <div class="subscription-ledger" aria-label="Subscription status">
               <div><span>Status</span><strong id="subscription-status">Awaiting confirmation</strong></div>
               <div><span>Delivery</span><strong id="subscription-delivery">Not started</strong></div>
@@ -570,9 +617,9 @@
           </div>
           <aside class="order-summary">
             <p class="price-label">Plan summary</p>
-            <h2>Paperboy Rollup</h2>
+            <h2>Paperboy Daily Rollup</h2>
             <p class="price"><span>$</span>5 <small>/ month</small></p>
-            <p class="hypothesis">The price is $5/month after a card-required seven-day trial. The live flow repeats these terms before checkout.</p>
+            <p class="hypothesis">Daily delivery is $5/month after a card-required seven-day trial. The weekly rollup is free with no card. The live flow repeats these terms before checkout.</p>
             <dl>
               <div><dt>Repositories</dt><dd id="checkout-repo-count">0 selected</dd></div>
               <div><dt>Delivery</dt><dd id="checkout-delivery">Not set</dd></div>
@@ -717,8 +764,11 @@
     </div>
     <p>Build a public-source firehose. Read only what survives your filter.</p>
     <div>
-      <span>Seven-day card-required trial · then $5/month until canceled</span>
+      <span>Weekly rollup free, no card · Daily: seven-day card-required trial, then $5/month until canceled</span>
       <nav class="footer-links" aria-label="Legal and privacy">
+        <a href="/rss-to-email-digest/">RSS Digest</a>
+        <a href="/hacker-news-digest/">HN Digest</a>
+        <a href="/automated-research-feed/">Research Feed</a>
         <a href="/privacy/">Privacy</a>
         <a href="/terms/">Terms</a>
         <a href="mailto:paperboy@kaibuilds.com">Contact</a>
@@ -748,5 +798,8 @@
   <noscript>
     <div class="noscript">Paperboy needs JavaScript to validate and save your filter, confirm your email, and open secure checkout. No Gmail or GitHub connection is made.</div>
   </noscript>
+<script id="agentic-attribution-contract">
+(function(){var keys=["ref","utm_source","utm_medium","utm_campaign","utm_term","utm_content","gclid","fbclid"],q=new URLSearchParams(location.search),v={};keys.forEach(function(k){var x=q.get(k);if(x)v[k]=x;});document.querySelectorAll("form").forEach(function(f){keys.forEach(function(k){if(!v[k])return;var i=f.querySelector('input[name="'+k+'"]');if(!i){i=document.createElement("input");i.type="hidden";i.name=k;f.appendChild(i);}i.value=v[k];});});document.querySelectorAll("a[href]").forEach(function(a){var h=a.getAttribute("href")||"";if(!h||h[0]==="#"||h.indexOf("mailto:")===0||h.indexOf("tel:")===0)return;try{var u=new URL(h,location.href);keys.forEach(function(k){if(v[k]&&!u.searchParams.has(k))u.searchParams.set(k,v[k]);});a.href=u.toString();}catch(e){}});})();
+</script>
 </body>
 </html>

@@ -17,9 +17,11 @@ from paperboy.firehose import build_firehose_preview, firehose_item_fingerprint
 from paperboy.logging_config import configure_logging, get_logger
 from paperboy.subscriptions import (
     active_subscriptions,
+    billing_entitled,
     bounce_address,
     create_tracking_token,
     delivery_date_if_due,
+    free_tier,
     management_token,
     management_urls,
 )
@@ -224,6 +226,14 @@ def _render_digest(
             f'<img src="{html.escape(open_url, quote=True)}" width="1" height="1" alt="" style="display:none">'
         )
 
+    upgrade = ""
+    if settings.billing_enabled and free_tier(subscription) and not billing_entitled(subscription):
+        upgrade = (
+            "Free plan: one weekly rollup. Want it daily? Daily delivery is "
+            f"${settings.stripe_monthly_price_cents / 100:g}/month after a "
+            f"{settings.stripe_trial_days}-day trial."
+        )
+
     lines = [subject, "", f"Your focus: {subscription['focus']}", ""]
     if tracked_items:
         for index, (item, click_url) in enumerate(tracked_items, start=1):
@@ -237,6 +247,8 @@ def _render_digest(
             )
     else:
         lines.extend(["No items cleared your filter today.", ""])
+    if upgrade:
+        lines.extend([f"{upgrade} Upgrade: {manage_url}", ""])
     lines.extend([f"Manage: {manage_url}", f"Unsubscribe: {unsubscribe_url}"])
 
     cards = []
@@ -248,11 +260,17 @@ def _render_digest(
             "</li>"
         )
     item_markup = "".join(cards) if cards else "<p>No items cleared your filter today.</p>"
+    upgrade_markup = (
+        f'<p>{html.escape(upgrade)} <a href="{html.escape(manage_url, quote=True)}">Upgrade to daily</a></p>'
+        if upgrade
+        else ""
+    )
     body_html = (
         '<!doctype html><html><body style="font-family:Arial,sans-serif;max-width:680px;margin:32px auto;line-height:1.5">'
         f'<h1 style="font-size:24px">{html.escape(subject)}</h1>'
         f"<p><strong>Your focus:</strong> {html.escape(str(subscription['focus']))}</p>"
         f"<ol>{item_markup}</ol>"
+        f"{upgrade_markup}"
         f'<p><a href="{html.escape(manage_url, quote=True)}">Manage your firehose</a> &middot; '
         f'<a href="{html.escape(unsubscribe_url, quote=True)}">Unsubscribe</a></p>'
         f"{open_markup}"

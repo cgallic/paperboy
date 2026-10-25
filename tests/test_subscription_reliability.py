@@ -8,6 +8,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+from paperboy.config import settings
 from paperboy.confirmation_delivery import run_pending_confirmations
 from paperboy.db import connect, init_schema
 from paperboy.email.sender import send_raw
@@ -19,6 +20,7 @@ from paperboy.subscriptions import (
     SubscriptionValidationError,
     active_subscriptions,
     allow_subscription_attempt,
+    billing_entitled,
     bounce_address,
     claim_billing_webhook,
     confirm_subscription,
@@ -26,6 +28,7 @@ from paperboy.subscriptions import (
     create_subscription,
     create_tracking_token,
     delivery_date_if_due,
+    delivery_entitled,
     finish_billing_webhook,
     get_subscription,
     next_delivery_at,
@@ -35,6 +38,7 @@ from paperboy.subscriptions import (
     set_billing_state,
     suppress_email,
     suppress_from_bounce_address,
+    unsubscribe,
     unsuppress_email,
     validate_subscription_payload,
 )
@@ -265,6 +269,50 @@ class VerificationTests(ReliabilityTestCase):
         )
         self.assertEqual(active_subscriptions(), [])
 
+    def test_verified_weekly_subscription_is_entitled_without_billing(self) -> None:
+        pending, _token = self.create(cadence="weekly", weekly_day=2)
+        self.assertEqual(active_subscriptions(), [])
+        confirmed = confirm_subscription(confirmation_token(pending))
+        assert confirmed is not None
+        self.assertEqual(confirmed["billing_status"], "unpaid")
+        self.assertFalse(billing_entitled(confirmed))
+        self.assertTrue(delivery_entitled(confirmed))
+        self.assertEqual([row["id"] for row in active_subscriptions()], [confirmed["id"]])
+
+    def test_verified_daily_subscription_still_requires_billing(self) -> None:
+        pending, _token = self.create(cadence="daily")
+        confirmed = confirm_subscription(confirmation_token(pending))
+        assert confirmed is not None
+        self.assertFalse(delivery_entitled(confirmed))
+        self.assertEqual(active_subscriptions(), [])
+        for status in ("past_due", "canceled"):
+            set_billing_state(int(confirmed["id"]), status)
+            self.assertEqual(active_subscriptions(), [])
+
+    def test_free_weekly_still_requires_verification_and_no_suppression(self) -> None:
+        pending, token = self.create(cadence="weekly")
+        self.assertTrue(delivery_entitled(pending))
+        self.assertEqual(active_subscriptions(), [])
+        confirmed = confirm_subscription(confirmation_token(pending))
+        assert confirmed is not None
+        self.assertEqual(len(active_subscriptions()), 1)
+
+        suppress_email(str(confirmed["email"]), "hard_bounce", "550 rejected")
+        self.assertEqual(active_subscriptions(), [])
+        self.assertTrue(unsuppress_email("reader@example.com"))
+        self.assertTrue(get_subscription(token)["active"])
+        self.assertEqual(len(active_subscriptions()), 1)
+
+        self.assertTrue(suppress_from_bounce_address(bounce_address(confirmed)))
+        self.assertEqual(active_subscriptions(), [])
+
+    def test_unsubscribed_free_weekly_is_not_delivered(self) -> None:
+        pending, token = self.create(cadence="weekly")
+        assert confirm_subscription(confirmation_token(pending)) is not None
+        self.assertEqual(len(active_subscriptions()), 1)
+        self.assertIsNotNone(unsubscribe(token))
+        self.assertEqual(active_subscriptions(), [])
+
     def test_expired_confirmation_cannot_activate(self) -> None:
         subscription, _token = self.create()
         expiry = datetime.fromisoformat(str(subscription["verification_expires_at"]).replace("Z", "+00:00"))
@@ -410,6 +458,39 @@ class TimezoneAndDeliveryTests(ReliabilityTestCase):
         self.assertEqual(monday["sent"], 1)
         self.assertEqual(len(sent), 1)
         self.assertIn("Paperboy weekly rollup", sent[0][0][0])
+
+    def test_free_weekly_digest_links_daily_upgrade_only_when_checkout_is_enabled(self) -> None:
+        pending, _token = self.create(cadence="weekly", weekly_day=0)
+        confirmed = confirm_subscription(confirmation_token(pending))
+        assert confirmed is not None
+        sent: list[tuple[tuple, dict]] = []
+
+        def sender(*args, **kwargs) -> dict:
+            sent.append((args, kwargs))
+            return {"ok": True, "detail": "sent", "message_id": None}
+
+        monday = datetime(2026, 7, 20, 8, 1, tzinfo=timezone.utc)
+        with patch.multiple(
+            settings,
+            stripe_secret_key="sk_test_example",
+            stripe_webhook_secret="whsec_example",
+            stripe_price_id="price_example",
+        ):
+            summary = run_daily_deliveries(now=monday, preview_builder=lambda *_: _preview(), sender=sender)
+        self.assertEqual(summary["sent"], 1)
+        subject, text, body_html = sent[0][0][:3]
+        self.assertIn("Paperboy weekly rollup", subject)
+        self.assertIn("Daily delivery is $5/month after a 7-day trial.", text)
+        self.assertIn("Upgrade: http", text)
+        self.assertIn("/?manage=", text.split("Upgrade: ", 1)[1].splitlines()[0])
+        self.assertIn("Upgrade to daily</a>", body_html)
+
+        with patch.multiple(settings, stripe_secret_key=None):
+            run_daily_deliveries(
+                now=monday + timedelta(days=7), preview_builder=lambda *_: _preview(), sender=sender
+            )
+        self.assertEqual(len(sent), 2)
+        self.assertNotIn("Upgrade", sent[1][0][1])
 
     def test_delivery_retries_three_times_then_never_duplicates_success(self) -> None:
         self.confirm_and_entitle()

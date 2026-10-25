@@ -228,15 +228,15 @@
       if (!response.ok || !result || !result.billing || typeof result.billing.enabled !== "boolean") return;
       document.body.setAttribute("data-billing-available", result.billing.enabled ? "true" : "false");
       if (result.billing.enabled) {
-        title.textContent = "Automatic daily or weekly delivery";
-        copy.textContent = "Add your feeds once. Confirm your email and start the hosted trial, then Paperboy delivers on your chosen schedule.";
+        title.textContent = "Free weekly rollup, or daily with a trial";
+        copy.textContent = "Add your feeds once and confirm your email. Weekly delivery is free with no card. Daily delivery starts after the hosted seven-day trial.";
         note.querySelector("strong").textContent = "Hosted checkout available";
-        note.querySelector("span").textContent = "Email verification comes first. Stripe confirms the trial before scheduled delivery becomes active.";
+        note.querySelector("span").textContent = "Email verification comes first. Stripe confirms the trial before daily delivery becomes active.";
       } else {
-        title.textContent = "Preview and email verification are live";
-        copy.textContent = "Checkout is temporarily unavailable, so paid delivery cannot activate yet. No card will be requested or charged.";
+        title.textContent = "Free weekly rollup is live";
+        copy.textContent = "Confirm your email and the weekly rollup starts, free with no card. Daily delivery needs checkout, which is temporarily unavailable.";
         note.querySelector("strong").textContent = "Checkout temporarily unavailable";
-        note.querySelector("span").textContent = "You can preview the filter and verify your email, but delivery will not start until hosted checkout is enabled.";
+        note.querySelector("span").textContent = "Daily delivery will not start until hosted checkout is enabled. No card will be requested or charged.";
       }
     } catch (error) {
       // Availability copy stays conservative when runtime configuration cannot be read.
@@ -469,10 +469,12 @@
     var delivery = details.delivery || details.schedule || (cadenceLabel === "weekly" ? "Weekly · automatic" : "Daily · automatic");
     var isVerified = status === "active" || status === "confirmed";
     var isUnsubscribed = status === "unsubscribed";
-    var isDelivering = isVerified && (billingStatus === "trialing" || billingStatus === "active");
+    var isPaid = billingStatus === "trialing" || billingStatus === "active";
+    var isFreeWeekly = activeCadence === "weekly" && !isPaid;
+    var isDelivering = isVerified && (isPaid || isFreeWeekly);
     var billingContinuesAfterUnsubscribe = isUnsubscribed && ["trialing", "active", "past_due"].indexOf(billingStatus) >= 0;
     var checkoutRequired = isVerified && !isUnsubscribed && !isDelivering;
-    var canCheckout = checkoutRequired && (billingStatus === "unpaid" || billingStatus === "canceled");
+    var canCheckout = (checkoutRequired || (isVerified && !isUnsubscribed && isFreeWeekly)) && (billingStatus === "unpaid" || billingStatus === "canceled");
     var paymentLabels = {
       unpaid: "Checkout required",
       trialing: "7-day trial",
@@ -488,9 +490,11 @@
           : checkoutRequired ? "Checkout required" : "Not started";
     document.getElementById("subscription-status").textContent = statusLabel;
     document.getElementById("subscription-delivery").textContent = deliveryLabel;
-    document.getElementById("subscription-payment").textContent = isVerified || billingContinuesAfterUnsubscribe
-      ? (paymentLabels[billingStatus] || "Checkout required")
-      : "Not started";
+    document.getElementById("subscription-payment").textContent = isVerified && isFreeWeekly && !billingContinuesAfterUnsubscribe
+      ? "Free weekly plan"
+      : isVerified || billingContinuesAfterUnsubscribe
+        ? (paymentLabels[billingStatus] || "Checkout required")
+        : "Not started";
     if (result.manage_url || result.status_url || result.unsubscribe_url) renderSubscriptionActions(result);
 
     var summary = document.getElementById("management-summary");
@@ -538,27 +542,30 @@
 
     document.getElementById("subscription-success-title").textContent = isUnsubscribed
       ? "This " + cadenceLabel + " rollup is unsubscribed."
+      : isFreeWeekly && isVerified ? "Your free weekly rollup is active."
       : billingStatus === "past_due" ? "Payment needs attention."
         : billingStatus === "canceled" ? "Your paid delivery is canceled."
       : isDelivering ? "Your " + cadenceLabel + " rollup is active."
-        : isVerified ? "Email verified. Finish checkout to start delivery."
+        : isVerified ? "Email verified. Finish checkout to start daily delivery."
           : "Check your email.";
     document.getElementById("subscription-success-copy").textContent = isUnsubscribed
       ? billingContinuesAfterUnsubscribe
         ? "Automatic delivery is off, but Stripe billing is still active. Use Manage billing to cancel future charges."
         : "Automatic delivery is off. Contact support if you want to restart this saved filter."
+      : isFreeWeekly && isVerified ? "Paperboy will refresh the sources and send the strongest matches once a week, free and with no card. Want it every day? Daily delivery is $5 per month after a seven-day trial, and starting the trial switches this rollup to daily."
       : billingStatus === "past_due" ? "Delivery is paused until payment is updated. No new charge was attempted from this page."
         : billingStatus === "canceled" ? "Delivery is off. Your filter remains saved, and you can start a new hosted checkout when ready."
       : isDelivering ? "Paperboy will refresh the sources and deliver the strongest matches automatically."
-        : isVerified ? "Your filter is saved. Start the hosted seven-day trial checkout; then it is $5 per month until canceled."
+        : isVerified ? "Your filter is saved. Daily delivery starts with the hosted seven-day trial checkout; then it is $5 per month until canceled. Weekly delivery is free with no card."
           : "Paperboy saved the filter and sent a confirmation link. Nothing will be delivered until you confirm the address.";
     document.getElementById("unsubscribe-subscription").hidden = isUnsubscribed || !activeUnsubscribeUrl;
     document.getElementById("start-checkout").hidden = !canCheckout || !activeManagementToken || result.checkout_available === false;
+    document.getElementById("start-checkout").textContent = isFreeWeekly ? "Upgrade to daily · 7-day trial" : "Continue to secure checkout";
     document.getElementById("manage-billing").hidden = !activeManagementToken || result.portal_available !== true;
     document.getElementById("change-email").hidden = isVerified || isUnsubscribed;
     if (result.checkout_available === false && checkoutRequired) {
       var fallback = document.getElementById("billing-fallback");
-      fallback.textContent = "Checkout is temporarily unavailable. Your email is verified, no card was charged, and delivery has not started.";
+      fallback.textContent = "Checkout is temporarily unavailable, so daily delivery has not started. Your email is verified and no card was charged. Weekly delivery is free with no card.";
       fallback.hidden = false;
     }
     if (isVerified) {
@@ -1067,8 +1074,22 @@
       cadence: cadence,
       weekly_day: weeklyDay
     });
+    if (typeof window.gtag === "function") {
+      window.gtag("event", "signup_complete", {
+        product: "paperboy",
+        cadence: cadence,
+        weekly_day: weeklyDay,
+        source_count: sourceUrls.length
+      });
+      window.gtag("event", "sign_up", {
+        method: "digest_form",
+        product: "paperboy"
+      });
+    }
     document.getElementById("subscription-success-title").textContent = "Check your email.";
-    document.getElementById("subscription-success-copy").textContent = "Paperboy saved your filter and sent a confirmation link. Nothing will be delivered until you confirm the address and finish checkout.";
+    document.getElementById("subscription-success-copy").textContent = cadence === "weekly"
+      ? "Paperboy saved your filter and sent a confirmation link. Your free weekly rollup starts once you confirm the address."
+      : "Paperboy saved your filter and sent a confirmation link. Daily delivery starts after you confirm the address and finish checkout.";
     document.getElementById("subscription-status").textContent = "Awaiting confirmation";
     document.getElementById("subscription-delivery").textContent = "Not started";
     document.getElementById("subscription-payment").textContent = "Not started";
@@ -1148,7 +1169,7 @@
       sessionStorage.setItem(CHECKOUT_MANAGEMENT_KEY, activeManagementToken);
       window.location.assign(target);
     } catch (error) {
-      fallback.textContent = "Checkout is temporarily unavailable. Your email is verified, no card was charged, and delivery has not started.";
+      fallback.textContent = "Checkout is temporarily unavailable. No card was charged, and your plan has not changed.";
       fallback.hidden = false;
       button.disabled = false;
       button.textContent = "Try secure checkout again";
@@ -1268,6 +1289,10 @@
         throw new Error(subscriptionErrorMessage(response, result));
       }
       confirmationToken = "";
+      if (typeof window.gtag === "function") {
+        window.gtag("event", "signup_complete", { product: "paperboy", status: "confirmed" });
+        window.gtag("event", "sign_up", { method: "email_confirmed", product: "paperboy" });
+      }
       history.replaceState(null, "", window.location.pathname + "#signin");
       document.getElementById("confirmation-panel").hidden = true;
       document.getElementById("magic-success").hidden = false;
@@ -1276,7 +1301,9 @@
       document.getElementById("billing-fallback").hidden = true;
       if (result.checkout_available === false) {
         document.getElementById("start-checkout").hidden = true;
-        document.getElementById("billing-fallback").textContent = "Checkout is temporarily unavailable. Your email is verified, no card was charged, and delivery has not started.";
+        document.getElementById("billing-fallback").textContent = result.delivery_entitled === true
+          ? "Your free weekly rollup is active. Daily delivery is not available yet because checkout is temporarily unavailable."
+          : "Checkout is temporarily unavailable, so daily delivery has not started. Your email is verified and no card was charged. Weekly delivery is free with no card.";
         document.getElementById("billing-fallback").hidden = false;
       }
     } catch (error) {

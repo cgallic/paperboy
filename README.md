@@ -3,6 +3,8 @@
 > Old paperboys delivered one newspaper to one house. This one reads ten
 > thousand things and delivers the twelve that matter to you.
 
+> 📬 **Hosted Service**: Looking for a daily or weekly filtered digest delivered directly to your email without running local bots or LLMs? **[Sign up for Paperboy at newpaperboy.com →](https://newpaperboy.com/?utm_source=github&utm_medium=readme&utm_campaign=oss_repo)**
+
 A daily Discord digest of news + research papers, scored by your local LLM
 against your own interests. The self-hosted edition needs no Paperboy cloud
 account or hosted subscription.
@@ -42,7 +44,7 @@ news/research/data, and optional selected GitHub repositories. Repo Radar is a
 section of that edition, not a separate product. Suggested actions remain inert
 text for human review.
 
-The public founding beta is at **[newpaperboy.com](https://newpaperboy.com/)**. The original
+The public founding beta is at **[newpaperboy.com](https://newpaperboy.com/?utm_source=github&utm_medium=readme&utm_campaign=oss_repo)**. The original
 `paperboy.kaibuilds.com` host remains available for existing links and callbacks.
 Its live automatic intake is currently narrower than that product direction:
 it previews and saves user-selected public RSS/Atom feeds, verifies the delivery
@@ -213,6 +215,21 @@ See [docs/ROADMAP.md](docs/ROADMAP.md). The full planned stack:
 6. **cgallic/casa-a2a** — JSON-RPC 2.0 broker + skill-sidecar pattern for
    cross-host agent coordination (planned)
 
+## Hosted Edition
+
+If you prefer a zero-maintenance morning digest delivered to your email rather than self-hosting the bot:
+
+- **Filter the noise**: Choose from Hacker News, arXiv AI, GitHub releases, or your own RSS feeds.
+- **Custom relevance**: Define exactly what matches your stack and what topics to ignore.
+- **Inbox delivery**: Receive clean daily or weekly email briefs with direct source links and relevance scores.
+
+👉 **[Create your personal rollup at newpaperboy.com](https://newpaperboy.com/?utm_source=github&utm_medium=readme&utm_campaign=oss_repo)**
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+
+---
+
+*Built and maintained by [Connor Gallic](https://pr.linkedin.com/in/cgallic) — connect on LinkedIn.*

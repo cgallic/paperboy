@@ -1,0 +1,158 @@
+{
+  "mcp_version": "2025-06-18",
+  "capabilities": {
+    "resources": {}
+  },
+  "resources": [
+    {
+      "uri": "https://paperboy.kaibuilds.com/index.md",
+      "name": "site-index",
+      "title": "Site Markdown Summary",
+      "description": "Compact Markdown summary of the page.",
+      "mimeType": "text/markdown",
+      "size": 2362,
+      "annotations": {
+        "audience": [
+          "assistant"
+        ],
+        "priority": 1.0,
+        "lastModified": "2026-07-16T14:58:38Z"
+      }
+    },
+    {
+      "uri": "https://paperboy.kaibuilds.com/llms.txt",
+      "name": "llms",
+      "title": "LLM Summary",
+      "description": "Compact public summary for language-model crawlers.",
+      "mimeType": "text/markdown",
+      "size": 1494,
+      "annotations": {
+        "audience": [
+          "assistant"
+        ],
+        "priority": 1.0,
+        "lastModified": "2026-07-16T14:58:38Z"
+      }
+    },
+    {
+      "uri": "https://paperboy.kaibuilds.com/okf/index.md",
+      "name": "okf-index",
+      "title": "OKF Bundle Index",
+      "description": "Google OKF-style knowledge bundle index.",
+      "mimeType": "text/markdown",
+      "size": 702,
+      "annotations": {
+        "audience": [
+          "assistant"
+        ],
+        "priority": 1.0,
+        "lastModified": "2026-07-16T14:58:38Z"
+      }
+    },
+    {
+      "uri": "https://paperboy.kaibuilds.com/okf/concepts/site.md",
+      "name": "okf-site",
+      "title": "OKF Site",
+      "description": "OKF concept file for site.",
+      "mimeType": "text/markdown",
+      "size": 720,
+      "annotations": {
+        "audience": [
+          "assistant"
+        ],
+        "priority": 1.0,
+        "lastModified": "2026-07-16T14:58:38Z"
+      }
+    },
+    {
+      "uri": "https://paperboy.kaibuilds.com/okf/concepts/offer.md",
+      "name": "okf-offer",
+      "title": "OKF Offer",
+      "description": "OKF concept file for offer.",
+      "mimeType": "text/markdown",
+      "size": 685,
+      "annotations": {
+        "audience": [
+          "assistant"
+        ],
+        "priority": 1.0,
+        "lastModified": "2026-07-16T14:58:38Z"
+      }
+    },
+    {
+      "uri": "https://paperboy.kaibuilds.com/okf/concepts/pricing.md",
+      "name": "okf-pricing",
+      "title": "OKF Pricing",
+      "description": "OKF concept file for pricing.",
+      "mimeType": "text/markdown",
+      "size": 390,
+      "annotations": {
+        "audience": [
+          "assistant"
+        ],
+        "priority": 1.0,
+        "lastModified": "2026-07-16T14:58:38Z"
+      }
+    },
+    {
+      "uri": "https://paperboy.kaibuilds.com/okf/concepts/proof.md",
+      "name": "okf-proof",
+      "title": "OKF Proof",
+      "description": "OKF concept file for proof.",
+      "mimeType": "text/markdown",
+      "size": 393,
+      "annotations": {
+        "audience": [
+          "assistant"
+        ],
+        "priority": 1.0,
+        "lastModified": "2026-07-16T14:58:38Z"
+      }
+    },
+    {
+      "uri": "https://paperboy.kaibuilds.com/okf/concepts/faq.md",
+      "name": "okf-faq",
+      "title": "OKF Faq",
+      "description": "OKF concept file for faq.",
+      "mimeType": "text/markdown",
+      "size": 1398,
+      "annotations": {
+        "audience": [
+          "assistant"
+        ],
+        "priority": 1.0,
+        "lastModified": "2026-07-16T14:58:38Z"
+      }
+    },
+    {
+      "uri": "https://paperboy.kaibuilds.com/okf/concepts/sources.md",
+      "name": "okf-sources",
+      "title": "OKF Sources",
+      "description": "OKF concept file for sources.",
+      "mimeType": "text/markdown",
+      "size": 351,
+      "annotations": {
+        "audience": [
+          "assistant"
+        ],
+        "priority": 1.0,
+        "lastModified": "2026-07-16T14:58:38Z"
+      }
+    },
+    {
+      "uri": "https://paperboy.kaibuilds.com/okf/concepts/readiness.md",
+      "name": "okf-readiness",
+      "title": "OKF Readiness",
+      "description": "OKF concept file for readiness.",
+      "mimeType": "text/markdown",
+      "size": 547,
+      "annotations": {
+        "audience": [
+          "assistant"
+        ],
+        "priority": 1.0,
+        "lastModified": "2026-07-16T14:58:38Z"
+      }
+    }
+  ]
+}
